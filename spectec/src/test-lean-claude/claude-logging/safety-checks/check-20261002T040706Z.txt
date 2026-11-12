@@ -1,0 +1,324 @@
+=== Safety check at 20261002T040706Z ===
+--- git status (porcelain) ---
+ M spectec/src/test-lean-claude/.lake/build/ir/ExtensionLemmas.c
+ M spectec/src/test-lean-claude/.lake/build/ir/ExtensionLemmas.c.hash
+ M spectec/src/test-lean-claude/.lake/build/ir/HelperLemmas.c
+ M spectec/src/test-lean-claude/.lake/build/ir/HelperLemmas.c.hash
+ M spectec/src/test-lean-claude/.lake/build/ir/TypePreservation.c
+ M spectec/src/test-lean-claude/.lake/build/ir/TypePreservation.c.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.trace
+ M spectec/src/test-lean-claude/ExtensionLemmas.lean
+ M spectec/src/test-lean-claude/HelperLemmas.lean
+ M spectec/src/test-lean-claude/TypePreservation.lean
+ M spectec/src/test-lean-claude/TypePreservationPure.lean
+ M spectec/src/test-lean-claude/TypingLemmas.lean
+ M spectec/src/test-lean-claude/claude-logging/for-claude/NOTES.md
+ M spectec/test-lean/todaywasm2.0.lean
+ D spectec/test-lean/todaywasm3.0.lean
+?? Irreducible.lean
+?? Irreducible2.lean
+?? PrintFalse.lean
+?? specification/bleh/
+?? spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+?? spectec/FETCH_HEAD
+?? spectec/check_wasm2.0.lean
+?? spectec/check_wasm2.0.v
+?? spectec/check_wasm2.0_OLD.lean
+?? spectec/diegochanges.diff
+?? spectec/diegowasm2.0.lean
+?? "spectec/diegowasm3.0 copy.lean"
+?? spectec/diegowasm3.0.lean
+?? spectec/oldwasm2.0.lean
+?? spectec/src/temp_zy_dev/scraps.md
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20260930T150558Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T072612Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T073230Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T073700Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T075040Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T080433Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261001T080615Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T024258Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T030637Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T031156Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T031427Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T032205Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T032454Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T033510Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T034458Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T034959Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T035432Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T035906Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T040245Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T040642Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T040706Z.txt
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle14/
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle15/
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle16/
+?? spectec/temp-wasm-3/email_stuff.md
+?? spectec/test-lean/temp_zy_learning/sandbox9.wasm
+?? spectec/test-lean/temp_zy_learning/sandbox9.wat
+?? spectec/test-rocq/_opam/
+?? spectec/test-rocq/echo
+?? spectec/test-rocq/rocq-temp.export
+?? spectec/test-rocq/test-rocq.opam
+?? spectec/test-rocq/upd_label_unchanged_typing_verified_walkthrough.md
+?? spectec/wasm1.0_00-elab.il
+?? spectec/wasm1.0_01-ite.il
+?? spectec/wasm1.0_02-let-intro-mech.il
+?? spectec/wasm1.0_03-typefamily-removal.il
+?? spectec/wasm1.0_04-remove-indexed-types.il
+?? spectec/wasm1.0_05-totalize.il
+?? spectec/wasm1.0_06-else.il
+?? spectec/wasm1.0_07-else-simplification.il
+?? spectec/wasm1.0_08-uncase-removal.il
+?? spectec/wasm1.0_09-sub-expansion.il
+?? spectec/wasm1.0_10-pattern-simp.il
+?? spectec/wasm1.0_11-sub.il
+?? spectec/wasm1.0_12-definition-to-relation.il
+?? spectec/wasm1.0_13-sideconditions.il
+?? spectec/wasm1.0_14-alias-demut.il
+?? spectec/wasm1.0_15-improve-ids.il
+?? spectec/wasm1.0_16-single-pattern-match.il
+?? spectec/wasm1.0_ast_00-elab.il
+?? spectec/wasm1.0_ast_01-ite.il
+?? spectec/wasm1.0_ast_02-let-intro-mech.il
+?? spectec/wasm1.0_ast_03-typefamily-removal.il
+?? spectec/wasm1.0_ast_04-remove-indexed-types.il
+?? spectec/wasm1.0_ast_05-totalize.il
+?? spectec/wasm1.0_ast_06-else.il
+?? spectec/wasm1.0_ast_07-else-simplification.il
+?? spectec/wasm1.0_ast_08-uncase-removal.il
+?? spectec/wasm1.0_ast_09-sub-expansion.il
+?? spectec/wasm1.0_ast_10-pattern-simp.il
+?? spectec/wasm1.0_ast_11-sub.il
+?? spectec/wasm1.0_ast_12-definition-to-relation.il
+?? spectec/wasm1.0_ast_13-sideconditions.il
+?? spectec/wasm1.0_ast_14-alias-demut.il
+?? spectec/wasm1.0_ast_15-improve-ids.il
+?? spectec/wasm1.0_ast_16-single-pattern-match.il
+?? spectec/wasm2.0_00-elab.il
+?? spectec/wasm2.0_01-ite.il
+?? spectec/wasm2.0_02-let-intro-mech.il
+?? spectec/wasm2.0_03-typefamily-removal.il
+?? spectec/wasm2.0_04-remove-indexed-types.il
+?? spectec/wasm2.0_05-totalize.il
+?? spectec/wasm2.0_06-else.il
+?? spectec/wasm2.0_07-else-simplification.il
+?? spectec/wasm2.0_08-uncase-removal.il
+?? spectec/wasm2.0_09-sub-expansion.il
+?? spectec/wasm2.0_10-pattern-simp.il
+?? spectec/wasm2.0_11-sub.il
+?? spectec/wasm2.0_12-definition-to-relation.il
+?? spectec/wasm2.0_13-sideconditions.il
+?? spectec/wasm2.0_14-alias-demut.il
+?? spectec/wasm2.0_15-improve-ids.il
+?? spectec/wasm2.0_16-single-pattern-match.il
+?? spectec/wasm2.0_ast_00-elab.il
+?? spectec/wasm2.0_ast_01-ite.il
+?? spectec/wasm2.0_ast_02-let-intro-mech.il
+?? spectec/wasm2.0_ast_03-typefamily-removal.il
+?? spectec/wasm2.0_ast_04-remove-indexed-types.il
+?? spectec/wasm2.0_ast_05-totalize.il
+?? spectec/wasm2.0_ast_06-else.il
+?? spectec/wasm2.0_ast_07-else-simplification.il
+?? spectec/wasm2.0_ast_08-uncase-removal.il
+?? spectec/wasm2.0_ast_09-sub-expansion.il
+?? spectec/wasm2.0_ast_10-pattern-simp.il
+?? spectec/wasm2.0_ast_11-sub.il
+?? spectec/wasm2.0_ast_12-definition-to-relation.il
+?? spectec/wasm2.0_ast_13-sideconditions.il
+?? spectec/wasm2.0_ast_14-alias-demut.il
+?? spectec/wasm2.0_ast_15-improve-ids.il
+?? spectec/wasm2.0_ast_16-single-pattern-match.il
+?? spectec/wasm3.0.v
+?? spectec/wasm3.0_00-elab.il
+?? spectec/wasm3.0_01-ite.il
+?? spectec/wasm3.0_02-let-intro-mech.il
+?? spectec/wasm3.0_03-typefamily-removal.il
+?? spectec/wasm3.0_04-remove-indexed-types.il
+?? spectec/wasm3.0_05-totalize.il
+?? spectec/wasm3.0_06-else.il
+?? spectec/wasm3.0_07-else-simplification.il
+?? spectec/wasm3.0_08-uncase-removal.il
+?? spectec/wasm3.0_09-sub-expansion.il
+?? spectec/wasm3.0_10-pattern-simp.il
+?? spectec/wasm3.0_11-sub.il
+?? spectec/wasm3.0_12-definition-to-relation.il
+?? spectec/wasm3.0_13-sideconditions.il
+?? spectec/wasm3.0_14-alias-demut.il
+?? spectec/wasm3.0_15-improve-ids.il
+?? spectec/wasm3.0_16-single-pattern-match.il
+?? spectec/wasm3.0_ast_00-elab.il
+?? spectec/wasm3.0_ast_01-ite.il
+?? spectec/wasm3.0_ast_02-let-intro-mech.il
+?? spectec/wasm3.0_ast_03-typefamily-removal.il
+?? spectec/wasm3.0_ast_04-remove-indexed-types.il
+?? spectec/wasm3.0_ast_05-totalize.il
+?? spectec/wasm3.0_ast_06-else.il
+?? spectec/wasm3.0_ast_07-else-simplification.il
+?? spectec/wasm3.0_ast_08-uncase-removal.il
+?? spectec/wasm3.0_ast_09-sub-expansion.il
+?? spectec/wasm3.0_ast_10-pattern-simp.il
+?? spectec/wasm3.0_ast_11-sub.il
+?? spectec/wasm3.0_ast_12-definition-to-relation.il
+?? spectec/wasm3.0_ast_13-sideconditions.il
+?? spectec/wasm3.0_ast_14-alias-demut.il
+?? spectec/wasm3.0_ast_15-improve-ids.il
+?? spectec/wasm3.0_ast_16-single-pattern-match.il
+?? spectec/zy_sandbox.v
+
+--- Any changes outside spectec/src/test-lean-claude/ ? ---
+spectec/test-lean/todaywasm2.0.lean
+spectec/test-lean/todaywasm3.0.lean
+Irreducible.lean
+Irreducible2.lean
+PrintFalse.lean
+specification/bleh/
+spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+spectec/FETCH_HEAD
+spectec/check_wasm2.0.lean
+spectec/check_wasm2.0.v
+spectec/check_wasm2.0_OLD.lean
+spectec/diegochanges.diff
+spectec/diegowasm2.0.lean
+"spectec/diegowasm3.0
+spectec/diegowasm3.0.lean
+spectec/oldwasm2.0.lean
+spectec/src/temp_zy_dev/scraps.md
+spectec/temp-wasm-3/email_stuff.md
+spectec/test-lean/temp_zy_learning/sandbox9.wasm
+spectec/test-lean/temp_zy_learning/sandbox9.wat
+spectec/test-rocq/_opam/
+spectec/test-rocq/echo
+spectec/test-rocq/rocq-temp.export
+spectec/test-rocq/test-rocq.opam
+spectec/test-rocq/upd_label_unchanged_typing_verified_walkthrough.md
+spectec/wasm1.0_00-elab.il
+spectec/wasm1.0_01-ite.il
+spectec/wasm1.0_02-let-intro-mech.il
+spectec/wasm1.0_03-typefamily-removal.il
+spectec/wasm1.0_04-remove-indexed-types.il
+spectec/wasm1.0_05-totalize.il
+spectec/wasm1.0_06-else.il
+spectec/wasm1.0_07-else-simplification.il
+spectec/wasm1.0_08-uncase-removal.il
+spectec/wasm1.0_09-sub-expansion.il
+spectec/wasm1.0_10-pattern-simp.il
+spectec/wasm1.0_11-sub.il
+spectec/wasm1.0_12-definition-to-relation.il
+spectec/wasm1.0_13-sideconditions.il
+spectec/wasm1.0_14-alias-demut.il
+spectec/wasm1.0_15-improve-ids.il
+spectec/wasm1.0_16-single-pattern-match.il
+spectec/wasm1.0_ast_00-elab.il
+spectec/wasm1.0_ast_01-ite.il
+spectec/wasm1.0_ast_02-let-intro-mech.il
+spectec/wasm1.0_ast_03-typefamily-removal.il
+spectec/wasm1.0_ast_04-remove-indexed-types.il
+spectec/wasm1.0_ast_05-totalize.il
+spectec/wasm1.0_ast_06-else.il
+spectec/wasm1.0_ast_07-else-simplification.il
+spectec/wasm1.0_ast_08-uncase-removal.il
+spectec/wasm1.0_ast_09-sub-expansion.il
+spectec/wasm1.0_ast_10-pattern-simp.il
+spectec/wasm1.0_ast_11-sub.il
+spectec/wasm1.0_ast_12-definition-to-relation.il
+spectec/wasm1.0_ast_13-sideconditions.il
+spectec/wasm1.0_ast_14-alias-demut.il
+spectec/wasm1.0_ast_15-improve-ids.il
+spectec/wasm1.0_ast_16-single-pattern-match.il
+spectec/wasm2.0_00-elab.il
+spectec/wasm2.0_01-ite.il
+spectec/wasm2.0_02-let-intro-mech.il
+spectec/wasm2.0_03-typefamily-removal.il
+spectec/wasm2.0_04-remove-indexed-types.il
+spectec/wasm2.0_05-totalize.il
+spectec/wasm2.0_06-else.il
+spectec/wasm2.0_07-else-simplification.il
+spectec/wasm2.0_08-uncase-removal.il
+spectec/wasm2.0_09-sub-expansion.il
+spectec/wasm2.0_10-pattern-simp.il
+spectec/wasm2.0_11-sub.il
+spectec/wasm2.0_12-definition-to-relation.il
+spectec/wasm2.0_13-sideconditions.il
+spectec/wasm2.0_14-alias-demut.il
+spectec/wasm2.0_15-improve-ids.il
+spectec/wasm2.0_16-single-pattern-match.il
+spectec/wasm2.0_ast_00-elab.il
+spectec/wasm2.0_ast_01-ite.il
+spectec/wasm2.0_ast_02-let-intro-mech.il
+spectec/wasm2.0_ast_03-typefamily-removal.il
+spectec/wasm2.0_ast_04-remove-indexed-types.il
+spectec/wasm2.0_ast_05-totalize.il
+spectec/wasm2.0_ast_06-else.il
+spectec/wasm2.0_ast_07-else-simplification.il
+spectec/wasm2.0_ast_08-uncase-removal.il
+spectec/wasm2.0_ast_09-sub-expansion.il
+spectec/wasm2.0_ast_10-pattern-simp.il
+spectec/wasm2.0_ast_11-sub.il
+spectec/wasm2.0_ast_12-definition-to-relation.il
+spectec/wasm2.0_ast_13-sideconditions.il
+spectec/wasm2.0_ast_14-alias-demut.il
+spectec/wasm2.0_ast_15-improve-ids.il
+spectec/wasm2.0_ast_16-single-pattern-match.il
+spectec/wasm3.0.v
+spectec/wasm3.0_00-elab.il
+spectec/wasm3.0_01-ite.il
+spectec/wasm3.0_02-let-intro-mech.il
+spectec/wasm3.0_03-typefamily-removal.il
+spectec/wasm3.0_04-remove-indexed-types.il
+spectec/wasm3.0_05-totalize.il
+spectec/wasm3.0_06-else.il
+spectec/wasm3.0_07-else-simplification.il
+spectec/wasm3.0_08-uncase-removal.il
+spectec/wasm3.0_09-sub-expansion.il
+spectec/wasm3.0_10-pattern-simp.il
+spectec/wasm3.0_11-sub.il
+spectec/wasm3.0_12-definition-to-relation.il
+spectec/wasm3.0_13-sideconditions.il
+spectec/wasm3.0_14-alias-demut.il
+spectec/wasm3.0_15-improve-ids.il
+spectec/wasm3.0_16-single-pattern-match.il
+spectec/wasm3.0_ast_00-elab.il
+spectec/wasm3.0_ast_01-ite.il
+spectec/wasm3.0_ast_02-let-intro-mech.il
+spectec/wasm3.0_ast_03-typefamily-removal.il
+spectec/wasm3.0_ast_04-remove-indexed-types.il
+spectec/wasm3.0_ast_05-totalize.il
+spectec/wasm3.0_ast_06-else.il
+spectec/wasm3.0_ast_07-else-simplification.il
+spectec/wasm3.0_ast_08-uncase-removal.il
+spectec/wasm3.0_ast_09-sub-expansion.il
+spectec/wasm3.0_ast_10-pattern-simp.il
+spectec/wasm3.0_ast_11-sub.il
+spectec/wasm3.0_ast_12-definition-to-relation.il
+spectec/wasm3.0_ast_13-sideconditions.il
+spectec/wasm3.0_ast_14-alias-demut.il
+spectec/wasm3.0_ast_15-improve-ids.il
+spectec/wasm3.0_ast_16-single-pattern-match.il
+spectec/zy_sandbox.v

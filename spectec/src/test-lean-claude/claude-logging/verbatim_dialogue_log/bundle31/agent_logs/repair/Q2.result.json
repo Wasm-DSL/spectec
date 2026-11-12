@@ -1,0 +1,85 @@
+{
+ "label": "Q2",
+ "status": "done",
+ "final_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/agents/Q2/TypeProgress.lean",
+ "decls": [
+  {
+   "name": "wf_lane_Jnn_inv",
+   "status": "proved",
+   "note": "lane__case_0 now has an extra size var with premise fun_lsize (lanetype_Jnn J') n; rewrite Hc with fun_lsize_eq. Statement unchanged."
+  },
+  {
+   "name": "wf_lane_Jnn_some",
+   "status": "proved",
+   "note": "Only the constructor binder arity changed."
+  },
+  {
+   "name": "wf_lane_Fnn_inv",
+   "status": "proved",
+   "note": "lane__case_1 now has fun_sizenn premise; rewrite with fun_sizenn_eq."
+  },
+  {
+   "name": "Forall_lane_map_wf",
+   "status": "proved",
+   "note": "Not restated; build the lane with wf_lane_.lane__case_0 _ _ _ _ (fun_lsize_lsize _) ..."
+  },
+  {
+   "name": "Forall_lane_fop_wf",
+   "status": "proved",
+   "note": "Not restated; wf_lane_.lane__case_1 _ _ _ _ (fun_sizenn_sizenn _) ..."
+  },
+  {
+   "name": "iabs_lane_total",
+   "status": "proved",
+   "note": "Only the lane constructor application changed (fun_lsize_lsize _)."
+  },
+  {
+   "name": "vunop_real",
+   "status": "proved",
+   "note": "Old automation kept; added Hsz := fun_lsizenn_lsizenn (lanetype_Jnn J) / fun_sizenn_sizenn (numtype_Fnn F) as an extra alternative for the new size-relation premises of fun_vunop_ and its before-predicate."
+  },
+  {
+   "name": "zip_lane_wf",
+   "status": "proved",
+   "note": "Not restated; lane constructor updated."
+  },
+  {
+   "name": "zip_flane_wf",
+   "status": "proved",
+   "note": "Not restated; lane constructor updated."
+  },
+  {
+   "name": "zip_lane_wf2",
+   "status": "proved",
+   "note": "Lane constructor updated."
+  },
+  {
+   "name": "vbinop_some",
+   "status": "proved",
+   "note": "Explicit constructor applications updated: extra size var plus fun_lsizenn_lsizenn _ / fun_sizenn_sizenn _ premise; Forall3 (sat/min/max) cases also get the new lane_1_lst.length = lane_2_lst.length premise (Hsz). wf_vbinop_Jnn_N bounds are now on the fun_lsizenn output: cases Ho; rename_i hn hb; rwa [fun_lsizenn_eq hn] at hb. Comment var_1_lst -> var_2_lst."
+  },
+  {
+   "name": "vrelop_some",
+   "status": "proved",
+   "note": "Added passes for the fun_lsizenn (int) and fun_isize / fun_sizenn (float) premises; float result-shape wf_shape rebuilt via fun_lsize_eq + fun_lsize_lsize; lane constructors updated."
+  },
+  {
+   "name": "wf_ishape_inv",
+   "status": "proved",
+   "note": "wf_shape.shape_case_0 now has two more fields (size var, fun_lsize premise); pattern updated."
+  }
+ ],
+ "final_compile": "lrun31.sh ... TypeProgress.lean: 0 errors (warnings only: 60 'declaration uses sorry', all in other clusters' declarations, plus one pre-existing '#check Instrs_ok2.rec' linter note); WALL 6.55 s  MAXRSS 4400748 KB",
+ "units_check": "replaced assigned units: Forall_lane_fop_wf, Forall_lane_map_wf, iabs_lane_total, vbinop_some, vrelop_some, vunop_real, wf_ishape_inv, wf_lane_Fnn_inv, wf_lane_Jnn_inv, wf_lane_Jnn_some, zip_flane_wf, zip_lane_wf, zip_lane_wf2 / assigned units NOT changed: - / OK (no violations)",
+ "new_helpers": [],
+ "statement_changes": [],
+ "issues": [
+  "END SAFETY CHECK VERDICT IS ATTENTION (I stopped after it and report it here). The 9 'unexpected newer paths' are only the .git entries of spectec/src/test-lean-claude/.lake/packages/{plausible,proofwidgets,mathlib,Cli,LeanSearchClient,aesop,Qq,importGraph,batteries}. All got new mtimes at 2026-11-03T01:53:32.54-.60Z (one process touching all package repos within 60 ms, e.g. an IDE git/Lean extension refresh). Content checksums under test-lean-claude are unchanged (122/122), HEAD is unchanged, changed allowed files: none. The same 9 paths appear in the Q5-end (01:55:25Z) and Q6b-end (01:55:52Z) reports, while P1-end at 01:53:15Z was OK, so the change is shared and not specific to Q2. Q2 ran no git or lake and used Lean only via lrun31.sh, which only reads package oleans. Please review.",
+  "Every assigned declaration is sorry-free, even transitively (checked with #print axioms on a scratch copy of the working file); the same holds for the users vunop_total and vunop_not_none. They use only the model's *_is_wf axioms and the project axioms lanes_len and f*_bit.",
+  "No 'may be restated' declaration needed restating; all statements kept verbatim."
+ ],
+ "safety_checks": [
+  "spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T014409.293609968Z-bundle31-Q2-start-319347.txt -- OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline",
+  "spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T015603.740270996Z-bundle31-Q2-end-327581.txt -- ATTENTION: 9 unexpected newer paths, 0 unexpected checksum lines. The paths are the .git entries of the 9 .lake/packages checkouts, mtime 01:53:32Z; changed allowed files: none; HEAD unchanged; checksums 122/122 unchanged."
+ ]
+}

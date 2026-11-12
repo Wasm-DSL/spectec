@@ -1,0 +1,4 @@
+bundle34 fidelity check: report body (Markdown, after its title) vs the page's #report-body text
+non-whitespace characters, all "|" removed: identical = True (67698 characters)
+"|" characters in the page text: 112 (in code: the fenced spec line, the `| _ =>` prose, the table cell `| _ => True`, and the escaped `\|` in table code cells)
+escaped "\|" in the Markdown: 109

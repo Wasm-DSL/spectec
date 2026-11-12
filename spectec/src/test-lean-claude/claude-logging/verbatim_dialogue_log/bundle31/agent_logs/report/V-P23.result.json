@@ -1,0 +1,144 @@
+{
+ "label": "V-P23",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-P23/section.verified.md",
+ "corrections": [
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"The errors are the same with and without the function views:\" followed by only the global_set and table_set_val errors. The data keeps only the first three errors per construct, and the other renamed cases (table_grow_succeed, elem_drop, the stores, data_drop) would fail too.",
+   "fixed": "\"The recorded errors (the first three) are the same with and without the function views:\""
+  },
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"seven `Step` rules gained arguments and premises\". As a count of rules this is false: 15 Step rules changed, including the traps, vstore-val, vstore_lane-val and memory.grow-succeed.",
+   "fixed": "\"the rules of seven of the cases that name variables gained arguments and premises (other rules changed too, see below)\""
+  },
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"`Step/table.grow-succeed` gained `var_2 var_1 var_0`\". `var_2 : Option tableinst` is the old `var_0`, renamed; only `var_1` and `var_0` are new (9 -> 13 is 2 binders plus 2 premises).",
+   "fixed": "\"now has `var_2 : Option tableinst` (the old `var_0`, renamed) and the new `var_1 : tableinst` and `var_0 : state`, with ...\""
+  },
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"Rules that reduce to `\u03b5` (local.set, ..., data.drop)\" reads as the full list. vstore-val and vstore_lane-val also reduce to \u03b5; they are handled by separate lemmas.",
+   "fixed": "\"Rules that reduce to `\u03b5`, apart from the vector stores below (...)\""
+  },
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"typing the reduct needs only the operands' typing and `s \u2aaf s'`\". The grow cases also use `wf_config c2` (via `wf_const_num`) for the result constant.",
+   "fixed": "\"needs only the operands' typing, `s \u2aaf s'` and (for the grows' result constant) `wf_config`, never the shape of the new store\""
+  },
+  {
+   "construct": "t_preservation_type_aux",
+   "wrong": "\"Cases that name nothing (vstore, memory.grow, traps) were unaffected even though their rules also gained premises\". memory.grow-fail did not change.",
+   "fixed": "\"... even though most of their rules also gained arguments and premises\""
+  },
+  {
+   "construct": "t_preservation_vs_type'_aux",
+   "wrong": "\"which are the first errors; the other store-writing rules fail the same way\". This reads as if those failures were recorded; the list is capped at three errors, so they are an inference (a correct one).",
+   "fixed": "\"which are the three recorded (first) errors; the other store-writing rules, whose post-state is also `var_0`, fail the same way\""
+  },
+  {
+   "construct": "t_preservation_vs_type'_aux",
+   "wrong": "\"The index-bound premise is dropped.\" `casesm` adds it to the context as a hypothesis; it is only left unused.",
+   "fixed": "\"The index-bound premise it introduces is left unused.\""
+  },
+  {
+   "construct": "store_extension_reduce_aux",
+   "wrong": "Statement: \"the configuration is well-formed\". This is ambiguous: only the initial configuration is assumed well-formed (`wf_config c1`).",
+   "fixed": "\"the initial configuration is well-formed (`wf_config`)\""
+  },
+  {
+   "construct": "store_extension_reduce_aux",
+   "wrong": "\"Each store-writing case unfolded its post-state function, for example with `simp only [with_global] at hz2`.\" The four memory-store cases unfolded nothing: they passed `hz2 : with_mem \u2026 = (s'; f')` straight to `with_mem_store_ok`.",
+   "fixed": "The global.set, table.set-val, table.grow-succeed, elem.drop, memory.grow-succeed and data.drop cases unfolded their function (e.g. `simp only [with_global] at hz2`); the four memory-store cases passed the equation `with_mem \u2026 = (s'; f')` to `with_mem_store_ok`."
+  },
+  {
+   "construct": "store_extension_reduce_aux",
+   "wrong": "Original sketch: the grow lemmas take \"the rule premises `$growtable($table(z, x), n, ref) = ti` (or ...), `\u2260 none` and `get!`\". This mixes up the actual premises.",
+   "fixed": "\"takes the rule premises encoding `$growtable($table(z, x), n, ref) = ti`: `fun_growtable (fun_table z x) n ref var_0`, `var_0 \u2260 none` and `var_0.get! = ti` (for memory: `fun_growmemory (fun_mem z 0) n var_0`, `var_0 \u2260 none` and `var_0.get! = mi`)\""
+  },
+  {
+   "construct": "store_extension_reduce_aux",
+   "wrong": "Current sketch: names `var_0` \"(plus `var_1`/`var_2` for the grows)\". The table_set_val and vstore_lane_val binder lists also name `var_1`.",
+   "fixed": "\"(plus `var_1` in table.set-val, vstore_lane-val and the grows, and `var_2` in the grows)\""
+  },
+  {
+   "construct": "store_extension_reduce_aux",
+   "wrong": "\"`cases hw` inverts ... and discards the index bound\". The bound is introduced as a hypothesis, not discarded.",
+   "fixed": "\"`cases hw` inverts ...; the index bound it introduces is not used\""
+  },
+  {
+   "construct": "table_grow_store_ok",
+   "wrong": "\"The new premises are those of `Step.table_grow_succeed`, with the same names and order\". The lemma leaves out the rule's `fun_with_tableinst` premise.",
+   "fixed": "\"..., with the same names and order, minus its `fun_with_tableinst` premise (which the caller inverts)\""
+  },
+  {
+   "construct": "table_grow_store_ok",
+   "wrong": "\"By `externtype_table_sub_inv`, the reftype `rt` is the same.\" The lemma only gives `tbt' = lim' rt0`, i.e. the stored table's reftype is rt0; `rt` is identified with it only afterwards, by `hold.trans hlk`.",
+   "fixed": "\"By `externtype_table_sub_inv`, the stored table's reftype is `rt0`.\""
+  },
+  {
+   "construct": "table_grow_store_ok",
+   "wrong": "\"`subst` then turns `fun_growtable var_1 \u2026` into exactly the old `fun_growtable (fun_table (s; f) x) \u2026`\". The old function no longer exists; what subst gives is that function's unfolding.",
+   "fixed": "\"into `fun_growtable s.TABLES[f.MODULE.TABLES[x]!]! \u2026`, which is what the old `fun_growtable (fun_table (s; f) x) \u2026` unfolds to\""
+  },
+  {
+   "construct": "with_mem_store_ok",
+   "wrong": "\"its bound `0 < |f.MODULE.MEMS|` is dropped\"",
+   "fixed": "\"its bound `0 < |f.MODULE.MEMS|` is not used\""
+  },
+  {
+   "construct": "reduce_inst_unchanged_aux",
+   "wrong": "What broke named only `with_global`/`with_table`/`with_tableinst` as unknown, without saying that these are the three recorded (capped) errors. A reader could take the other four names to still exist.",
+   "fixed": "Appended \"(these are the three recorded errors; the other four names are gone too)\"."
+  },
+  {
+   "construct": "reduce_inst_unchanged_aux",
+   "wrong": "\"the inner step runs in the same state, so the IH applies\". This can be read as 'the state does not change'.",
+   "fixed": "\"the inner step goes between the same states `z` and `z'` as the outer one, so the IH applies\""
+  },
+  {
+   "construct": "num_default_is_well_formed",
+   "wrong": "Original sketch, I32: \"with `$size(I32) = 32` (`simp [size, valtype_Inn]`)\". The goal `simp [size, valtype_Inn]` closes is `size (valtype_Inn I32) \u2260 none`; the 32 comes from `simp only [size, valtype_Inn]` in the second goal.",
+   "fixed": "\"with `$size(I32) \u2260 none` (`simp [size, valtype_Inn]`) and, after unfolding `size`, `wf_uN 32 0` (`by decide`)\""
+  },
+  {
+   "construct": "num_default_is_well_formed",
+   "wrong": "Original sketch, F32: \"the subnormal condition is `0 < 2^M(32)` with exponent `2 - 2^(E(32)-1)`, `by decide`\". `decide` proves only the mantissa bound; the exponent is given explicitly and its equation is `rfl` (`\u27e8by decide, rfl\u27e9`).",
+   "fixed": "\"`0 < 2^M(32)` holds `by decide`, and the exponent is given explicitly as `2 - 2^(E(32)-1)`, so its equation is `rfl`\""
+  }
+ ],
+ "flags": [
+  {
+   "construct": "store_extension_reduce_aux",
+   "line": "    carry the inner configuration's `wf_config` as a premise), the store-writing rules invert\n    their `fun_with_*` premise and go to the per-rule lemmas above, and every other rule leaves\n    the store unchanged. -/",
+   "issue": "CONFIRMED (writer's flag). Six store-writing cases run `cases hw`: global.set, table.set-val, table.grow-succeed, elem.drop, memory.grow-succeed and data.drop. The four memory stores (store_num_val, store_pack_val, vstore_val, vstore_lane_val) pass `hw : fun_with_mem \u2026` uninverted to `with_mem_store_ok`, which runs `cases hw` itself.",
+   "suggestion": "    carry the inner configuration's `wf_config` as a premise), the store-writing rules invert\n    their `fun_with_*` premise (the four memory stores hand `fun_with_mem` to `with_mem_store_ok`,\n    which inverts it) and go to the per-rule lemmas above, and every other rule leaves the store\n    unchanged. -/"
+  },
+  {
+   "construct": "reduce_inst_unchanged_aux",
+   "line": "    congruence rules that need the induction hypothesis; `ctxt_frame` is in\n    the first group, since it changes only the *inner* frame. -/",
+   "issue": "NEW (low). Older wording that the repair's doc update kept. The 'first group' is 'leaves the state alone', but `Step.ctxt_frame` goes from `(s; f)` to `(s'; f)`, so it can change the store. What it leaves alone is the outer frame, which is all this lemma needs (`simp_all` closes the case from the equations).",
+   "suggestion": "    congruence rules that need the induction hypothesis; `ctxt_frame` needs no\n    induction hypothesis either: it changes only the store and the *inner* frame. -/"
+  },
+  {
+   "construct": "num_default (MAIN construct, next to num_default_is_well_formed)",
+   "line": "/-- Rocq `type_preservation.v:19` `num_default`. Default/zero value per numtype; used to\n    build default locals in `t_read_preservation`'s Call_addr/frame-invocation case. -/",
+   "issue": "CONFIRMED (writer's note 5c; outside group P23). Stale doc, already present in orig: neither `num_default` nor `num_default_is_well_formed` is referenced anywhere in the orig or final modules. `t_read_preservation` builds default locals with `default_`/`default_vals_ok`/`fun_default_eq`.",
+   "suggestion": "/-- Rocq `type_preservation.v:19` `num_default`. Default/zero value per numtype (not used by\n    the Lean proofs; `t_read_preservation` builds default locals with `default_`). -/"
+  },
+  {
+   "construct": "splice_eq_list_slice_update (HelperLemmas:431) and wf_store_mem_update (TypePreservation:380) (outside group P23)",
+   "line": "    apply to the Lean `with_mem`. -/   |   with `list_slice_update`; the Lean `with_mem` (`splice`) is bridged to it by",
+   "issue": "CONFIRMED (writer's notes 5a/5b). Both doc comments still name the Lean `with_mem`, which no longer exists; it is now the relation `fun_with_mem`. This repair updated `with_mem_store_ok`'s own doc to say `fun_with_mem`, but not these two.",
+   "suggestion": "\"apply to the relational `fun_with_mem` (`$with_mem`).\" and \"the relational `fun_with_mem` (`splice`) is bridged to it by\""
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T022851.388415368Z-bundle31-V-P23-start-345854.txt -- verdict: \"OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline\". The only changed file it lists is the known external Lake artifact spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild (not created by this session; md5 unchanged since noted).",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024529.718384986Z-bundle31-V-P23-end-359863.txt -- verdict: \"OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline\". It lists the same known external artifact (wasm2.0.trace.nobuild, md5 unchanged).",
+  "The only file I wrote is /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-P23/section.verified.md; the V-P23 directory contains nothing else. No Lean or lake was run, git was not used, and no repository file was written. The spec files and repo-adjacent files were read only with cat/sed/grep; the JSON data was read with `python3 -I` (read-only).",
+  "The Claude Code harness saved one oversized Bash output on its own to /home/zhengyew/.claude/projects/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/tool-results/btbvuvhh2.txt. That file is the harness's own tool-result cache and is outside the repository; I did not create it."
+ ],
+ "confidence": "High. The task's input path .../report/agents/P23/section.md does not exist; the section was at .../report/agents/W-P23/section.md, as the writer's notes say, and that is the file I verified. What I checked: (1) All 8 orig_text/final_text entries are verbatim in orig/ and final3/src/TypePreservation.lean. (2) Every case-binder count, renaming and premise order matches the Step constructors in OLD_wasm2.0.lean and wasm2.0.lean (3->5, 6->10, 9->13, 2->4, 9->11, 11->13; vstore_lane_val 16->20). (3) The fun_with_*, fun_table, fun_mem, fun_fzero, fun_sizenn, wf_num_.num__case_1 and wf_fNmag definitions in both models match what the section says. (4) The inversion and helper lemma signatures (inv_*, ais_args1/2_typing, instrtype_sub_empty, fun_table_inv/fun_mem_inv, mem_store_extension, minst_invert_tables, externtype_table_sub_inv, wf_fzero_32, fun_sizenn_sizenn) match the section. (5) The rules and typing in 8-reduction.spectec, 6-typing.spectec and 5-runtime-aux.spectec agree with the section. Two limits remain. Error lists in the data are capped at three per construct, so claims about later errors are inferences; they are correct and now worded as such. The per-theorem axiom lists are quoted from the repair notes and were not re-run. The final axcheck log does confirm that 0 project theorems depend on sorryAx, which supports the 'no sorry in the final build' claims. All 21 corrections are precision fixes (wording, over-generalisations, mis-described premises or tactics); none changes a section's overall account of what broke or how it was fixed."
+}

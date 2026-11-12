@@ -1,0 +1,730 @@
+[
+ {
+  "new_line": 14707,
+  "old_line": 14712,
+  "construct": "theorem iswf_admininstr_VCONST",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "  wf_admininstr.admininstr_case_20 _ _ (by decide) h",
+  "after": "  wf_admininstr.admininstr_case_19 _ _ (by decide) h"
+ },
+ {
+  "new_line": 14711,
+  "old_line": 14716,
+  "construct": "theorem iswf_admininstr_VCONST_inv",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "  cases h with | admininstr_case_20 _ _ _ hw => exact hw",
+  "after": "  cases h with | admininstr_case_19 _ _ _ hw => exact hw"
+ },
+ {
+  "new_line": 14722,
+  "old_line": 14727,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | unreachable => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | unreachable => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14748,
+  "old_line": 14753,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "    | admininstr_case_71 _ _ _ hinstrs hbody =>",
+  "after": "    | admininstr_case_70 _ _ _ hinstrs hbody =>"
+ },
+ {
+  "new_line": 14755,
+  "old_line": 14760,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "    | admininstr_case_71 _ _ _ _ hbody =>",
+  "after": "    | admininstr_case_70 _ _ _ _ hbody =>"
+ },
+ {
+  "new_line": 14783,
+  "old_line": 14788,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_72",
+    "admininstr_case_71"
+   ]
+  ],
+  "before": "    | admininstr_case_72 _ _ _ _ hbody =>",
+  "after": "    | admininstr_case_71 _ _ _ _ hbody =>"
+ },
+ {
+  "new_line": 14788,
+  "old_line": 14793,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "    | admininstr_case_71 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)",
+  "after": "    | admininstr_case_70 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)"
+ },
+ {
+  "new_line": 14789,
+  "old_line": 14794,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | trap_vals => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | trap_vals => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14790,
+  "old_line": 14795,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | trap_label => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | trap_label => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14791,
+  "old_line": 14796,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | trap_frame => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | trap_frame => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14798,
+  "old_line": 14803,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | unop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | unop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14804,
+  "old_line": 14809,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | binop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | binop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14815,
+  "old_line": 14820,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14848,
+  "old_line": 14853,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14856,
+  "old_line": 14861,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_73",
+    "admininstr_case_72"
+   ]
+  ],
+  "before": "  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+  "after": "  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+ },
+ {
+  "new_line": 14958,
+  "old_line": 14963,
+  "construct": "theorem Step_pure_is_wf",
+  "renames": [
+   [
+    "admininstr_case_44",
+    "admininstr_case_43"
+   ]
+  ],
+  "before": "    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_44 _ \u2039wf_uN 32 x\u203a)))",
+  "after": "    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_43 _ \u2039wf_uN 32 x\u203a)))"
+ },
+ {
+  "new_line": 16921,
+  "old_line": 16926,
+  "construct": "theorem iswf_store_I32_8",
+  "renames": [
+   [
+    "admininstr_case_57",
+    "admininstr_case_56"
+   ]
+  ],
+  "before": "  wf_admininstr.admininstr_case_57 (some Inn.I32) _ _ _ (some 32)",
+  "after": "  wf_admininstr.admininstr_case_56 (some Inn.I32) _ _ _ (some 32)"
+ },
+ {
+  "new_line": 16933,
+  "old_line": 16938,
+  "construct": "theorem iswf_load_I32_8_U",
+  "renames": [
+   [
+    "admininstr_case_56",
+    "admininstr_case_55"
+   ]
+  ],
+  "before": "  wf_admininstr.admininstr_case_56 _ _ _",
+  "after": "  wf_admininstr.admininstr_case_55 _ _ _"
+ },
+ {
+  "new_line": 16978,
+  "old_line": 16983,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)",
+  "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 16985,
+  "old_line": 16990,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _",
+  "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _"
+ },
+ {
+  "new_line": 16996,
+  "old_line": 17001,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_72",
+    "admininstr_case_71"
+   ]
+  ],
+  "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ \u2039wf_frame _\u203a",
+  "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ \u2039wf_frame _\u203a"
+ },
+ {
+  "new_line": 16997,
+  "old_line": 17002,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "        (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)",
+  "after": "        (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17004,
+  "old_line": 17009,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_43",
+    "admininstr_case_42"
+   ]
+  ],
+  "before": "    | admininstr_case_43 _ hx =>",
+  "after": "    | admininstr_case_42 _ hx =>"
+ },
+ {
+  "new_line": 17010,
+  "old_line": 17015,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_46",
+    "admininstr_case_45"
+   ]
+  ],
+  "before": "    | admininstr_case_46 _ hx =>",
+  "after": "    | admininstr_case_45 _ hx =>"
+ },
+ {
+  "new_line": 17029,
+  "old_line": 17034,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_52",
+    "admininstr_case_51"
+   ]
+  ],
+  "before": "    | admininstr_case_52 _ hx =>",
+  "after": "    | admininstr_case_51 _ hx =>"
+ },
+ {
+  "new_line": 17033,
+  "old_line": 17038,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_49",
+    "admininstr_case_48"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+ },
+ {
+  "new_line": 17036,
+  "old_line": 17041,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_52",
+    "admininstr_case_51"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ hx) (iswf_Forall_nil _)",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_51 _ hx) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17046,
+  "old_line": 17051,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_53",
+    "admininstr_case_52"
+   ]
+  ],
+  "before": "    | admininstr_case_53 _ _ hx hy =>",
+  "after": "    | admininstr_case_52 _ _ hx hy =>"
+ },
+ {
+  "new_line": 17051,
+  "old_line": 17056,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_48",
+    "admininstr_case_47"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|"
+ },
+ {
+  "new_line": 17052,
+  "old_line": 17057,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_49",
+    "admininstr_case_48"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+ },
+ {
+  "new_line": 17055,
+  "old_line": 17060,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_53",
+    "admininstr_case_52"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17063,
+  "old_line": 17068,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_53",
+    "admininstr_case_52"
+   ]
+  ],
+  "before": "    | admininstr_case_53 _ _ hx hy =>",
+  "after": "    | admininstr_case_52 _ _ hx hy =>"
+ },
+ {
+  "new_line": 17067,
+  "old_line": 17072,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_48",
+    "admininstr_case_47"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|"
+ },
+ {
+  "new_line": 17068,
+  "old_line": 17073,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_49",
+    "admininstr_case_48"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|"
+ },
+ {
+  "new_line": 17070,
+  "old_line": 17075,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_53",
+    "admininstr_case_52"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17079,
+  "old_line": 17084,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_54",
+    "admininstr_case_53"
+   ]
+  ],
+  "before": "    | admininstr_case_54 _ _ hx hy =>",
+  "after": "    | admininstr_case_53 _ _ hx hy =>"
+ },
+ {
+  "new_line": 17084,
+  "old_line": 17089,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_49",
+    "admininstr_case_48"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+ },
+ {
+  "new_line": 17087,
+  "old_line": 17092,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_54",
+    "admininstr_case_53"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_54 _ _ hx hy) (iswf_Forall_nil _)",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17098,
+  "old_line": 17103,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide) \u2039wf_uN 128 c\u203a) (iswf_Forall_nil _)",
+  "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide) \u2039wf_uN 128 c\u203a) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17102,
+  "old_line": 17107,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+  "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+ },
+ {
+  "new_line": 17109,
+  "old_line": 17114,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+  "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+ },
+ {
+  "new_line": 17116,
+  "old_line": 17121,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+  "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+ },
+ {
+  "new_line": 17122,
+  "old_line": 17127,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    | admininstr_case_20 _ _ _ hw1 =>",
+  "after": "    | admininstr_case_19 _ _ _ hw1 =>"
+ },
+ {
+  "new_line": 17127,
+  "old_line": 17132,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+  "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+ },
+ {
+  "new_line": 17174,
+  "old_line": 17179,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_66",
+    "admininstr_case_65"
+   ]
+  ],
+  "before": "    | admininstr_case_66 _ hx =>",
+  "after": "    | admininstr_case_65 _ hx =>"
+ },
+ {
+  "new_line": 17180,
+  "old_line": 17185,
+  "construct": "theorem Step_read_is_wf",
+  "renames": [
+   [
+    "admininstr_case_66",
+    "admininstr_case_65"
+   ]
+  ],
+  "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_66 _ hx) (iswf_Forall_nil _)",
+  "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_65 _ hx) (iswf_Forall_nil _)"
+ },
+ {
+  "new_line": 17239,
+  "old_line": 17244,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "    | admininstr_case_71 _ _ _ hi _ =>",
+  "after": "    | admininstr_case_70 _ _ _ hi _ =>"
+ },
+ {
+  "new_line": 17243,
+  "old_line": 17248,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_71",
+    "admininstr_case_70"
+   ]
+  ],
+  "before": "          (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hi hais') (iswf_Forall_nil _))",
+  "after": "          (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ hi hais') (iswf_Forall_nil _))"
+ },
+ {
+  "new_line": 17252,
+  "old_line": 17257,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_72",
+    "admininstr_case_71"
+   ]
+  ],
+  "before": "            (iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ hf'' hais') (iswf_Forall_nil _))",
+  "after": "            (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hf'' hais') (iswf_Forall_nil _))"
+ },
+ {
+  "new_line": 17262,
+  "old_line": 17267,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_44",
+    "admininstr_case_43"
+   ]
+  ],
+  "before": "    | admininstr_case_44 _ hx =>",
+  "after": "    | admininstr_case_43 _ hx =>"
+ },
+ {
+  "new_line": 17269,
+  "old_line": 17274,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_47",
+    "admininstr_case_46"
+   ]
+  ],
+  "before": "    | admininstr_case_47 _ hx =>",
+  "after": "    | admininstr_case_46 _ hx =>"
+ },
+ {
+  "new_line": 17278,
+  "old_line": 17283,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_49",
+    "admininstr_case_48"
+   ]
+  ],
+  "before": "    | admininstr_case_49 _ hx =>",
+  "after": "    | admininstr_case_48 _ hx =>"
+ },
+ {
+  "new_line": 17284,
+  "old_line": 17289,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_51",
+    "admininstr_case_50"
+   ]
+  ],
+  "before": "    | admininstr_case_51 _ hx =>",
+  "after": "    | admininstr_case_50 _ hx =>"
+ },
+ {
+  "new_line": 17298,
+  "old_line": 17303,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_55",
+    "admininstr_case_54"
+   ]
+  ],
+  "before": "    | admininstr_case_55 _ hx =>",
+  "after": "    | admininstr_case_54 _ hx =>"
+ },
+ {
+  "new_line": 17329,
+  "old_line": 17334,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_20",
+    "admininstr_case_19"
+   ]
+  ],
+  "before": "    | admininstr_case_20 _ _ hsz hwfc =>",
+  "after": "    | admininstr_case_19 _ _ hsz hwfc =>"
+ },
+ {
+  "new_line": 17359,
+  "old_line": 17364,
+  "construct": "theorem Step_is_wf",
+  "renames": [
+   [
+    "admininstr_case_67",
+    "admininstr_case_66"
+   ]
+  ],
+  "before": "    | admininstr_case_67 _ hx =>",
+  "after": "    | admininstr_case_66 _ hx =>"
+ }
+]

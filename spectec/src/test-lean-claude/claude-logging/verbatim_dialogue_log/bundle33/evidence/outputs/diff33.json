@@ -1,0 +1,2161 @@
+{
+ "summary": {
+  "ExtendedDeriveDecEq": {
+   "old_lines": 738,
+   "new_lines": 738
+  },
+  "wasm2.0": {
+   "old_lines": 17527,
+   "new_lines": 17522,
+   "EXTEND-removed": 5,
+   "source-location": 31,
+   "ctor-renumber/generated": 102,
+   "ctor-renumber/hand-layer": 56
+  },
+  "HelperLemmas": {
+   "old_lines": 1041,
+   "new_lines": 1041
+  },
+  "Subtyping": {
+   "old_lines": 680,
+   "new_lines": 680
+  },
+  "TypingLemmas": {
+   "old_lines": 1956,
+   "new_lines": 1954,
+   "EXTEND-removed": 2,
+   "ctor-renumber/proof-module": 3
+  },
+  "TypePreservationPure": {
+   "old_lines": 1974,
+   "new_lines": 1974,
+   "ctor-renumber/proof-module": 2
+  },
+  "ExtensionLemmas": {
+   "old_lines": 2172,
+   "new_lines": 2172
+  },
+  "TypePreservation": {
+   "old_lines": 2912,
+   "new_lines": 2912,
+   "ctor-renumber/proof-module": 2
+  },
+  "TypeProgress": {
+   "old_lines": 8248,
+   "new_lines": 8248,
+   "ctor-renumber/proof-module": 8
+  }
+ },
+ "rows": [
+  {
+   "file": "wasm2.0",
+   "old": 1953,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "inductive",
+   "construct": "instr",
+   "before": "  | EXTEND (v_numtype : numtype) (v_n : n) : instr",
+   "after": null
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2062,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_19 (v_numtype : numtype) (v_n : n) : wf_instr (instr.EXTEND v_numtype v_n)",
+   "after": null
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12206,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "inductive",
+   "construct": "admininstr",
+   "before": "  | EXTEND (v_numtype : numtype) (v_n : n) : admininstr",
+   "after": null
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12287,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "def",
+   "construct": "admininstr_instr",
+   "before": "  | instr.EXTEND x0 x1 => admininstr.EXTEND x0 x1",
+   "after": null
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12409,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_19 (v_numtype : numtype) (v_n : n) : wf_admininstr (admininstr.EXTEND v_numtype v_n)",
+   "after": null
+  },
+  {
+   "file": "wasm2.0",
+   "old": 1932,
+   "new": 1932,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "instr",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2006,
+   "new": 2005,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.8-552.13 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.8-551.13 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2063,
+   "new": 2061,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_20 (v_vectype : vectype) (var_0 : vec_) :",
+   "after": "  | instr_case_19 (v_vectype : vectype) (var_0 : vec_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2067,
+   "new": 2065,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_21 (v_vectype : vectype) (v_vvunop : vvunop) : wf_instr (instr.VVUNOP v_vectype v_vvunop)",
+   "after": "  | instr_case_20 (v_vectype : vectype) (v_vvunop : vvunop) : wf_instr (instr.VVUNOP v_vectype v_vvunop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2068,
+   "new": 2066,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_22 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_instr (instr.VVBINOP v_vectype v_vvbinop)",
+   "after": "  | instr_case_21 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_instr (instr.VVBINOP v_vectype v_vvbinop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2069,
+   "new": 2067,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_23 (v_vectype : vectype) (v_vvternop : vvternop) : wf_instr (instr.VVTERNOP v_vectype v_vvternop)",
+   "after": "  | instr_case_22 (v_vectype : vectype) (v_vvternop : vvternop) : wf_instr (instr.VVTERNOP v_vectype v_vvternop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2070,
+   "new": 2068,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_24 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_instr (instr.VVTESTOP v_vectype v_vvtestop)",
+   "after": "  | instr_case_23 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_instr (instr.VVTESTOP v_vectype v_vvtestop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2071,
+   "new": 2069,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_25 (v_shape : shape) (var_0 : vunop_) :",
+   "after": "  | instr_case_24 (v_shape : shape) (var_0 : vunop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2075,
+   "new": 2073,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_26 (v_shape : shape) (var_0 : vbinop_) :",
+   "after": "  | instr_case_25 (v_shape : shape) (var_0 : vbinop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2079,
+   "new": 2077,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_27 (v_shape : shape) (var_0 : vtestop_) :",
+   "after": "  | instr_case_26 (v_shape : shape) (var_0 : vtestop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2083,
+   "new": 2081,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_28 (v_shape : shape) (var_0 : vrelop_) :",
+   "after": "  | instr_case_27 (v_shape : shape) (var_0 : vrelop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2087,
+   "new": 2085,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_29 (v_ishape : ishape) (var_0 : vshiftop_) :",
+   "after": "  | instr_case_28 (v_ishape : ishape) (var_0 : vshiftop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2091,
+   "new": 2089,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_30 (v_ishape : ishape) :",
+   "after": "  | instr_case_29 (v_ishape : ishape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2094,
+   "new": 2092,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_31 (v_ishape : ishape) :",
+   "after": "  | instr_case_30 (v_ishape : ishape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2098,
+   "new": 2096,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_32 (v_ishape : ishape) (laneidx_lst : List laneidx) :",
+   "after": "  | instr_case_31 (v_ishape : ishape) (laneidx_lst : List laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2103,
+   "new": 2101,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_33 (v_shape : shape) :",
+   "after": "  | instr_case_32 (v_shape : shape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2106,
+   "new": 2104,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_34 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :",
+   "after": "  | instr_case_33 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2112,
+   "new": 2110,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_35 (v_shape : shape) (v_laneidx : laneidx) :",
+   "after": "  | instr_case_34 (v_shape : shape) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2116,
+   "new": 2114,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :",
+   "after": "  | instr_case_35 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2121,
+   "new": 2119,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :",
+   "after": "  | instr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2126,
+   "new": 2124,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_38 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :",
+   "after": "  | instr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2133,
+   "new": 2131,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_39 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :",
+   "after": "  | instr_case_38 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2138,
+   "new": 2136,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_40 (v_reftype : reftype) : wf_instr (instr.REF_NULL v_reftype)",
+   "after": "  | instr_case_39 (v_reftype : reftype) : wf_instr (instr.REF_NULL v_reftype)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2139,
+   "new": 2137,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_41 (v_funcidx : funcidx) :",
+   "after": "  | instr_case_40 (v_funcidx : funcidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2142,
+   "new": 2140,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_42 : wf_instr instr.REF_IS_NULL",
+   "after": "  | instr_case_41 : wf_instr instr.REF_IS_NULL"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2143,
+   "new": 2141,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_43 (v_localidx : localidx) :",
+   "after": "  | instr_case_42 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2146,
+   "new": 2144,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_44 (v_localidx : localidx) :",
+   "after": "  | instr_case_43 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2149,
+   "new": 2147,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_45 (v_localidx : localidx) :",
+   "after": "  | instr_case_44 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2152,
+   "new": 2150,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_46 (v_globalidx : globalidx) :",
+   "after": "  | instr_case_45 (v_globalidx : globalidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2155,
+   "new": 2153,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_47 (v_globalidx : globalidx) :",
+   "after": "  | instr_case_46 (v_globalidx : globalidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2158,
+   "new": 2156,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_48 (v_tableidx : tableidx) :",
+   "after": "  | instr_case_47 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2161,
+   "new": 2159,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_49 (v_tableidx : tableidx) :",
+   "after": "  | instr_case_48 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2164,
+   "new": 2162,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_50 (v_tableidx : tableidx) :",
+   "after": "  | instr_case_49 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2167,
+   "new": 2165,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_51 (v_tableidx : tableidx) :",
+   "after": "  | instr_case_50 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2170,
+   "new": 2168,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_52 (v_tableidx : tableidx) :",
+   "after": "  | instr_case_51 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2173,
+   "new": 2171,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_53 (v_tableidx : tableidx) (tableidx_0 : tableidx) :",
+   "after": "  | instr_case_52 (v_tableidx : tableidx) (tableidx_0 : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2177,
+   "new": 2175,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_54 (v_tableidx : tableidx) (v_elemidx : elemidx) :",
+   "after": "  | instr_case_53 (v_tableidx : tableidx) (v_elemidx : elemidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2181,
+   "new": 2179,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_55 (v_elemidx : elemidx) :",
+   "after": "  | instr_case_54 (v_elemidx : elemidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2184,
+   "new": 2182,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_56 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :",
+   "after": "  | instr_case_55 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2188,
+   "new": 2186,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_57 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :",
+   "after": "  | instr_case_56 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2197,
+   "new": 2195,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_58 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :",
+   "after": "  | instr_case_57 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2201,
+   "new": 2199,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_59 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :",
+   "after": "  | instr_case_58 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2206,
+   "new": 2204,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_60 (v_vectype : vectype) (v_memarg : memarg) :",
+   "after": "  | instr_case_59 (v_vectype : vectype) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2209,
+   "new": 2207,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_61 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :",
+   "after": "  | instr_case_60 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2214,
+   "new": 2212,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_62 : wf_instr instr.MEMORY_SIZE",
+   "after": "  | instr_case_61 : wf_instr instr.MEMORY_SIZE"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2215,
+   "new": 2213,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_63 : wf_instr instr.MEMORY_GROW",
+   "after": "  | instr_case_62 : wf_instr instr.MEMORY_GROW"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2216,
+   "new": 2214,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_64 : wf_instr instr.MEMORY_FILL",
+   "after": "  | instr_case_63 : wf_instr instr.MEMORY_FILL"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2217,
+   "new": 2215,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_65 : wf_instr instr.MEMORY_COPY",
+   "after": "  | instr_case_64 : wf_instr instr.MEMORY_COPY"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2218,
+   "new": 2216,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_66 (v_dataidx : dataidx) :",
+   "after": "  | instr_case_65 (v_dataidx : dataidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2221,
+   "new": 2219,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_instr",
+   "before": "  | instr_case_67 (v_dataidx : dataidx) :",
+   "after": "  | instr_case_66 (v_dataidx : dataidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2226,
+   "new": 2224,
+   "cat": "source-location",
+   "kind": "abbrev",
+   "construct": "expr",
+   "before": "/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:556.1-557.9 -/",
+   "after": "/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.9 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2229,
+   "new": 2227,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "elemmode",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.59 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-568.59 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2238,
+   "new": 2236,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_elemmode",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.16 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2248,
+   "new": 2246,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "datamode",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.1-570.47 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.47 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2256,
+   "new": 2254,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_datamode",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:570.8-570.16 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2265,
+   "new": 2263,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "type",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:572.1-573.16 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.16 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2270,
+   "new": 2268,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "«local»",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:574.1-575.16 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.16 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2275,
+   "new": 2273,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "func",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.1-577.27 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.27 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2282,
+   "new": 2280,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_func",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:576.8-576.12 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.12 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2290,
+   "new": 2288,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "global",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.1-579.25 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.25 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2297,
+   "new": 2295,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_global",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:578.8-578.14 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.14 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2304,
+   "new": 2302,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "table",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.1-581.18 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.18 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2309,
+   "new": 2307,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_table",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:580.8-580.13 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.13 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2316,
+   "new": 2314,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "mem",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.1-583.17 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.17 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2321,
+   "new": 2319,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_mem",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:582.8-582.11 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.11 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2328,
+   "new": 2326,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "elem",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.1-585.30 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.1-584.30 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2335,
+   "new": 2333,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_elem",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:584.8-584.12 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.8-583.12 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2343,
+   "new": 2341,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "data",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.1-587.22 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.1-586.22 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2350,
+   "new": 2348,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_data",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:586.8-586.12 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.8-585.12 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2358,
+   "new": 2356,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "start",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.1-589.16 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.1-588.16 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2363,
+   "new": 2361,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_start",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:588.8-588.13 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.8-587.13 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2370,
+   "new": 2368,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "externidx",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.1-592.66 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.1-591.66 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2378,
+   "new": 2376,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_externidx",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:591.8-591.17 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.8-590.17 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2394,
+   "new": 2392,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "«export»",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.1-594.24 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.1-593.24 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2399,
+   "new": 2397,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_export",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:593.8-593.14 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.8-592.14 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2407,
+   "new": 2405,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "«import»",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.1-596.30 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.1-595.30 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2412,
+   "new": 2410,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_import",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:595.8-595.14 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.8-594.14 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2421,
+   "new": 2419,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "module",
+   "before": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.1-599.76 -/",
+   "after": "/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.1-598.76 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 2428,
+   "new": 2426,
+   "cat": "source-location",
+   "kind": "inductive",
+   "construct": "wf_module",
+   "before": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:598.8-598.14 -/",
+   "after": "/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.8-597.14 -/"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12410,
+   "new": 12405,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_20 (v_vectype : vectype) (var_0 : vec_) :",
+   "after": "  | admininstr_case_19 (v_vectype : vectype) (var_0 : vec_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12414,
+   "new": 12409,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_21 (v_vectype : vectype) (v_vvunop : vvunop) : wf_admininstr (admininstr.VVUNOP v_vectype v_vvunop)",
+   "after": "  | admininstr_case_20 (v_vectype : vectype) (v_vvunop : vvunop) : wf_admininstr (admininstr.VVUNOP v_vectype v_vvunop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12415,
+   "new": 12410,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_22 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_admininstr (admininstr.VVBINOP v_vectype v_vvbinop)",
+   "after": "  | admininstr_case_21 (v_vectype : vectype) (v_vvbinop : vvbinop) : wf_admininstr (admininstr.VVBINOP v_vectype v_vvbinop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12416,
+   "new": 12411,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_23 (v_vectype : vectype) (v_vvternop : vvternop) : wf_admininstr (admininstr.VVTERNOP v_vectype v_vvternop)",
+   "after": "  | admininstr_case_22 (v_vectype : vectype) (v_vvternop : vvternop) : wf_admininstr (admininstr.VVTERNOP v_vectype v_vvternop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12417,
+   "new": 12412,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_24 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_admininstr (admininstr.VVTESTOP v_vectype v_vvtestop)",
+   "after": "  | admininstr_case_23 (v_vectype : vectype) (v_vvtestop : vvtestop) : wf_admininstr (admininstr.VVTESTOP v_vectype v_vvtestop)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12418,
+   "new": 12413,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_25 (v_shape : shape) (var_0 : vunop_) :",
+   "after": "  | admininstr_case_24 (v_shape : shape) (var_0 : vunop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12422,
+   "new": 12417,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_26 (v_shape : shape) (var_0 : vbinop_) :",
+   "after": "  | admininstr_case_25 (v_shape : shape) (var_0 : vbinop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12426,
+   "new": 12421,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_27 (v_shape : shape) (var_0 : vtestop_) :",
+   "after": "  | admininstr_case_26 (v_shape : shape) (var_0 : vtestop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12430,
+   "new": 12425,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_28 (v_shape : shape) (var_0 : vrelop_) :",
+   "after": "  | admininstr_case_27 (v_shape : shape) (var_0 : vrelop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12434,
+   "new": 12429,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_29 (v_ishape : ishape) (var_0 : vshiftop_) :",
+   "after": "  | admininstr_case_28 (v_ishape : ishape) (var_0 : vshiftop_) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12438,
+   "new": 12433,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_30 (v_ishape : ishape) :",
+   "after": "  | admininstr_case_29 (v_ishape : ishape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12441,
+   "new": 12436,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_31 (v_ishape : ishape) :",
+   "after": "  | admininstr_case_30 (v_ishape : ishape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12445,
+   "new": 12440,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_32 (v_ishape : ishape) (laneidx_lst : List laneidx) :",
+   "after": "  | admininstr_case_31 (v_ishape : ishape) (laneidx_lst : List laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12450,
+   "new": 12445,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_33 (v_shape : shape) :",
+   "after": "  | admininstr_case_32 (v_shape : shape) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12453,
+   "new": 12448,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_34 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :",
+   "after": "  | admininstr_case_33 (v_shape : shape) (sx_opt : Option sx) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12459,
+   "new": 12454,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_35 (v_shape : shape) (v_laneidx : laneidx) :",
+   "after": "  | admininstr_case_34 (v_shape : shape) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12463,
+   "new": 12458,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :",
+   "after": "  | admininstr_case_35 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextunop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12468,
+   "new": 12463,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :",
+   "after": "  | admininstr_case_36 (ishape_1 : ishape) (ishape_2 : ishape) (var_0 : vextbinop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12473,
+   "new": 12468,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_38 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :",
+   "after": "  | admininstr_case_37 (ishape_1 : ishape) (ishape_2 : ishape) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12480,
+   "new": 12475,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_39 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :",
+   "after": "  | admininstr_case_38 (shape_1 : shape) (shape_2 : shape) (var_0 : vcvtop__) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12485,
+   "new": 12480,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_40 (v_reftype : reftype) : wf_admininstr (admininstr.REF_NULL v_reftype)",
+   "after": "  | admininstr_case_39 (v_reftype : reftype) : wf_admininstr (admininstr.REF_NULL v_reftype)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12486,
+   "new": 12481,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_41 (v_funcidx : funcidx) :",
+   "after": "  | admininstr_case_40 (v_funcidx : funcidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12489,
+   "new": 12484,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_42 : wf_admininstr admininstr.REF_IS_NULL",
+   "after": "  | admininstr_case_41 : wf_admininstr admininstr.REF_IS_NULL"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12490,
+   "new": 12485,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_43 (v_localidx : localidx) :",
+   "after": "  | admininstr_case_42 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12493,
+   "new": 12488,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_44 (v_localidx : localidx) :",
+   "after": "  | admininstr_case_43 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12496,
+   "new": 12491,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_45 (v_localidx : localidx) :",
+   "after": "  | admininstr_case_44 (v_localidx : localidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12499,
+   "new": 12494,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_46 (v_globalidx : globalidx) :",
+   "after": "  | admininstr_case_45 (v_globalidx : globalidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12502,
+   "new": 12497,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_47 (v_globalidx : globalidx) :",
+   "after": "  | admininstr_case_46 (v_globalidx : globalidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12505,
+   "new": 12500,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_48 (v_tableidx : tableidx) :",
+   "after": "  | admininstr_case_47 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12508,
+   "new": 12503,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_49 (v_tableidx : tableidx) :",
+   "after": "  | admininstr_case_48 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12511,
+   "new": 12506,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_50 (v_tableidx : tableidx) :",
+   "after": "  | admininstr_case_49 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12514,
+   "new": 12509,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_51 (v_tableidx : tableidx) :",
+   "after": "  | admininstr_case_50 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12517,
+   "new": 12512,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_52 (v_tableidx : tableidx) :",
+   "after": "  | admininstr_case_51 (v_tableidx : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12520,
+   "new": 12515,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_53 (v_tableidx : tableidx) (tableidx_0 : tableidx) :",
+   "after": "  | admininstr_case_52 (v_tableidx : tableidx) (tableidx_0 : tableidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12524,
+   "new": 12519,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_54 (v_tableidx : tableidx) (v_elemidx : elemidx) :",
+   "after": "  | admininstr_case_53 (v_tableidx : tableidx) (v_elemidx : elemidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12528,
+   "new": 12523,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_55 (v_elemidx : elemidx) :",
+   "after": "  | admininstr_case_54 (v_elemidx : elemidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12531,
+   "new": 12526,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_56 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :",
+   "after": "  | admininstr_case_55 (v_numtype : numtype) (var_0_opt : Option loadop_) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12535,
+   "new": 12530,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_57 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :",
+   "after": "  | admininstr_case_56 (Inn_opt : Option Inn) (v_numtype : numtype) (sz_opt : Option sz) (v_memarg : memarg) (var_0_opt : Option Nat) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12544,
+   "new": 12539,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_58 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :",
+   "after": "  | admininstr_case_57 (v_vectype : vectype) (var_0_opt : Option vloadop_) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12548,
+   "new": 12543,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_59 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :",
+   "after": "  | admininstr_case_58 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12553,
+   "new": 12548,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_60 (v_vectype : vectype) (v_memarg : memarg) :",
+   "after": "  | admininstr_case_59 (v_vectype : vectype) (v_memarg : memarg) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12556,
+   "new": 12551,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_61 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :",
+   "after": "  | admininstr_case_60 (v_vectype : vectype) (v_sz : sz) (v_memarg : memarg) (v_laneidx : laneidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12561,
+   "new": 12556,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_62 : wf_admininstr admininstr.MEMORY_SIZE",
+   "after": "  | admininstr_case_61 : wf_admininstr admininstr.MEMORY_SIZE"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12562,
+   "new": 12557,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_63 : wf_admininstr admininstr.MEMORY_GROW",
+   "after": "  | admininstr_case_62 : wf_admininstr admininstr.MEMORY_GROW"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12563,
+   "new": 12558,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_64 : wf_admininstr admininstr.MEMORY_FILL",
+   "after": "  | admininstr_case_63 : wf_admininstr admininstr.MEMORY_FILL"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12564,
+   "new": 12559,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_65 : wf_admininstr admininstr.MEMORY_COPY",
+   "after": "  | admininstr_case_64 : wf_admininstr admininstr.MEMORY_COPY"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12565,
+   "new": 12560,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_66 (v_dataidx : dataidx) :",
+   "after": "  | admininstr_case_65 (v_dataidx : dataidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12568,
+   "new": 12563,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_67 (v_dataidx : dataidx) :",
+   "after": "  | admininstr_case_66 (v_dataidx : dataidx) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12571,
+   "new": 12566,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_68 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.REF_FUNC_ADDR v_funcaddr)",
+   "after": "  | admininstr_case_67 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.REF_FUNC_ADDR v_funcaddr)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12572,
+   "new": 12567,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_69 (v_hostaddr : hostaddr) : wf_admininstr (admininstr.REF_HOST_ADDR v_hostaddr)",
+   "after": "  | admininstr_case_68 (v_hostaddr : hostaddr) : wf_admininstr (admininstr.REF_HOST_ADDR v_hostaddr)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12573,
+   "new": 12568,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_70 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.CALL_ADDR v_funcaddr)",
+   "after": "  | admininstr_case_69 (v_funcaddr : funcaddr) : wf_admininstr (admininstr.CALL_ADDR v_funcaddr)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12574,
+   "new": 12569,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_71 (v_n : n) (instr_lst : List instr) (admininstr_lst : List admininstr) :",
+   "after": "  | admininstr_case_70 (v_n : n) (instr_lst : List instr) (admininstr_lst : List admininstr) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12578,
+   "new": 12573,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_72 (v_n : n) (v_frame : frame) (admininstr_lst : List admininstr) :",
+   "after": "  | admininstr_case_71 (v_n : n) (v_frame : frame) (admininstr_lst : List admininstr) :"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 12582,
+   "new": 12577,
+   "cat": "ctor-renumber/generated",
+   "kind": "inductive",
+   "construct": "wf_admininstr",
+   "before": "  | admininstr_case_73 : wf_admininstr admininstr.TRAP",
+   "after": "  | admininstr_case_72 : wf_admininstr admininstr.TRAP"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14712,
+   "new": 14707,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "iswf_admininstr_VCONST",
+   "before": "  wf_admininstr.admininstr_case_20 _ _ (by decide) h",
+   "after": "  wf_admininstr.admininstr_case_19 _ _ (by decide) h"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14716,
+   "new": 14711,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "iswf_admininstr_VCONST_inv",
+   "before": "  cases h with | admininstr_case_20 _ _ _ hw => exact hw",
+   "after": "  cases h with | admininstr_case_19 _ _ _ hw => exact hw"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14727,
+   "new": 14722,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | unreachable => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | unreachable => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14753,
+   "new": 14748,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "    | admininstr_case_71 _ _ _ hinstrs hbody =>",
+   "after": "    | admininstr_case_70 _ _ _ hinstrs hbody =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14760,
+   "new": 14755,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "    | admininstr_case_71 _ _ _ _ hbody =>",
+   "after": "    | admininstr_case_70 _ _ _ _ hbody =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14788,
+   "new": 14783,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "    | admininstr_case_72 _ _ _ _ hbody =>",
+   "after": "    | admininstr_case_71 _ _ _ _ hbody =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14793,
+   "new": 14788,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "    | admininstr_case_71 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)",
+   "after": "    | admininstr_case_70 _ _ _ _ hbody => exact fun x hx => hbody x (List.mem_append_left _ hx)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14794,
+   "new": 14789,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | trap_vals => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | trap_vals => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14795,
+   "new": 14790,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | trap_label => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | trap_label => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14796,
+   "new": 14791,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | trap_frame => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | trap_frame => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14803,
+   "new": 14798,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | unop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | unop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14809,
+   "new": 14804,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | binop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | binop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14820,
+   "new": 14815,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | cvtop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14853,
+   "new": 14848,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | vunop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14861,
+   "new": 14856,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_73",
+   "after": "  | vbinop_trap => exact iswf_Forall_singleton .admininstr_case_72"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 14963,
+   "new": 14958,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_pure_is_wf",
+   "before": "    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_44 _ ‹wf_uN 32 x›)))",
+   "after": "    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_43 _ ‹wf_uN 32 x›)))"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 16926,
+   "new": 16921,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "iswf_store_I32_8",
+   "before": "  wf_admininstr.admininstr_case_57 (some Inn.I32) _ _ _ (some 32)",
+   "after": "  wf_admininstr.admininstr_case_56 (some Inn.I32) _ _ _ (some 32)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 16938,
+   "new": 16933,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "iswf_load_I32_8_U",
+   "before": "  wf_admininstr.admininstr_case_56 _ _ _",
+   "after": "  wf_admininstr.admininstr_case_55 _ _ _"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 16983,
+   "new": 16978,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)",
+   "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 16990,
+   "new": 16985,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _",
+   "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17001,
+   "new": 16996,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ ‹wf_frame _›",
+   "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ ‹wf_frame _›"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17002,
+   "new": 16997,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)",
+   "after": "        (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17009,
+   "new": 17004,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_43 _ hx =>",
+   "after": "    | admininstr_case_42 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17015,
+   "new": 17010,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_46 _ hx =>",
+   "after": "    | admininstr_case_45 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17034,
+   "new": 17029,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_52 _ hx =>",
+   "after": "    | admininstr_case_51 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17038,
+   "new": 17033,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17041,
+   "new": 17036,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ hx) (iswf_Forall_nil _)",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_51 _ hx) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17051,
+   "new": 17046,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_53 _ _ hx hy =>",
+   "after": "    | admininstr_case_52 _ _ hx hy =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17056,
+   "new": 17051,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17057,
+   "new": 17052,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17060,
+   "new": 17055,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17068,
+   "new": 17063,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_53 _ _ hx hy =>",
+   "after": "    | admininstr_case_52 _ _ hx hy =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17072,
+   "new": 17067,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17073,
+   "new": 17068,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <| iswf_Forall_cons hj <| iswf_Forall_cons hi <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17075,
+   "new": 17070,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17084,
+   "new": 17079,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_54 _ _ hx hy =>",
+   "after": "    | admininstr_case_53 _ _ hx hy =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17089,
+   "new": 17084,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) <|",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) <|"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17092,
+   "new": 17087,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_54 _ _ hx hy) (iswf_Forall_nil _)",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17103,
+   "new": 17098,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)",
+   "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17107,
+   "new": 17102,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+   "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17114,
+   "new": 17109,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+   "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17121,
+   "new": 17116,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+   "after": "    exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17127,
+   "new": 17122,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_20 _ _ _ hw1 =>",
+   "after": "    | admininstr_case_19 _ _ _ hw1 =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17132,
+   "new": 17127,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)",
+   "after": "      exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17179,
+   "new": 17174,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "    | admininstr_case_66 _ hx =>",
+   "after": "    | admininstr_case_65 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17185,
+   "new": 17180,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_read_is_wf",
+   "before": "        iswf_Forall_cons (wf_admininstr.admininstr_case_66 _ hx) (iswf_Forall_nil _)",
+   "after": "        iswf_Forall_cons (wf_admininstr.admininstr_case_65 _ hx) (iswf_Forall_nil _)"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17244,
+   "new": 17239,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_71 _ _ _ hi _ =>",
+   "after": "    | admininstr_case_70 _ _ _ hi _ =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17248,
+   "new": 17243,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "          (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hi hais') (iswf_Forall_nil _))",
+   "after": "          (iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ hi hais') (iswf_Forall_nil _))"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17257,
+   "new": 17252,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "            (iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ hf'' hais') (iswf_Forall_nil _))",
+   "after": "            (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hf'' hais') (iswf_Forall_nil _))"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17267,
+   "new": 17262,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_44 _ hx =>",
+   "after": "    | admininstr_case_43 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17274,
+   "new": 17269,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_47 _ hx =>",
+   "after": "    | admininstr_case_46 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17283,
+   "new": 17278,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_49 _ hx =>",
+   "after": "    | admininstr_case_48 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17289,
+   "new": 17284,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_51 _ hx =>",
+   "after": "    | admininstr_case_50 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17303,
+   "new": 17298,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_55 _ hx =>",
+   "after": "    | admininstr_case_54 _ hx =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17334,
+   "new": 17329,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_20 _ _ hsz hwfc =>",
+   "after": "    | admininstr_case_19 _ _ hsz hwfc =>"
+  },
+  {
+   "file": "wasm2.0",
+   "old": 17364,
+   "new": 17359,
+   "cat": "ctor-renumber/hand-layer",
+   "kind": "theorem",
+   "construct": "Step_is_wf",
+   "before": "    | admininstr_case_67 _ hx =>",
+   "after": "    | admininstr_case_66 _ hx =>"
+  },
+  {
+   "file": "TypingLemmas",
+   "old": 131,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "def",
+   "construct": "instr_of",
+   "before": "  | admininstr.EXTEND x0 x1 => some (instr.EXTEND x0 x1)",
+   "after": null
+  },
+  {
+   "file": "TypingLemmas",
+   "old": 454,
+   "new": null,
+   "cat": "EXTEND-removed",
+   "kind": "def",
+   "construct": "ai_principal_typing",
+   "before": "  | admininstr.EXTEND _ _ => False",
+   "after": null
+  },
+  {
+   "file": "TypingLemmas",
+   "old": 570,
+   "new": 568,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "instr_typing_inversion",
+   "before": "    | instr_case_20 vt v not_none_size wf_vec =>",
+   "after": "    | instr_case_19 vt v not_none_size wf_vec =>"
+  },
+  {
+   "file": "TypingLemmas",
+   "old": 1681,
+   "new": 1679,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "construct_ai_val",
+   "before": "      have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_20 vectype.V128 c_t hsize hwfuN",
+   "after": "      have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_19 vectype.V128 c_t hsize hwfuN"
+  },
+  {
+   "file": "TypingLemmas",
+   "old": 1747,
+   "new": 1745,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "construct_ais_trap",
+   "before": "    (Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_73)",
+   "after": "    (Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_72)"
+  },
+  {
+   "file": "TypePreservationPure",
+   "old": 1072,
+   "new": 1072,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "Step_pure__local_tee_preserves",
+   "before": "  | admininstr_case_45 _ hwfl =>",
+   "after": "  | admininstr_case_44 _ hwfl =>"
+  },
+  {
+   "file": "TypePreservationPure",
+   "old": 1085,
+   "new": 1085,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "Step_pure__local_tee_preserves",
+   "before": "    have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_44 v_x hwfl",
+   "after": "    have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_43 v_x hwfl"
+  },
+  {
+   "file": "TypePreservation",
+   "old": 1347,
+   "new": 1347,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_vconst_parts",
+   "before": "  cases h with | admininstr_case_20 _ _ h1 h2 => exact ⟨h1, h2⟩",
+   "after": "  cases h with | admininstr_case_19 _ _ h1 h2 => exact ⟨h1, h2⟩"
+  },
+  {
+   "file": "TypePreservation",
+   "old": 2164,
+   "new": 2164,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "t_read_preservation",
+   "before": "      cases hwfF with | admininstr_case_72 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)",
+   "after": "      cases hwfF with | admininstr_case_71 _ _ _ _ hl => exact hl _ (List.mem_singleton_self _)"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 800,
+   "new": 800,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_forall_admin_val",
+   "before": "    | val_case_1 vt c hsz hwfc => exact wf_admininstr.admininstr_case_20 vt c hsz hwfc",
+   "after": "    | val_case_1 vt c hsz hwfc => exact wf_admininstr.admininstr_case_19 vt c hsz hwfc"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 801,
+   "new": 801,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_forall_admin_val",
+   "before": "    | val_case_2 rt => exact wf_admininstr.admininstr_case_40 rt",
+   "after": "    | val_case_2 rt => exact wf_admininstr.admininstr_case_39 rt"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 802,
+   "new": 802,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_forall_admin_val",
+   "before": "    | val_case_3 a => exact wf_admininstr.admininstr_case_68 a",
+   "after": "    | val_case_3 a => exact wf_admininstr.admininstr_case_67 a"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 803,
+   "new": 803,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_forall_admin_val",
+   "before": "    | val_case_4 a => exact wf_admininstr.admininstr_case_69 a",
+   "after": "    | val_case_4 a => exact wf_admininstr.admininstr_case_68 a"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 814,
+   "new": 814,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_forall_admin_val",
+   "before": "      | admininstr_case_20 _ _ hsz hwfc => exact wf_val.val_case_1 vt c hsz hwfc",
+   "after": "      | admininstr_case_19 _ _ hsz hwfc => exact wf_val.val_case_1 vt c hsz hwfc"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 839,
+   "new": 839,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_config_label",
+   "before": "    | admininstr_case_71 _ _ _ hbes hes =>",
+   "after": "    | admininstr_case_70 _ _ _ hbes hes =>"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 856,
+   "new": 856,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "wf_config_frame",
+   "before": "    | admininstr_case_72 _ _ _ hwff hes =>",
+   "after": "    | admininstr_case_71 _ _ _ hwff hes =>"
+  },
+  {
+   "file": "TypeProgress",
+   "old": 7784,
+   "new": 7784,
+   "cat": "ctor-renumber/proof-module",
+   "kind": "theorem",
+   "construct": "t_progress_e_Instr_ok2_frame",
+   "before": "      | admininstr_case_72 _ _ _ hf hes =>",
+   "after": "      | admininstr_case_71 _ _ _ hf hes =>"
+  }
+ ]
+}

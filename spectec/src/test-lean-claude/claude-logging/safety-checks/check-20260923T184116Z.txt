@@ -1,0 +1,104 @@
+=== Safety check at 20260923T184116Z ===
+--- git status (porcelain) ---
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.trace
+ M spectec/src/test-lean-claude/ExtensionLemmas.lean
+ M spectec/src/test-lean-claude/HelperLemmas.lean
+ M spectec/src/test-lean-claude/Subtyping.lean
+ M spectec/src/test-lean-claude/TypingLemmas.lean
+ M spectec/src/test-lean-claude/claude-logging/for-claude/NOTES.md
+?? .vscode/
+?? _opam/
+?? spectec/1---
+?? spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+?? spectec/blahblah.lean
+?? spectec/check_wasm2.0.lean
+?? spectec/check_wasm2.0.v
+?? spectec/check_wasm2.0_OLD.lean
+?? spectec/diegowasm2.0.lean
+?? spectec/diegowasm3.0.lean
+?? spectec/fixed2lean3.0.lean
+?? spectec/fixed3lean3.0.lean
+?? spectec/fixed4lean3.0.lean
+?? spectec/fixed_wasm2.0.lean
+?? spectec/fixedlean2.0.lean
+?? spectec/fixedlean3.0.lean
+?? spectec/handcopy.lean
+?? spectec/huhrocq3.0.v
+?? spectec/new.diff
+?? spectec/new_wasm1.0.lean
+?? spectec/new_wasm2.0.lean
+?? spectec/oldlean2.0.lean
+?? spectec/sandbox.lean
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20260923T175316Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20260923T182910Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20260923T184116Z.txt
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle4/
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle5/
+?? spectec/temp2wasm3.0.lean
+?? spectec/tempwasm3.0.lean
+?? spectec/test-lean/todaywasm2.0.lean
+?? spectec/test-lean/todaywasm3.0.lean
+?? spectec/test-rocq/_CoqProject
+?? spectec/test-rocq/test-rocq.opam
+?? spectec/update_fixedlean2.0.lean
+?? spectec/wasm2.0.v
+?? spectec/wasm2.0_new.lean
+?? spectec/wasm3.0.v
+
+--- Any changes outside spectec/src/test-lean-claude/ ? ---
+.vscode/
+_opam/
+spectec/1---
+spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+spectec/blahblah.lean
+spectec/check_wasm2.0.lean
+spectec/check_wasm2.0.v
+spectec/check_wasm2.0_OLD.lean
+spectec/diegowasm2.0.lean
+spectec/diegowasm3.0.lean
+spectec/fixed2lean3.0.lean
+spectec/fixed3lean3.0.lean
+spectec/fixed4lean3.0.lean
+spectec/fixed_wasm2.0.lean
+spectec/fixedlean2.0.lean
+spectec/fixedlean3.0.lean
+spectec/handcopy.lean
+spectec/huhrocq3.0.v
+spectec/new.diff
+spectec/new_wasm1.0.lean
+spectec/new_wasm2.0.lean
+spectec/oldlean2.0.lean
+spectec/sandbox.lean
+spectec/temp2wasm3.0.lean
+spectec/tempwasm3.0.lean
+spectec/test-lean/todaywasm2.0.lean
+spectec/test-lean/todaywasm3.0.lean
+spectec/test-rocq/_CoqProject
+spectec/test-rocq/test-rocq.opam
+spectec/update_fixedlean2.0.lean
+spectec/wasm2.0.v
+spectec/wasm2.0_new.lean
+spectec/wasm3.0.v

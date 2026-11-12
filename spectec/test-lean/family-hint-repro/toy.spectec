@@ -1,0 +1,19 @@
+;; Minimal reproduction, verbatim naming pattern from the real spec
+;; (num_(numtype) vs vec_(vectype)), with trivial `nat` payloads instead of
+;; iN(...)/fN(...)/vN(...).
+
+syntax numtype = I32 | I64 | F32 | F64
+syntax vectype = V128
+
+syntax Inn = I32 | I64
+syntax Fnn = F32 | F64
+syntax Vnn = V128
+
+syntax num_(numtype)
+syntax num_(Inn) = nat
+syntax num_(Fnn) = nat
+
+syntax vec_(vectype) = nat
+
+def $foo(numtype, num_(numtype)) : nat*  hint(builtin)
+def $bar(vectype, vec_(vectype)) : nat*  hint(builtin)

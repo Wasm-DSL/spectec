@@ -1,0 +1,2649 @@
+;;
+;; General definitions
+;;
+
+;; General variables
+
+syntax N hint(macro) = nat  ;; hack
+syntax M hint(macro) = nat  ;; hack
+syntax n hint(macro) = nat  ;; hack
+syntax m hint(macro) = nat  ;; hack
+
+
+;; General constants
+
+def $Ki : nat
+def $Ki = 1024
+
+
+;; General functions
+
+def $min(nat, nat) : nat
+def $min(i, j) = i  -- if $(i <= j)
+def $min(i, j) = j  -- otherwise
+
+def $sum(nat*) : nat  ;; TODO: hint
+def $sum(eps) = 0
+def $sum(n n'*) = $(n + $sum(n'*))
+
+
+;; General sequence functions
+
+def $opt_(syntax X, X*) : X?  hint(show %2) hint(partial)
+def $opt_(syntax X, eps) = eps
+def $opt_(syntax X, w) = w
+
+def $list_(syntax X, X?) : X*  hint(show %2)
+def $list_(syntax X, eps) = eps
+def $list_(syntax X, w) = w
+
+def $concat_(syntax X, (X*)*) : X*  hint(show $concat(%2))
+def $concat_(syntax X, eps) = eps
+def $concat_(syntax X, (w*) (w'*)*) = w* $concat_(X, (w'*)*)
+
+def $disjoint_(syntax X, X*) : bool  hint(show %2 $disjoint) hint(macro none)
+def $disjoint_(syntax X, eps) = true
+def $disjoint_(syntax X, w w'*) = ~(w <- w'*) /\ $disjoint_(X, w'*)
+
+
+;; ── IterPr arity-1 test ───────────────────────────────────────────────────────
+;; (Nat_ok: n |- n)* should produce: ∀ n ∈ n_lst, Nat_ok n n
+
+relation Nat_ok: nat |- nat
+rule Nat_ok/refl:
+  n |- n
+
+relation Nats_ok: nat* |- nat*
+rule Nats_ok/all:
+  n* |- n*
+    -- (Nat_ok: n |- n)*
+
+;; ── IterPr arity-2 test ───────────────────────────────────────────────────────
+;; (Pair_ok: n |- m)* should produce:
+;;   ∀ __iter_tuple ∈ n_lst |>.zip m_lst, Pair_ok __iter_tuple.1 __iter_tuple.2
+
+relation Pair_ok: nat |- nat
+rule Pair_ok/eq:
+  n |- n
+
+relation Pairs_ok: nat* |- nat*
+rule Pairs_ok/all:
+  n* |- m*
+    -- (Pair_ok: n |- m)*
+
+
+;;===================================================================================
+;;===================================================================================
+;;===================================================================================
+;;===================================================================================
+;;===================================================================================
+;;===================================================================================
+;;===================================================================================
+
+;;
+;; Lists
+;;
+
+;; TODO: enable writing X^n
+syntax list(syntax X) = X*  -- if |X*| < $(2^32)
+
+
+;;
+;; Values
+;;
+
+;; Integers
+
+syntax byte hint(desc "byte") = 0x00 | ... | 0xFF
+
+syntax uN(N) hint(desc "unsigned integer") hint(show u#%) =
+  0 | ... | $nat$(2^N-1)
+syntax sN(N) hint(desc "signed integer") hint(show s#%) =
+  -2^(N-1) | ... | -1 | 0 | +1 | ... | 2^(N-1)-1
+syntax iN(N) hint(desc "integer") hint(show i#%) =
+  uN(N)
+
+syntax u31 = uN(31)
+syntax u32 = uN(32)
+syntax u64 = uN(64)
+
+syntax i32 = iN(32)
+syntax i64 = iN(64)
+
+var b : byte
+
+
+;; Floating-point
+
+def $signif(N) : nat hint(partial)
+def $signif(32) = 23
+def $signif(64) = 52
+
+def $expon(N) : nat hint(partial)
+def $expon(32) = 8
+def $expon(64) = 11
+
+def $M(N) : nat hint(show `M)
+def $M(N) = $signif(N)
+
+def $E(N) : nat hint(show `E)
+def $E(N) = $expon(N)
+
+syntax fN(N) hint(desc "floating-point number") hint(show f#%) =
+  | POS fNmag(N)  hint(show $(+%)) \
+  | NEG fNmag(N)  hint(show $(-%))
+
+syntax exp hint(show e) = int
+syntax fNmag(N) hint(desc "floating-point magnitude") hint(show fNmag) =
+  | NORM m exp   hint(show $((1 + %*2^(-$M(N))) * 2^%))   -- if $(m < 2^$M(N) /\ 2-2^($E(N)-1) <= exp <= 2^($E(N)-1)-1)
+  | SUBNORM m    hint(show $((0 + %*2^(-$M(N))) * 2^exp)) -- if $(m < 2^$M(N) /\ 2-2^($E(N)-1) = exp)
+  | INF          hint(show infinity)
+  | NAN (m)      hint(show NAN#(%))                       -- if $(1 <= m < 2^$M(N))
+
+syntax f32 = fN(32)
+syntax f64 = fN(64)
+
+def $fzero(N) : fN(N) hint(show $(+0))
+def $fzero(N) = POS (SUBNORM 0)
+
+def $fone(N) : fN(N)  hint(show $(+1))
+def $fone(N) = POS (NORM 1 0)
+
+def $canon_(N) : nat
+def $canon_(N) = $(2^($signif(N)-1))
+
+
+;;
+;; Names
+;;
+
+syntax char hint(desc "character") = U+0000 | ... | U+D7FF | U+E000 | ... | U+10FFFF
+
+def $utf8(char*) : byte*
+
+syntax name hint(desc "name") = char*  -- if |$utf8(char*)| < $(2^32)
+
+var nm : name
+
+
+;;
+;; Indices
+;;
+
+syntax idx hint(desc "index") = u32
+
+syntax typeidx hint(desc "type index") = idx
+syntax funcidx hint(desc "function index") = idx
+syntax globalidx hint(desc "global index") = idx
+syntax tableidx hint(desc "table index") = idx
+syntax memidx hint(desc "memory index") = idx
+syntax labelidx hint(desc "label index") = idx
+syntax localidx hint(desc "local index") = idx
+
+var x : idx
+var y : idx
+var l : labelidx
+
+
+;; Types
+
+syntax valtype hint(desc "number type") =
+  | I32 | I64 | F32 | F64
+
+syntax Inn hint(show I#n) = I32 | I64
+syntax Fnn hint(show F#n) = F32 | F64
+
+var t : valtype
+
+syntax resulttype hint(desc "result type") =
+  valtype?
+
+syntax mut = MUT?
+
+syntax limits hint(desc "limits") =
+  `[u32 .. u32?]
+syntax globaltype hint(desc "global type") =
+  mut valtype
+syntax functype hint(desc "function type") =
+  valtype* -> valtype*
+syntax tabletype hint(desc "table type") =
+  limits
+syntax memtype hint(desc "memory type") =
+  limits
+syntax externtype hint(desc "external type") =
+  | FUNC functype | GLOBAL globaltype | TABLE tabletype | MEM memtype
+
+var lim : limits
+var ft : functype
+var gt : globaltype
+var tt : tabletype
+var mt : memtype
+var xt : externtype
+
+
+;; Constants
+
+def $size(valtype) : nat  hint(show |%|)
+
+syntax val_(valtype)
+syntax val_(Inn) = iN($size(Inn))
+syntax val_(Fnn) = fN($size(Fnn))
+
+
+;; Operators
+
+syntax sx hint(desc "signedness") = U | S
+syntax sz hint(desc "pack size") = `8 | `16 | `32 | `64
+
+syntax unop_(valtype)
+syntax unop_(Inn) = CLZ | CTZ | POPCNT
+syntax unop_(Fnn) = ABS | NEG | SQRT | CEIL | FLOOR | TRUNC | NEAREST
+
+syntax binop_(valtype)
+syntax binop_(Inn) =
+  | ADD | SUB | MUL | DIV sx hint(show DIV_#%) | REM sx hint(show REM_#%)
+  | AND | OR | XOR | SHL | SHR sx hint(show SHR_#%) | ROTL | ROTR
+syntax binop_(Fnn) =
+  | ADD | SUB | MUL | DIV | MIN | MAX | COPYSIGN
+
+syntax testop_(valtype)
+syntax testop_(Inn) = EQZ
+;; syntax testop_(Fnn) = |      ;; uninhabited
+
+syntax relop_(valtype)
+syntax relop_(Inn) =
+  | EQ | NE \
+  | LT sx hint(show LT_#%) | GT sx hint(show GT_#%) \
+  | LE sx hint(show LE_#%) | GE sx hint(show GE_#%)
+syntax relop_(Fnn) =
+  | EQ | NE | LT | GT | LE | GE
+
+syntax cvtop =
+  | EXTEND sx | WRAP | CONVERT sx | TRUNC sx | PROMOTE | DEMOTE | REINTERPRET
+
+
+;; Memory operators
+
+syntax memarg hint(desc "memory argument") = {ALIGN u32, OFFSET u32}
+
+var ao : memarg
+
+syntax loadop_(valtype)
+syntax loadop_(Inn) = sz _ sx hint(show %0#_#%2) -- if sz < $size(Inn)
+
+
+;; Instructions
+
+syntax blocktype hint(desc "block type") = valtype?
+
+var bt : blocktype
+
+syntax instr/parametric hint(desc "parametric instruction") =
+  | NOP
+  | UNREACHABLE
+  | DROP
+  | SELECT
+  | ...
+
+syntax instr/block hint(desc "block instruction") = ...
+  | BLOCK blocktype instr*
+  | LOOP blocktype instr*
+  | IF blocktype instr* ELSE instr*
+  | ...
+
+syntax instr/br hint(desc "branch instruction") = ...
+  | BR labelidx
+  | BR_IF labelidx
+  | BR_TABLE labelidx* labelidx
+  | ...
+
+syntax instr/call hint(desc "call instruction") = ...
+  | CALL funcidx
+  | CALL_INDIRECT typeidx
+  | RETURN
+  | ...
+
+syntax instr/num hint(desc "numeric instruction") = ...
+  | CONST valtype val_(valtype)      hint(show %.CONST %)
+  | UNOP valtype unop_(valtype)      hint(show %.%)
+  | BINOP valtype binop_(valtype)    hint(show %.%)
+  | TESTOP valtype testop_(valtype)  hint(show %.%)
+  | RELOP valtype relop_(valtype)    hint(show %.%)
+  | CVTOP valtype_1 valtype_2 cvtop  hint(show %1.%3#_#%2)
+    -- if valtype_1 =/= valtype_2
+  | ...
+
+syntax instr/local hint(desc "local instruction") = ...
+  | LOCAL.GET localidx
+  | LOCAL.SET localidx
+  | LOCAL.TEE localidx
+  | ...
+
+syntax instr/global hint(desc "global instruction") = ...
+  | GLOBAL.GET globalidx
+  | GLOBAL.SET globalidx
+  | ...
+
+syntax instr/memory hint(desc "memory instruction") = ...
+  | LOAD valtype loadop_(valtype)? memarg  hint(show %.LOAD % %) hint(show %.LOAD# ##% %)
+  | STORE valtype sz? memarg               hint(show %.STORE % %) hint(show %.STORE#% %)
+    -- (if valtype = Inn /\ sz < $size(Inn))?
+  | MEMORY.SIZE
+  | MEMORY.GROW
+
+syntax expr hint(desc "expression") =
+  instr*
+
+syntax instr hint(desc "instruction")
+
+var in : instr
+var e : expr
+
+
+;; Modules
+
+syntax type hint(desc "type") =
+  TYPE functype
+syntax local hint(desc "local") =
+  LOCAL valtype
+syntax func hint(desc "function") =
+  FUNC typeidx local* expr
+syntax global hint(desc "global") =
+  GLOBAL globaltype expr
+syntax table hint(desc "table") =
+  TABLE tabletype
+syntax mem hint(desc "memory") =
+  MEMORY memtype
+syntax elem hint(desc "table segment") =
+  ELEM expr funcidx*
+syntax data hint(desc "memory segment") =
+  DATA expr byte*
+syntax start hint(desc "start function") =
+  START funcidx
+
+syntax externidx hint(desc "external index") =
+  | FUNC funcidx | GLOBAL globalidx | TABLE tableidx | MEM memidx
+syntax export hint(desc "export") =
+  EXPORT name externidx
+syntax import hint(desc "import") =
+  IMPORT name name externtype
+
+syntax module hint(desc "module") =
+  MODULE type* import* func* global* table* mem* elem* data* start? export*
+
+
+var ty : type
+var loc : local
+var glob : global
+var tab : table
+var im : import
+var ex : export
+var st : start
+var xx : externidx
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+
+;;
+;; Auxiliary Definitions on Types
+;;
+
+;; Size
+
+;; def |I n| = |F n| = |V n| = n        ;; ????
+
+;;def $size(valtype) : nat  hint(partial) hint(show |%|)
+
+def $size(I32) = 32
+def $size(I64) = 64
+def $size(F32) = 32
+def $size(F64) = 64
+
+
+;; Projections
+
+;; TODO: use built-in notation
+def $funcsxt(externtype*) : functype*      hint(show $funcs(%))
+def $globalsxt(externtype*) : globaltype*  hint(show $globals(%))
+def $tablesxt(externtype*) : tabletype*    hint(show $tables(%))
+def $memsxt(externtype*) : memtype*        hint(show $mems(%))
+
+def $funcsxt(eps) = eps
+def $funcsxt((FUNC ft) xt*) = ft $funcsxt(xt*)
+def $funcsxt(externtype xt*) = $funcsxt(xt*)  -- otherwise
+
+def $globalsxt(eps) = eps
+def $globalsxt((GLOBAL gt) xt*) = gt $globalsxt(xt*)
+def $globalsxt(externtype xt*) = $globalsxt(xt*)  -- otherwise
+
+def $tablesxt(eps) = eps
+def $tablesxt((TABLE tt) xt*) = tt $tablesxt(xt*)
+def $tablesxt(externtype xt*) = $tablesxt(xt*)  -- otherwise
+
+def $memsxt(eps) = eps
+def $memsxt((MEM mt) xt*) = mt $memsxt(xt*)
+def $memsxt(externtype xt*) = $memsxt(xt*)  -- otherwise
+
+
+
+;;
+;; Auxiliary definitions on Instructions
+;;
+
+;; Shorthands for Instructions
+
+def $memarg0 : memarg  hint(show )
+def $memarg0 = {ALIGN 0, OFFSET 0}
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Numerics
+;;
+
+;; Conversions
+
+def $bool(bool) : nat
+def $bool(false) = 0
+def $bool(true) = 1
+
+def $truncz(rat) : int
+def $truncz hint(builtin)
+;;def $trunc(+-q) = +-n  -- if n <- nat /\ $(q - 1) < n <= q
+
+
+;; Signed numbers
+
+def $signed_(N, nat) : int hint(inverse $inv_signed_)
+def $signed_(N, i) = i           -- if $(i < 2^(N-1))
+def $signed_(N, i) = $(i - 2^N)  -- if $(2^(N-1) <= i < 2^N)
+
+def $inv_signed_(N, int) : nat    hint(show $signed_(%)^(-1)#((%)))
+def $inv_signed_(N, i) = i          -- if $(0 <= i < 2^(N-1))
+def $inv_signed_(N, i) = $(i + 2^N) -- if $(-2^(N-1) <= i < 0)
+
+;; TODO
+
+def $unop_(valtype, unop_(valtype), val_(valtype)) : val_(valtype)*
+    hint(show %2#$_(%1)#((%3))) hint(partial)
+def $binop_(valtype, binop_(valtype), val_(valtype), val_(valtype)) : val_(valtype)*
+    hint(show %2#$_(%1)#(%3, %4))
+def $testop_(valtype, testop_(valtype), val_(valtype)) : val_(I32)
+    hint(show %2#$_(%1)#((%3))) hint(partial)
+def $relop_(valtype, relop_(valtype), val_(valtype), val_(valtype)) : val_(I32)
+    hint(show %2#$_(%1)#(%3, %4))
+def $cvtop__(valtype_1, valtype_2, cvtop, val_(valtype_1)) : val_(valtype_2)*
+    hint(show %3#$__(%1,%2)#((%4)))
+
+def $wrap__(M, N, iN(M)) : iN(N)
+def $extend__(M, N, sx, iN(M)) : iN(N)               hint(show $extend__(%,%)^(%)#((%)))
+def $trunc__(M, N, sx, fN(M)) : iN(N)?               hint(show $trunc__(%,%)^(%)#((%)))
+def $demote__(M, N, fN(M)) : fN(N)*
+def $promote__(M, N, fN(M)) : fN(N)*
+def $convert__(M, N, sx, iN(M)) : fN(N)              hint(show $convert__(%,%)^(%)#((%)))
+def $reinterpret__(valtype_1, valtype_2, val_(valtype_1)) : val_(valtype_2)
+
+;; TODO(3, rossberg): implement numerics internally
+def $wrap__        hint(builtin)
+def $extend__      hint(builtin)
+def $trunc__       hint(builtin)
+def $demote__      hint(builtin)
+def $promote__     hint(builtin)
+def $convert__     hint(builtin)
+def $reinterpret__ hint(builtin)
+
+def $ibytes_(N, iN(N)) : byte*                   hint(show $bytes_(I#%,%)) hint(inverse $inv_ibytes_)
+def $fbytes_(N, fN(N)) : byte*                   hint(show $bytes_(F#%,%)) hint(inverse $inv_fbytes_)
+def $bytes_(valtype, val_(valtype)) : byte*      hint(inverse $inv_bytes_)
+
+def $inv_ibytes_(N, byte*) : iN(N)               hint(show $bytes_(I#%,%))
+def $inv_fbytes_(N, byte*) : fN(N)               hint(show $bytes_(F#%,%))
+def $inv_bytes_(valtype, byte*) : val_(valtype)  hint(show $bytes_(%,%))
+
+def $ibytes_ hint(builtin)
+def $fbytes_ hint(builtin)
+def $bytes_ hint(builtin)
+
+def $inv_ibytes_ hint(builtin)
+def $inv_fbytes_ hint(builtin)
+def $inv_bytes_ hint(builtin)
+
+
+def $iadd_(N, iN(N), iN(N)) : iN(N)
+def $isub_(N, iN(N), iN(N)) : iN(N)
+def $imul_(N, iN(N), iN(N)) : iN(N)
+def $idiv_(N, sx, iN(N), iN(N)) : iN(N)? hint(show $idiv_(%)^(%)#((%,%)))
+def $irem_(N, sx, iN(N), iN(N)) : iN(N)? hint(show $irem_(%)^(%)#((%,%)))
+def $inot_(N, iN(N)) : iN(N)
+def $iand_(N, iN(N), iN(N)) : iN(N)
+def $ior_(N, iN(N), iN(N)) : iN(N)
+def $ixor_(N, iN(N), iN(N)) : iN(N)
+def $ishl_(N, iN(N), u32) : iN(N)
+def $ishr_(N, sx, iN(N), u32) : iN(N)    hint(show $ishr_(%)^(%)#((%,%)))
+def $irotl_(N, iN(N), iN(N)) : iN(N)
+def $irotr_(N, iN(N), iN(N)) : iN(N)
+def $iclz_(N, iN(N)) : iN(N)
+def $ictz_(N, iN(N)) : iN(N)
+def $ipopcnt_(N, iN(N)) : iN(N)
+def $ieqz_(N, iN(N)) : u32
+def $inez_(N, iN(N)) : u32
+def $ieq_(N, iN(N), iN(N)) : u32
+def $ine_(N, iN(N), iN(N)) : u32
+def $ilt_(N, sx, iN(N), iN(N)) : u32     hint(show $ilt_(%)^(%)#((%,%)))
+def $igt_(N, sx, iN(N), iN(N)) : u32     hint(show $igt_(%)^(%)#((%,%)))
+def $ile_(N, sx, iN(N), iN(N)) : u32     hint(show $ile_(%)^(%)#((%,%)))
+def $ige_(N, sx, iN(N), iN(N)) : u32     hint(show $ige_(%)^(%)#((%,%)))
+
+def $iadd_(N, i_1, i_2) = $((i_1 + i_2) \ 2^N)
+def $isub_(N, i_1, i_2) = $((2^N + i_1 - i_2) \ 2^N)
+def $imul_(N, i_1, i_2) = $((i_1 * i_2) \ 2^N)
+
+def $idiv_(N, U, i_1, 0)   = eps
+def $idiv_(N, U, i_1, i_2) = $truncz($(i_1 / i_2))
+def $idiv_(N, S, i_1, 0)   = eps
+def $idiv_(N, S, i_1, i_2) = eps  -- if $($signed_(N, i_1) / $signed_(N, i_2)) = $rat$(2^(N-1))
+def $idiv_(N, S, i_1, i_2) = $inv_signed_(N, $truncz($($signed_(N, i_1) / $signed_(N, i_2))))
+
+def $irem_(N, U, i_1, 0)   = eps
+def $irem_(N, U, i_1, i_2) = $(i_1 - i_2 * $truncz($(i_1 / i_2)))
+def $irem_(N, S, i_1, 0)   = eps
+def $irem_(N, S, i_1, i_2) = $inv_signed_(N, $(j_1 - j_2 * $truncz($(j_1 / j_2))))
+                             -- if j_1 = $signed_(N, i_1) /\ j_2 = $signed_(N, i_2)
+
+;; TODO(3, rossberg): implement all numerics internally
+def $inot_ hint(builtin)
+def $iand_ hint(builtin)
+def $ior_  hint(builtin)
+def $ixor_ hint(builtin)
+def $ishl_ hint(builtin)
+def $ishr_ hint(builtin)
+def $irotl_ hint(builtin)
+def $irotr_ hint(builtin)
+def $iclz_  hint(builtin)
+def $ictz_  hint(builtin)
+def $ipopcnt_ hint(builtin)
+
+def $ieqz_(N, i_1) = $bool(i_1 = 0)
+def $inez_(N, i_1) = $bool(i_1 =/= 0)
+
+def $ieq_(N, i_1, i_2) = $bool(i_1 = i_2)
+def $ine_(N, i_1, i_2) = $bool(i_1 =/= i_2)
+
+def $ilt_(N, U, i_1, i_2) = $bool(i_1 < i_2)
+def $ilt_(N, S, i_1, i_2) = $bool($signed_(N, i_1) < $signed_(N, i_2))
+
+def $igt_(N, U, i_1, i_2) = $bool(i_1 > i_2)
+def $igt_(N, S, i_1, i_2) = $bool($signed_(N, i_1) > $signed_(N, i_2))
+
+def $ile_(N, U, i_1, i_2) = $bool(i_1 <= i_2)
+def $ile_(N, S, i_1, i_2) = $bool($signed_(N, i_1) <= $signed_(N, i_2))
+
+def $ige_(N, U, i_1, i_2) = $bool(i_1 >= i_2)
+def $ige_(N, S, i_1, i_2) = $bool($signed_(N, i_1) >= $signed_(N, i_2))
+
+def $fadd_(N, fN(N), fN(N)) : fN(N)*
+def $fsub_(N, fN(N), fN(N)) : fN(N)*
+def $fmul_(N, fN(N), fN(N)) : fN(N)*
+def $fdiv_(N, fN(N), fN(N)) : fN(N)*
+def $fmin_(N, fN(N), fN(N)) : fN(N)*
+def $fmax_(N, fN(N), fN(N)) : fN(N)*
+def $fcopysign_(N, fN(N), fN(N)) : fN(N)*
+def $fabs_(N, fN(N)) : fN(N)*
+def $fneg_(N, fN(N)) : fN(N)*
+def $fsqrt_(N, fN(N)) : fN(N)*
+def $fceil_(N, fN(N)) : fN(N)*
+def $ffloor_(N, fN(N)) : fN(N)*
+def $ftrunc_(N, fN(N)) : fN(N)*
+def $fnearest_(N, fN(N)) : fN(N)*
+def $feq_(N, fN(N), fN(N)) : u32
+def $fne_(N, fN(N), fN(N)) : u32
+def $flt_(N, fN(N), fN(N)) : u32
+def $fgt_(N, fN(N), fN(N)) : u32
+def $fle_(N, fN(N), fN(N)) : u32
+def $fge_(N, fN(N), fN(N)) : u32
+
+def $fadd_  hint(builtin)
+def $fsub_  hint(builtin)
+def $fmul_  hint(builtin)
+def $fdiv_  hint(builtin)
+def $fmin_  hint(builtin)
+def $fmax_  hint(builtin)
+
+def $fcopysign_ hint(builtin)
+def $fabs_      hint(builtin)
+def $fneg_      hint(builtin)
+def $fsqrt_     hint(builtin)
+def $fceil_     hint(builtin)
+def $ffloor_    hint(builtin)
+def $ftrunc_    hint(builtin)
+def $fnearest_  hint(builtin)
+
+def $feq_ hint(builtin)
+def $fne_ hint(builtin)
+def $flt_ hint(builtin)
+def $fgt_ hint(builtin)
+def $fle_ hint(builtin)
+def $fge_ hint(builtin)
+
+
+def $binop_(Inn, ADD, iN_1, iN_2) = $iadd_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, SUB, iN_1, iN_2) = $isub_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, MUL, iN_1, iN_2) = $imul_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, DIV sx, iN_1, iN_2) = $list_(val_(Inn), $idiv_($size(Inn), sx, iN_1, iN_2))
+def $binop_(Inn, REM sx, iN_1, iN_2) = $list_(val_(Inn), $irem_($size(Inn), sx, iN_1, iN_2))
+def $binop_(Inn, AND, iN_1, iN_2) = $iand_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, OR, iN_1, iN_2) = $ior_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, XOR, iN_1, iN_2) = $ixor_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, SHL, iN_1, iN_2) = $ishl_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, SHR sx, iN_1, iN_2) = $ishr_($size(Inn), sx, iN_1, iN_2)
+def $binop_(Inn, ROTL, iN_1, iN_2) = $irotl_($size(Inn), iN_1, iN_2)
+def $binop_(Inn, ROTR, iN_1, iN_2) = $irotr_($size(Inn), iN_1, iN_2)
+def $unop_(Inn, CLZ, iN) = $iclz_($size(Inn), iN)
+def $unop_(Inn, CTZ, iN) = $ictz_($size(Inn), iN)
+def $unop_(Inn, POPCNT, iN) = $ipopcnt_($size(Inn), iN)
+def $testop_(Inn, EQZ, iN) = $ieqz_($size(Inn), iN)
+def $relop_(Inn, EQ, iN_1, iN_2) = $ieq_($size(Inn), iN_1, iN_2)
+def $relop_(Inn, NE, iN_1, iN_2) = $ine_($size(Inn), iN_1, iN_2)
+def $relop_(Inn, LT sx, iN_1, iN_2) = $ilt_($size(Inn), sx, iN_1, iN_2)
+def $relop_(Inn, GT sx, iN_1, iN_2) = $igt_($size(Inn), sx, iN_1, iN_2)
+def $relop_(Inn, LE sx, iN_1, iN_2) = $ile_($size(Inn), sx, iN_1, iN_2)
+def $relop_(Inn, GE sx, iN_1, iN_2) = $ige_($size(Inn), sx, iN_1, iN_2)
+
+def $binop_(Fnn, ADD, fN_1, fN_2) = $fadd_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, SUB, fN_1, fN_2) = $fsub_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, MUL, fN_1, fN_2) = $fmul_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, DIV, fN_1, fN_2) = $fdiv_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, MIN, fN_1, fN_2) = $fmin_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, MAX, fN_1, fN_2) = $fmax_($size(Fnn), fN_1, fN_2)
+def $binop_(Fnn, COPYSIGN, fN_1, fN_2) = $fcopysign_($size(Fnn), fN_1, fN_2)
+
+def $unop_(Fnn, ABS, fN) = $fabs_($size(Fnn), fN)
+def $unop_(Fnn, NEG, fN) = $fneg_($size(Fnn), fN)
+def $unop_(Fnn, SQRT, fN) = $fsqrt_($size(Fnn), fN)
+def $unop_(Fnn, CEIL, fN) = $fceil_($size(Fnn), fN)
+def $unop_(Fnn, FLOOR, fN) = $ffloor_($size(Fnn), fN)
+def $unop_(Fnn, TRUNC, fN) = $ftrunc_($size(Fnn), fN)
+def $unop_(Fnn, NEAREST, fN) = $fnearest_($size(Fnn), fN)
+
+def $relop_(Fnn, EQ, fN_1, fN_2) = $feq_($size(Fnn), fN_1, fN_2)
+def $relop_(Fnn, NE, fN_1, fN_2) = $fne_($size(Fnn), fN_1, fN_2)
+def $relop_(Fnn, LT, fN_1, fN_2) = $flt_($size(Fnn), fN_1, fN_2)
+def $relop_(Fnn, GT, fN_1, fN_2) = $fgt_($size(Fnn), fN_1, fN_2)
+def $relop_(Fnn, LE, fN_1, fN_2) = $fle_($size(Fnn), fN_1, fN_2)
+def $relop_(Fnn, GE, fN_1, fN_2) = $fge_($size(Fnn), fN_1, fN_2)
+
+def $cvtop__(I32, I64, EXTEND sx, iN) = $extend__(32, 64, sx, iN)
+def $cvtop__(I64, I32, WRAP, iN) = $wrap__(64, 32, iN)
+def $cvtop__(Fnn, Inn, TRUNC sx, fN) = $list_(val_(Inn), $trunc__($size(Fnn), $size(Inn), sx, fN))
+def $cvtop__(F32, F64, PROMOTE, fN) = $promote__(32, 64, fN)
+def $cvtop__(F64, F32, DEMOTE, fN) = $demote__(64, 32, fN)
+def $cvtop__(Inn, Fnn, CONVERT sx, iN) = $convert__($size(Inn), $size(Fnn), sx, iN)
+def $cvtop__(Inn, Fnn, REINTERPRET, iN) = $reinterpret__(Inn, Fnn, iN) -- if $size(Inn) = $size(Fnn)
+def $cvtop__(Fnn, Inn, REINTERPRET, fN) = $reinterpret__(Fnn, Inn, fN) -- if $size(Inn) = $size(Fnn)
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Addresses
+;;
+
+syntax addr hint(desc "address") = nat
+syntax funcaddr hint(desc "function address") = addr
+syntax globaladdr hint(desc "global address") = addr
+syntax tableaddr hint(desc "table address") = addr
+syntax memaddr hint(desc "memory address") = addr
+
+var a : addr
+var fa : funcaddr
+var ga : globaladdr
+var ta : tableaddr
+var ma : memaddr
+
+
+;; External addresses
+
+syntax externaddr hint(desc "external value") =
+  | FUNC funcaddr | GLOBAL globaladdr | TABLE tableaddr | MEM memaddr
+
+var xa : externaddr
+
+
+;;
+;; Values
+;;
+
+;; Basic values
+
+syntax val hint(desc "value") =
+  | CONST valtype val_(valtype)   hint(show %.CONST %)
+
+syntax result hint(desc "result") =
+  | _VALS val* | TRAP
+
+var v : val
+var res : result
+
+
+;;
+;; Configurations
+;;
+
+;; Instances
+
+syntax funcinst hint(desc "function instance") =
+  { TYPE functype,
+    MODULE moduleinst,
+    CODE func }
+syntax globalinst hint(desc "global instance") =
+  { TYPE globaltype,
+    VALUE val }
+syntax tableinst hint(desc "table instance") =
+  { TYPE tabletype,
+    REFS (funcaddr?)* }
+syntax meminst hint(desc "memory instance") =
+  { TYPE memtype,
+    BYTES byte* }
+syntax exportinst hint(desc "export instance") =
+  { NAME name,
+    ADDR externaddr }
+
+syntax moduleinst hint(desc "module instance") =
+  { TYPES functype*,
+    FUNCS funcaddr*,
+    GLOBALS globaladdr*,
+    TABLES tableaddr*,
+    MEMS memaddr*,
+    EXPORTS exportinst* }
+
+var mm : moduleinst
+var fi : funcinst
+var gi : globalinst
+var ti : tableinst
+var mi : meminst
+var xi : exportinst
+
+
+;; Configurations proper
+
+syntax store hint(desc "store") =
+  { FUNCS funcinst*,
+    GLOBALS globalinst*,
+    TABLES tableinst*,
+    MEMS meminst* }
+
+syntax frame hint(desc "frame") =
+  { LOCALS val*,
+    MODULE moduleinst }
+
+syntax state hint(desc "state") = store; frame
+syntax config hint(desc "configuration") = state; admininstr*
+
+var s : store
+var f : frame
+var z : state
+
+
+;;
+;; Administrative Instructions
+;;
+
+syntax admininstr hint(show instr) hint(desc "administrative instruction") =
+  | instr
+  | CALL_ADDR funcaddr             hint(show CALL %)
+  | LABEL_ n `{instr*} admininstr* hint(show LABEL_%#% %%)
+  | FRAME_ n `{frame} admininstr*  hint(show FRAME_%#% %%)
+  | TRAP
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Auxiliary definitions on Values
+;;
+
+;; Default values
+
+def $default_(valtype) : val
+
+def $default_(I32) = (CONST I32 0)
+def $default_(I64) = (CONST I64 0)
+def $default_(F32) = (CONST F32 $fzero(32))
+def $default_(F64) = (CONST F64 $fzero(64))
+
+
+;; Projections
+
+def $funcsxa(externaddr*) : funcaddr*     hint(show $funcs(%))
+def $globalsxa(externaddr*) : globaladdr* hint(show $globals(%))
+def $tablesxa(externaddr*) : tableaddr*   hint(show $tables(%))
+def $memsxa(externaddr*) : memaddr*       hint(show $mems(%))
+
+def $funcsxa(eps) = eps
+def $funcsxa((FUNC fa) xv*) = fa $funcsxa(xv*)
+def $funcsxa(externaddr xv*) = $funcsxa(xv*)  -- otherwise
+
+def $globalsxa(eps) = eps
+def $globalsxa((GLOBAL ga) xv*) = ga $globalsxa(xv*)
+def $globalsxa(externaddr xv*) = $globalsxa(xv*)  -- otherwise
+
+def $tablesxa(eps) = eps
+def $tablesxa((TABLE ta) xv*) = ta $tablesxa(xv*)
+def $tablesxa(externaddr xv*) = $tablesxa(xv*)  -- otherwise
+
+def $memsxa(eps) = eps
+def $memsxa((MEM ma) xv*) = ma $memsxa(xv*)
+def $memsxa(externaddr xv*) = $memsxa(xv*)  -- otherwise
+
+
+
+;;
+;; Auxiliary definitions on State
+;;
+
+;; Short-hands
+
+def $store(state) : store             hint(show %.STORE)
+def $frame(state) : frame             hint(show %.FRAME)
+
+def $store((s; f)) = s
+def $frame((s; f)) = f
+
+
+def $funcaddr(state) : funcaddr*      hint(show %.MODULE.FUNCS)
+def $funcaddr((s; f)) = f.MODULE.FUNCS
+
+def $funcinst(state) : funcinst*      hint(show %.FUNCS)
+def $globalinst(state) : globalinst*  hint(show %.GLOBALS)
+def $tableinst(state) : tableinst*    hint(show %.TABLES)
+def $meminst(state) : meminst*        hint(show %.MEMS)
+def $moduleinst(state) : moduleinst   hint(show %.MODULE)
+
+def $funcinst((s; f)) = s.FUNCS
+def $globalinst((s; f)) = s.GLOBALS
+def $tableinst((s; f)) = s.TABLES
+def $meminst((s; f)) = s.MEMS
+def $moduleinst((s; f)) = f.MODULE
+
+def $type(state, typeidx) : functype        hint(show %.TYPES[%])
+def $func(state, funcidx) : funcinst        hint(show %.FUNCS[%])
+def $global(state, globalidx) : globalinst  hint(show %.GLOBALS[%])
+def $table(state, tableidx) : tableinst     hint(show %.TABLES[%])
+def $mem(state, memidx) : meminst           hint(show %.MEMS[%])
+def $local(state, localidx) : val           hint(show %.LOCALS[%])
+
+def $type((s; f), x) = f.MODULE.TYPES[x]
+def $func((s; f), x) = s.FUNCS[f.MODULE.FUNCS[x]]
+def $global((s; f), x) = s.GLOBALS[f.MODULE.GLOBALS[x]]
+def $table((s; f), x) = s.TABLES[f.MODULE.TABLES[x]]
+def $mem((s; f), x) = s.MEMS[f.MODULE.MEMS[x]]
+def $local((s; f), x) = f.LOCALS[x]
+
+
+;; Update
+
+def $with_local(state, localidx, val) : state               hint(show %[.LOCALS[%] = %])
+def $with_global(state, globalidx, val) : state             hint(show %[.GLOBALS[%].VALUE = %])
+def $with_table(state, tableidx, nat, funcaddr) : state     hint(show %[.TABLES[%].REFS[%] = %])
+def $with_tableinst(state, tableidx, tableinst) : state     hint(show %[.TABLES[%] = %])
+def $with_mem(state, memidx, nat, nat, byte*) : state       hint(show %[.MEMS[%].BYTES[% : %] = %])
+def $with_meminst(state, memidx, meminst) : state           hint(show %[.MEMS[%] = %])
+;; Synthetic test for non-terminal SliceSeg: slice into s.MEMS, then index within the slice.
+;; Path [DotSeg MEMS; SliceSeg(i,n); IdxSeg k] exercises the SliceSeg :: rest case in create_upd_exp.
+def $with_mems_elem(state, nat, nat, nat, meminst) : state  hint(show %[.MEMS[% : %][%] = %])
+
+def $with_local((s; f), x, v) = s; f[.LOCALS[x] = v]
+def $with_global((s; f), x, v) = s[.GLOBALS[f.MODULE.GLOBALS[x]].VALUE = v]; f
+def $with_table((s; f), x, i, a) = s[.TABLES[f.MODULE.TABLES[x]].REFS[i] = a]; f
+def $with_tableinst((s; f), x, ti) = s[.TABLES[f.MODULE.TABLES[x]] = ti]; f
+def $with_mem((s; f), x, i, j, b*) = s[.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] = b*]; f
+def $with_meminst((s; f), x, mi) = s[.MEMS[f.MODULE.MEMS[x]] = mi]; f
+def $with_mems_elem((s; f), i, n, k, mi) = s[.MEMS[i : n][k] = mi]; f
+
+
+;; Growing
+
+def $growtable(tableinst, nat) : tableinst  hint(partial)
+def $growmemory(meminst, nat) : meminst     hint(partial)
+
+def $growtable(ti, n) = ti'
+  -- if ti = { TYPE `[i .. j?], REFS a* }
+  -- if i' = $(|a*| + n)
+  -- if ti' = { TYPE `[i' .. j?], REFS a* eps^n }
+  -- (if i' <= j)?
+
+def $growmemory(mi, n) = mi'
+  -- if mi = { TYPE `[i .. j?], BYTES b* }
+  -- if i' = $(|b*| / (64 * $Ki) + n)
+  -- if mi' = { TYPE `[i' .. j?], BYTES b* 0^(n * $($(64 * $Ki))) }
+  -- (if i' <= j)?
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Contexts
+;;
+
+syntax context hint(desc "context") =
+  { TYPES functype*, FUNCS functype*, GLOBALS globaltype*,
+    TABLES tabletype*, MEMS memtype*,
+    LOCALS valtype*, LABELS resulttype*, RETURN resulttype? }
+
+var C : context
+
+
+
+;;
+;; Types
+;;
+
+relation Limits_ok: |- limits : nat         hint(show "K-limits")
+relation Functype_ok: |- functype : OK      hint(show "K-func")
+relation Globaltype_ok: |- globaltype : OK  hint(show "K-global")
+relation Tabletype_ok: |- tabletype : OK    hint(show "K-table")
+relation Memtype_ok: |- memtype : OK        hint(show "K-mem")
+relation Externtype_ok: |- externtype : OK  hint(show "K-extern")
+
+
+rule Limits_ok:
+  |- `[n .. m?] : k
+  -- if n <= k
+  -- (if n <= m <= k)?
+
+rule Functype_ok:
+  |- t_1* -> t_2? : OK
+
+rule Globaltype_ok:
+  |- MUT? t : OK
+
+rule Tabletype_ok:
+  |- limits : OK
+  -- Limits_ok: |- limits : $(2^32-1)
+
+rule Memtype_ok:
+  |- limits : OK
+  -- Limits_ok: |- limits : $(2^16)
+
+
+rule Externtype_ok/func:
+  |- FUNC functype : OK
+  -- Functype_ok: |- functype : OK
+
+rule Externtype_ok/global:
+  |- GLOBAL globaltype : OK
+  -- Globaltype_ok: |- globaltype : OK
+
+rule Externtype_ok/table:
+  |- TABLE tabletype : OK
+  -- Tabletype_ok: |- tabletype : OK
+
+rule Externtype_ok/mem:
+  |- MEM memtype : OK
+  -- Memtype_ok: |- memtype : OK
+
+
+
+;;
+;; Subtyping
+;;
+
+;; External types
+
+relation Limits_sub: |- limits <: limits             hint(show "S-limits")
+relation Functype_sub: |- functype <: functype       hint(show "S-func")
+relation Globaltype_sub: |- globaltype <: globaltype hint(show "S-global")
+relation Tabletype_sub: |- tabletype <: tabletype    hint(show "S-table")
+relation Memtype_sub: |- memtype <: memtype          hint(show "S-mem")
+relation Externtype_sub: |- externtype <: externtype hint(show "S-extern")
+
+
+rule Limits_sub:
+  |- `[n_11 .. n_12] <: `[n_21 .. n_22]
+  -- if n_11 >= n_21
+  -- if n_12 <= n_22
+
+rule Functype_sub:
+  |- ft <: ft
+
+rule Globaltype_sub:
+  |- gt <: gt
+
+rule Tabletype_sub:
+  |- lim_1 <: lim_2
+  -- Limits_sub: |- lim_1 <: lim_2
+
+rule Memtype_sub:
+  |- lim_1 <: lim_2
+  -- Limits_sub: |- lim_1 <: lim_2
+
+
+rule Externtype_sub/func:
+  |- FUNC ft_1 <: FUNC ft_2
+  -- Functype_sub: |- ft_1 <: ft_2
+
+rule Externtype_sub/global:
+  |- GLOBAL gt_1 <: GLOBAL gt_2
+  -- Globaltype_sub: |- gt_1 <: gt_2
+
+rule Externtype_sub/table:
+  |- TABLE tt_1 <: TABLE tt_2
+  -- Tabletype_sub: |- tt_1 <: tt_2
+
+rule Externtype_sub/mem:
+  |- MEM mt_1 <: MEM mt_2
+  -- Memtype_sub: |- mt_1 <: mt_2
+
+
+
+;;
+;; Instructions
+;;
+
+relation Instr_ok: context |- instr : functype   hint(show "T")
+relation Instrs_ok: context |- instr* : functype hint(show "T*")
+relation Expr_ok: context |- expr : resulttype   hint(show "T-expr")
+
+
+;; Expressions
+
+rule Expr_ok:
+  C |- instr* : t?
+  -- Instrs_ok: C |- instr* : eps -> t?
+
+
+;; Instruction sequences
+
+rule Instrs_ok/empty:
+  C |- eps : eps -> eps
+
+rule Instrs_ok/seq:
+  C |- instr_1 instr_2* : t_1* -> t_3*
+  -- Instr_ok: C |- instr_1 : t_1* -> t_2*
+  -- Instrs_ok: C |- instr_2* : t_2* -> t_3*
+
+rule Instrs_ok/frame:
+  C |- instr* : t* t_1* -> t* t_2*
+  -- Instrs_ok: C |- instr* : t_1* -> t_2*
+
+
+;; Parametric instructions
+
+rule Instr_ok/nop:
+  C |- NOP : eps -> eps
+
+rule Instr_ok/unreachable:
+  C |- UNREACHABLE : t_1* -> t_2*
+
+rule Instr_ok/drop:
+  C |- DROP : t -> eps
+
+rule Instr_ok/select:
+  C |- SELECT : t t I32 -> t
+
+
+;; Block instructions
+
+rule Instr_ok/block:
+  C |- BLOCK t? instr* : eps -> t?
+  -- Instrs_ok: {LABELS (t?)} ++ C |- instr* : eps -> t?
+
+rule Instr_ok/loop:
+  C |- LOOP t? instr* : eps -> t?
+  -- Instrs_ok: {LABELS (eps)} ++ C |- instr* : eps -> eps
+
+rule Instr_ok/if:
+  C |- IF t? instr_1* ELSE instr_2* : I32 -> t?
+  -- Instrs_ok: {LABELS (t?)} ++ C |- instr_1* : eps -> t?
+  -- Instrs_ok: {LABELS (t?)} ++ C |- instr_2* : eps -> t?
+
+
+;; Branch instructions
+
+rule Instr_ok/br:
+  C |- BR l : t_1* t? -> t_2*
+  -- if C.LABELS[l] = t?
+
+rule Instr_ok/br_if:
+  C |- BR_IF l : t? I32 -> t?
+  -- if C.LABELS[l] = t?
+
+rule Instr_ok/br_table:
+  C |- BR_TABLE l* l' : t_1* t? I32 -> t_2*
+  -- if t? = C.LABELS[l']
+  -- if (t? = C.LABELS[l])*
+
+
+;; Function instructions
+
+rule Instr_ok/call:
+  C |- CALL x : t_1* -> t_2?
+  -- if C.FUNCS[x] = t_1* -> t_2?
+
+rule Instr_ok/call_indirect:
+  C |- CALL_INDIRECT x : t_1* I32 -> t_2?
+  -- if C.TYPES[x] = t_1* -> t_2?
+
+rule Instr_ok/return:
+  C |- RETURN : t_1* t? -> t_2*
+  -- if C.RETURN = (t?)
+
+
+;; Numeric instructions
+
+rule Instr_ok/const:
+  C |- CONST t c_t : eps -> t
+
+rule Instr_ok/unop:
+  C |- UNOP t unop_t : t -> t
+
+rule Instr_ok/binop:
+  C |- BINOP t binop_t : t t -> t
+
+rule Instr_ok/testop:
+  C |- TESTOP t testop_t : t -> I32
+
+rule Instr_ok/relop:
+  C |- RELOP t relop_t : t t -> I32
+
+
+;; TODO: move side conditions to syntax
+rule Instr_ok/cvtop-reinterpret:
+  C |- CVTOP nt_1 nt_2 REINTERPRET : nt_2 -> nt_1
+  -- if $size(nt_1) = $size(nt_2)
+
+rule Instr_ok/cvtop-convert:
+  C |- CVTOP nt_1 nt_2 cvtop : nt_2 -> nt_1
+
+
+;; Local instructions
+
+rule Instr_ok/local.get:
+  C |- LOCAL.GET x : eps -> t
+  -- if C.LOCALS[x] = t
+
+rule Instr_ok/local.set:
+  C |- LOCAL.SET x : t -> eps
+  -- if C.LOCALS[x] = t
+
+rule Instr_ok/local.tee:
+  C |- LOCAL.TEE x : t -> t
+  -- if C.LOCALS[x] = t
+
+
+;; Global instructions
+
+rule Instr_ok/global.get:
+  C |- GLOBAL.GET x : eps -> t
+  -- if C.GLOBALS[x] = mut t
+
+rule Instr_ok/global.set:
+  C |- GLOBAL.SET x : t -> eps
+  -- if C.GLOBALS[x] = MUT t
+
+
+;; Memory instructions
+
+rule Instr_ok/memory.size:
+  C |- MEMORY.SIZE : eps -> I32
+  -- if C.MEMS[0] = mt
+
+rule Instr_ok/memory.grow:
+  C |- MEMORY.GROW : I32 -> I32
+  -- if C.MEMS[0] = mt
+
+(;
+rule Instr_ok/load:
+  C |- LOAD t (n _ sx)? memarg : I32 -> t
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= $size(t)/8)
+  -- if $(2^(memarg.ALIGN) <= n/8 < $size(t)/8)?
+  -- if n? = eps \/ t = Inn
+;)
+
+rule Instr_ok/load-val:
+  C |- LOAD t memarg : I32 -> t
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= $size(t)/8)
+
+rule Instr_ok/load-pack:
+  C |- LOAD Inn (M _ sx) memarg : I32 -> Inn
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= M/8)
+
+(;
+rule Instr_ok/store:
+  C |- STORE t n? memarg : I32 t -> eps
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= $size(t)/8)
+  -- if $(2^(memarg.ALIGN) <= n/8 < $size(t)/8)?
+  -- if n? = eps \/ t = Inn
+;)
+
+rule Instr_ok/store-val:
+  C |- STORE t memarg : I32 t -> eps
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= $size(t)/8)
+
+rule Instr_ok/store-pack:
+  C |- STORE Inn M memarg : I32 Inn -> eps
+  -- if C.MEMS[0] = mt
+  -- if $(2^(memarg.ALIGN) <= M/8)
+
+
+;;
+;; Constant Expressions
+;;
+
+relation Instr_const: context |- instr CONST              hint(show "C-instr")
+relation Expr_const: context |- expr CONST                hint(show "C-expr")
+relation Expr_ok_const: context |- expr : valtype? CONST  hint(show "TC-expr")
+
+rule Instr_const/const:
+  C |- (CONST t c) CONST
+
+rule Instr_const/global.get:
+  C |- (GLOBAL.GET x) CONST
+  -- if C.GLOBALS[x] = t
+
+
+rule Expr_const: C |- instr* CONST
+  -- (Instr_const: C |- instr CONST)*
+
+
+rule Expr_ok_const:
+  C |- expr : t? CONST
+  -- Expr_ok: C |- expr : t?
+  -- Expr_const: C |- expr CONST
+
+
+;;
+;; Modules
+;;
+
+relation Type_ok: |- type : functype                 hint(show "T-type")
+relation Func_ok: context |- func : functype         hint(show "T-func")
+relation Global_ok: context |- global : globaltype   hint(show "T-global")
+relation Table_ok: context |- table : tabletype      hint(show "T-table")
+relation Mem_ok: context |- mem : memtype            hint(show "T-mem")
+relation Elem_ok: context |- elem : OK               hint(show "T-elem")
+relation Data_ok: context |- data : OK               hint(show "T-data")
+relation Start_ok: context |- start : OK             hint(show "T-start")
+
+
+;; Module definitions
+
+rule Type_ok:
+  |- TYPE ft : ft
+  -- Functype_ok: |- ft : OK
+
+rule Func_ok:
+  C |- FUNC x (LOCAL t)* expr : t_1* -> t_2?
+  -- if C.TYPES[x] = t_1* -> t_2?
+  -- Expr_ok: C ++ {LOCALS t_1* t*, LABELS (t_2?), RETURN (t_2?)} |- expr : t_2?
+
+rule Global_ok:
+  C |- GLOBAL gt expr : gt
+  -- Globaltype_ok: |- gt : OK
+  -- if gt = mut t
+  -- Expr_ok_const: C |- expr : t CONST
+
+rule Table_ok:
+  C |- TABLE tt : tt
+  -- Tabletype_ok: |- tt : OK
+
+rule Mem_ok:
+  C |- MEMORY mt : mt
+  -- Memtype_ok: |- mt : OK
+
+;; TODO: check bounds
+rule Elem_ok:
+  C |- ELEM expr x* : OK
+  -- if C.TABLES[0] = lim
+  -- Expr_ok_const: C |- expr : I32 CONST
+  -- if (C.FUNCS[x] = ft)*
+
+;; TODO: check bounds
+rule Data_ok:
+  C |- DATA expr b* : OK
+  -- if C.MEMS[0] = lim
+  -- Expr_ok_const: C |- expr : I32 CONST
+
+rule Start_ok:
+  C |- START x : OK
+  -- if C.FUNCS[x] = eps -> eps
+
+
+;; Module im/exports
+
+relation Import_ok: context |- import : externtype        hint(show "T-import")
+relation Export_ok: context |- export : externtype        hint(show "T-export")
+relation Externidx_ok: context |- externidx : externtype  hint(show "T-externidx")
+
+rule Import_ok:
+  C |- IMPORT name_1 name_2 xt : xt
+  -- Externtype_ok: |- xt : OK
+
+rule Export_ok:
+  C |- EXPORT name externidx : xt
+  -- Externidx_ok: C |- externidx : xt
+
+
+rule Externidx_ok/func:
+  C |- FUNC x : FUNC ft
+  -- if C.FUNCS[x] = ft
+
+rule Externidx_ok/global:
+  C |- GLOBAL x : GLOBAL gt
+  -- if C.GLOBALS[x] = gt
+
+rule Externidx_ok/table:
+  C |- TABLE x : TABLE tt
+  -- if C.TABLES[x] = tt
+
+rule Externidx_ok/mem:
+  C |- MEM x : MEM mt
+  -- if C.MEMS[x] = mt
+
+
+;; Modules proper
+
+relation Module_ok: |- module : OK      hint(show "T-module")
+
+rule Module_ok:
+  |- MODULE type* import* func* global* table* mem* elem* data* start? export* : OK
+  -- (Type_ok: |- type : ft')*
+  -- (Import_ok: {TYPES ft'*} |- import : ixt)*
+  ----
+  -- (Global_ok: C' |- global : gt)*
+  -- (Func_ok: C |- func : ft)*
+  -- (Table_ok: C |- table : tt)*
+  -- (Mem_ok: C |- mem : mt)*
+  ----
+  -- (Elem_ok: C |- elem : OK)*
+  -- (Data_ok: C |- data : OK)*
+  -- (Start_ok: C |- start : OK)?
+  -- (Export_ok: C |- export : xt)*
+  ----
+  -- if |tt*| <= 1
+  -- if |mt*| <= 1
+  ;; -- TODO: disjoint export names
+  ----
+  -- if C = {TYPES ft'*, FUNCS ift* ft*, GLOBALS igt* gt*, TABLES itt* tt*, MEMS imt* mt*}
+  ----
+  -- if C' = {TYPES ft'*, FUNCS ift* ft*, GLOBALS igt*}
+  ----
+  -- if ift* = $funcsxt(ixt*)
+  -- if igt* = $globalsxt(ixt*)
+  -- if itt* = $tablesxt(ixt*)
+  -- if imt* = $memsxt(ixt*)
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Configurations
+;;
+
+relation Step: config ~> config                 hint(show "E") hint(tabular)
+relation Step_pure: admininstr* ~> admininstr*  hint(show "E") hint(tabular)
+relation Step_read: config ~> admininstr*       hint(show "E") hint(tabular)
+relation Steps: config ~>* config               hint(show "E") hint(tabular)
+
+rule Step/pure:
+  z; admininstr*  ~>  z; admininstr'*
+  -- Step_pure: admininstr* ~> admininstr'*
+
+rule Step/read:
+  z; admininstr*  ~>  z; admininstr'*
+  -- Step_read: z; admininstr* ~> admininstr'*
+
+rule Steps/refl:
+  z; admininstr* ~>* z; admininstr*
+
+rule Steps/trans:
+  z; admininstr*  ~>*  z''; admininstr''*
+  -- Step: z; admininstr*  ~>  z'; admininstr'*
+  -- Steps: z'; admininstr'*  ~>*  z''; admininstr''*
+
+
+;; Expressions
+
+relation Eval_expr: state; expr ~>* state; val*  hint(show "E-expr") hint(tabular)
+
+rule Eval_expr:
+  z; instr*  ~>*  z'; val*
+  -- Steps: z; instr*  ~>*  z'; val*
+
+
+;;
+;; Instructions
+;;
+
+;; Polymorphic instructions
+
+rule Step_pure/unreachable:
+  UNREACHABLE  ~>  TRAP
+
+rule Step_pure/nop:
+  NOP  ~>  eps
+
+rule Step_pure/drop:
+  val DROP  ~>  eps
+
+
+rule Step_pure/select-true:
+  val_1 val_2 (CONST I32 c) SELECT  ~>  val_1
+  -- if c =/= 0
+
+rule Step_pure/select-false:
+  val_1 val_2 (CONST I32 c) SELECT  ~>  val_2
+  -- if c = 0
+
+
+;; Block instructions
+
+rule Step_read/block:
+  z; (BLOCK t? instr*)  ~>  (LABEL_ n `{eps} instr*)
+  -- if t? = eps /\ n = 0 \/ t? =/= eps /\ n = 1  ;; TODO: allow |t?|
+
+rule Step_read/loop:
+  z; (LOOP t? instr*)  ~>  (LABEL_ 0 `{LOOP t? instr*} instr*)
+
+rule Step_pure/if-true:
+  (CONST I32 c) (IF t? instr_1* ELSE instr_2*)  ~>  (BLOCK t? instr_1*)
+  -- if c =/= 0
+
+rule Step_pure/if-false:
+  (CONST I32 c) (IF t? instr_1* ELSE instr_2*)  ~>  (BLOCK t? instr_2*)
+  -- if c = 0
+
+
+rule Step_pure/label-vals:
+  (LABEL_ n `{instr*} val*)  ~>  val*
+
+
+;; Branch instructions
+
+;; TODO: may want a label context instead of bubbling up
+rule Step_pure/br-zero:
+  (LABEL_ n `{instr'*} val'* val^n (BR 0) instr*)  ~>  val^n instr'*
+
+rule Step_pure/br-succ:
+  (LABEL_ n `{instr'*} val* (BR $(l+1)) instr*)  ~>  val* (BR l)
+
+
+rule Step_pure/br_if-true:
+  (CONST I32 c) (BR_IF l)  ~>  (BR l)
+  -- if c =/= 0
+
+rule Step_pure/br_if-false:
+  (CONST I32 c) (BR_IF l)  ~>  eps
+  -- if c = 0
+
+
+rule Step_pure/br_table-lt:
+  (CONST I32 i) (BR_TABLE l* l')  ~>  (BR l*[i])
+  -- if i < |l*|
+
+rule Step_pure/br_table-ge:
+  (CONST I32 i) (BR_TABLE l* l')  ~>  (BR l')
+  -- if i >= |l*|
+
+
+;; Function instructions
+
+rule Step_read/call:
+  z; (CALL x)  ~>  (CALL_ADDR $funcaddr(z)[x])  ;; TODO
+
+rule Step_read/call_indirect-call:
+  z; (CONST I32 i) (CALL_INDIRECT x)  ~>  (CALL_ADDR a)
+  -- if $table(z, 0).REFS[i] = a
+  -- if $type(z, x) = $funcinst(z)[a].TYPE
+
+rule Step_read/call_indirect-trap:
+  z; (CONST I32 i) (CALL_INDIRECT x)  ~>  TRAP
+  -- otherwise
+
+rule Step_read/call_addr:
+  z; val^k (CALL_ADDR a)  ~>  (FRAME_ n `{f} (LABEL_ n `{eps} instr*))
+  -- if $funcinst(z)[a] = {TYPE (t_1^k -> t_2^n), MODULE mm, CODE func}
+  -- if func = FUNC x (LOCAL t)* instr*
+  -- if f = {LOCALS val^k ($default_(t))*, MODULE mm}
+
+
+rule Step_pure/frame-vals:
+  (FRAME_ n `{f} val^n)  ~>  val^n
+
+rule Step_pure/return-frame:
+  (FRAME_ n `{f} val'* val^n RETURN instr*)  ~>  val^n
+
+rule Step_pure/return-label:
+  (LABEL_ n `{instr'*} val* RETURN instr*)  ~>  val* RETURN
+
+
+;; Traps
+
+rule Step_pure/trap-vals:
+  val* TRAP instr*  ~>  TRAP
+  -- if val* =/= eps \/ instr* =/= eps
+
+rule Step_pure/trap-label:
+  (LABEL_ n `{instr'*} TRAP)  ~>  TRAP
+
+rule Step_pure/trap-frame:
+  (FRAME_ n `{f} TRAP)  ~>  TRAP
+
+
+;; Context
+
+rule Step/ctxt-label:
+  z; (LABEL_ n `{instr_0*} admininstr*)  ~>  z'; (LABEL_ n `{instr_0*} admininstr'*)
+  -- Step: z; admininstr* ~> z'; admininstr'*
+
+rule Step/ctxt-frame:
+  s; f; (FRAME_ n `{f'} admininstr*)  ~>  s'; f; (FRAME_ n `{f''} admininstr'*)
+  -- Step: s; f'; admininstr* ~> s'; f''; admininstr'*
+
+rule Step/ctxt-instrs:
+  z; val* admininstr* admininstr_1*  ~>  z'; val* admininstr'* admininstr_1*
+  -- Step: z; admininstr* ~> z'; admininstr'*
+  -- if val* =/= eps \/ admininstr_1* =/= eps
+
+
+;; Numeric instructions
+
+rule Step_pure/unop-val:
+  (CONST t c_1) (UNOP t unop)  ~>  (CONST t c)
+  -- if c <- $unop_(t, unop, c_1)
+
+rule Step_pure/unop-trap:
+  (CONST t c_1) (UNOP t unop)  ~>  TRAP
+  -- if $unop_(t, unop, c_1) = eps
+
+
+rule Step_pure/binop-val:
+  (CONST t c_1) (CONST t c_2) (BINOP t binop)  ~>  (CONST t c)
+  -- if c <- $binop_(t, binop, c_1, c_2)
+
+rule Step_pure/binop-trap:
+  (CONST t c_1) (CONST t c_2) (BINOP t binop)  ~>  TRAP
+  -- if $binop_(t, binop, c_1, c_2) = eps
+
+
+rule Step_pure/testop:
+  (CONST t c_1) (TESTOP t testop)  ~>  (CONST I32 c)
+  -- if c = $testop_(t, testop, c_1)
+
+rule Step_pure/relop:
+  (CONST t c_1) (CONST t c_2) (RELOP t relop)  ~>  (CONST I32 c)
+  -- if c = $relop_(t, relop, c_1, c_2)
+
+
+rule Step_pure/cvtop-val:
+  (CONST t_1 c_1) (CVTOP t_2 t_1 cvtop)  ~>  (CONST t_2 c)
+  -- if c <- $cvtop__(t_1, t_2, cvtop, c_1)
+
+rule Step_pure/cvtop-trap:
+  (CONST t_1 c_1) (CVTOP t_2 t_1 cvtop)  ~>  TRAP
+  -- if $cvtop__(t_1, t_2, cvtop, c_1) = eps
+
+
+;; Local instructions
+
+rule Step_read/local.get:
+  z; (LOCAL.GET x)  ~>  $local(z, x)
+
+rule Step/local.set:
+  z; val (LOCAL.SET x)  ~>  $with_local(z, x, val); eps
+
+rule Step_pure/local.tee:
+  val (LOCAL.TEE x)  ~>  val val (LOCAL.SET x)
+
+
+;; Global instructions
+
+rule Step_read/global.get:
+  z; (GLOBAL.GET x)  ~>  $global(z, x).VALUE
+
+rule Step/global.set:
+  z; val (GLOBAL.SET x)  ~>  $with_global(z, x, val); eps
+
+
+;; Memory instructions
+
+rule Step_read/load-num-trap:
+  z; (CONST I32 i) (LOAD t ao)  ~>  TRAP
+  -- if $(i + ao.OFFSET + $size(t)/8 > |$mem(z, 0).BYTES|)
+
+rule Step_read/load-num-val:
+  z; (CONST I32 i) (LOAD t ao)  ~>  (CONST t c)
+  -- if $bytes_(t, c) = $mem(z, 0).BYTES[i + ao.OFFSET : $size(t)/8]
+
+rule Step_read/load-pack-trap:
+  z; (CONST I32 i) (LOAD Inn (n _ sx) ao)  ~>  TRAP
+  -- if $(i + ao.OFFSET + n/8 > |$mem(z, 0).BYTES|)
+
+rule Step_read/load-pack-val:
+  z; (CONST I32 i) (LOAD Inn (n _ sx) ao)  ~>  (CONST Inn $extend__(n, $size(Inn), sx, c))
+  -- if $ibytes_(n, c) = $mem(z, 0).BYTES[i + ao.OFFSET : n/8]
+
+
+rule Step/store-num-trap:
+  z; (CONST I32 i) (CONST t c) (STORE t ao)  ~>  z; TRAP
+  -- if $(i + ao.OFFSET + $size(t)/8) > |$mem(z, 0).BYTES|
+
+rule Step/store-num-val:
+  z; (CONST I32 i) (CONST t c) (STORE t ao)  ~>  $with_mem(z, 0, $(i + ao.OFFSET), $($size(t)/8), b*); eps
+  -- if b* = $bytes_(t, c)
+
+rule Step/store-pack-trap:
+  z; (CONST I32 i) (CONST Inn c) (STORE Inn n ao)  ~>  z; TRAP
+  -- if $(i + ao.OFFSET + n/8) > |$mem(z, 0).BYTES|
+
+rule Step/store-pack-val:
+  z; (CONST I32 i) (CONST Inn c) (STORE Inn n ao)  ~>  $with_mem(z, 0, $(i + ao.OFFSET), $(n/8), b*); eps
+  -- if b* = $ibytes_(n, $wrap__($size(Inn), n, c))
+
+
+rule Step_read/memory.size:
+  z; (MEMORY.SIZE)  ~>  (CONST I32 n)
+  -- if $(n * 64 * $Ki) = |$mem(z, 0).BYTES|
+
+
+rule Step/memory.grow-succeed:
+  z; (CONST I32 n) (MEMORY.GROW)  ~>  $with_meminst(z, 0, mi); (CONST I32 $(|$mem(z, 0).BYTES| / (64 * $Ki)))
+  -- if $growmemory($mem(z, 0), n) = mi
+
+rule Step/memory.grow-fail:
+  z; (CONST I32 n) (MEMORY.GROW)  ~>  z; (CONST I32 $inv_signed_(32, $(-1)))
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Projections
+;;
+
+def $funcs(externaddr*) : funcaddr*
+def $funcs(eps) = eps
+def $funcs((FUNC fa) externaddr'*) = fa $funcs(externaddr'*)
+def $funcs(externaddr externaddr'*) = $funcs(externaddr'*)
+  -- otherwise
+
+def $globals(externaddr*) : globaladdr*
+def $globals(eps) = eps
+def $globals((GLOBAL ga) externaddr'*) = ga $globals(externaddr'*)
+def $globals(externaddr externaddr'*) = $globals(externaddr'*)
+  -- otherwise
+
+def $tables(externaddr*) : tableaddr*
+def $tables(eps) = eps
+def $tables((TABLE ta) externaddr'*) = ta $tables(externaddr'*)
+def $tables(externaddr externaddr'*) = $tables(externaddr'*)
+  -- otherwise
+
+def $mems(externaddr*) : memaddr*
+def $mems(eps) = eps
+def $mems((MEM ma) externaddr'*) = ma $mems(externaddr'*)
+def $mems(externaddr externaddr'*) = $mems(externaddr'*)
+  -- otherwise
+
+
+;;
+;; Allocation
+;;
+
+;; Definitions
+
+def $allocfunc(store, moduleinst, func) : (store, funcaddr)
+def $allocfunc(s, moduleinst, func) = (s[.FUNCS =++ fi], |s.FUNCS|)
+  -- if fi = { TYPE moduleinst.TYPES[x], MODULE moduleinst, CODE func }
+  -- if func = FUNC x local* expr
+
+def $allocfuncs(store, moduleinst, func*) : (store, funcaddr*)
+def $allocfuncs(s, moduleinst, eps) = (s, eps)
+def $allocfuncs(s, moduleinst, func func'*) = (s_2, fa fa'*)
+  -- if (s_1, fa) = $allocfunc(s, moduleinst, func)
+  -- if (s_2, fa'*) = $allocfuncs(s_1, moduleinst, func'*)
+
+def $allocglobal(store, globaltype, val) : (store, globaladdr)
+def $allocglobal(s, globaltype, val) = (s[.GLOBALS =++ gi], |s.GLOBALS|)
+  -- if gi = { TYPE globaltype, VALUE val }
+
+def $allocglobals(store, globaltype*, val*) : (store, globaladdr*)
+def $allocglobals(s, eps, eps) = (s, eps)
+def $allocglobals(s, globaltype globaltype'*, val val'*) = (s_2, ga ga'*)
+  -- if (s_1, ga) = $allocglobal(s, globaltype, val)
+  -- if (s_2, ga'*) = $allocglobals(s_1, globaltype'*, val'*)
+
+def $alloctable(store, tabletype) : (store, tableaddr)
+def $alloctable(s, `[i .. j?]) = (s[.TABLES =++ ti], |s.TABLES|)
+  -- if ti = { TYPE `[i .. j?], REFS eps^i }
+
+def $alloctables(store, tabletype*) : (store, tableaddr*)
+def $alloctables(s, eps) = (s, eps)
+def $alloctables(s, tabletype tabletype'*) = (s_2, ta ta'*)
+  -- if (s_1, ta) = $alloctable(s, tabletype)
+  -- if (s_2, ta'*) = $alloctables(s_1, tabletype'*)
+
+def $allocmem(store, memtype) : (store, memaddr)
+def $allocmem(s, `[i .. j?]) = (s[.MEMS =++ mi], |s.MEMS|)
+  -- if mi = { TYPE `[i .. j?], BYTES 0^(i * $($(64 * $Ki))) }
+
+def $allocmems(store, memtype*) : (store, memaddr*)
+def $allocmems(s, eps) = (s, eps)
+def $allocmems(s, memtype memtype'*) = (s_2, ma ma'*)
+  -- if (s_1, ma) = $allocmem(s, memtype)
+  -- if (s_2, ma'*) = $allocmems(s_1, memtype'*)
+
+
+;; Modules
+
+def $instexport(funcaddr*, globaladdr*, tableaddr*, memaddr*, export) : exportinst
+def $instexport(fa*, ga*, ta*, ma*, EXPORT name (FUNC x)) = { NAME name, ADDR (FUNC fa*[x]) }
+def $instexport(fa*, ga*, ta*, ma*, EXPORT name (GLOBAL x)) = { NAME name, ADDR (GLOBAL ga*[x]) }
+def $instexport(fa*, ga*, ta*, ma*, EXPORT name (TABLE x)) = { NAME name, ADDR (TABLE ta*[x]) }
+def $instexport(fa*, ga*, ta*, ma*, EXPORT name (MEM x)) = { NAME name, ADDR (MEM ma*[x]) }
+
+
+def $allocmodule(store, module, externaddr*, val*) : (store, moduleinst)
+def $allocmodule(s, module, externaddr*, val*) = (s_4, moduleinst)
+  -- if module =
+    MODULE
+      (TYPE ft)*
+      import*
+      func^n_func
+      (GLOBAL globaltype expr_1)^n_global
+      (TABLE tabletype)^n_table
+      (MEMORY memtype)^n_mem
+      elem*
+      data*
+      start?
+      export*
+  -- if fa_ex* = $funcs(externaddr*)
+  -- if ga_ex* = $globals(externaddr*)
+  -- if ta_ex* = $tables(externaddr*)
+  -- if ma_ex* = $mems(externaddr*)
+  -- if fa* = $(|s.FUNCS|+i_func)^(i_func<n_func)
+  -- if ga* = $(|s.GLOBALS|+i_global)^(i_global<n_global)
+  -- if ta* = $(|s.TABLES|+i_table)^(i_table<n_table)
+  -- if ma* = $(|s.MEMS|+i_mem)^(i_mem<n_mem)
+  -- if xi* = $instexport(fa_ex* fa*, ga_ex* ga*, ta_ex* ta*, ma_ex* ma*, export)*
+  -- if moduleinst = {
+      TYPES ft*,
+      FUNCS fa_ex* fa*,
+      GLOBALS ga_ex* ga*,
+      TABLES ta_ex* ta*,
+      MEMS ma_ex* ma*,
+      EXPORTS xi*
+    }
+  -- if (s_1, fa*) = $allocfuncs(s, moduleinst, func^n_func)
+  -- if (s_2, ga*) = $allocglobals(s_1, globaltype^n_global, val*)
+  -- if (s_3, ta*) = $alloctables(s_2, tabletype^n_table)
+  -- if (s_4, ma*) = $allocmems(s_3, memtype^n_mem)
+
+
+;;
+;; Instantiation
+;;
+
+def $initelem(store, moduleinst, u32*, (funcaddr*)*) : store
+def $initelem(s, moduleinst, eps, eps) = s
+def $initelem(s, moduleinst, i i'*, (a*) (a'*)*) = s_2
+  -- if s_1 = s[.TABLES[moduleinst.TABLES[0]].REFS[i:|a*|] = a*]
+  -- if s_2 = $initelem(s_1, moduleinst, i'*, (a'*)*)
+
+def $initdata(store, moduleinst, u32*, (byte*)*) : store
+def $initdata(s, moduleinst, eps, eps) = s
+def $initdata(s, moduleinst, i i'*, (b*) (b'*)*) = s_2
+  -- if s_1 = s[.MEMS[moduleinst.MEMS[0]].BYTES[i:|b*|] = b*]
+  -- if s_2 = $initdata(s_1, moduleinst, i'*, (b'*)*)
+
+def $instantiate(store, module, externaddr*) : config
+def $instantiate(s, module, externaddr*) = s_3; f; (CALL x')?
+  -- if module = MODULE type* import* func* global* table* mem* elem* data* start? export*
+  -- if type* = (TYPE functype)*
+  -- if global* = (GLOBAL globaltype expr_G)*
+  -- if elem* = (ELEM expr_E x*)*
+  -- if data* = (DATA expr_D b*)*
+  -- if start? = (START x')?
+  -- if n_F = |func*|
+  -- if moduleinst_init = {
+      TYPES functype*,
+      FUNCS $funcs(externaddr*) $(|s.FUNCS|+i_F)^(i_F<n_F),
+      GLOBALS $globals(externaddr*)
+    }
+  -- if f_init = { MODULE moduleinst_init }
+  -- if z = s; f_init
+  -- (Eval_expr : z; expr_G ~>* z; val)*
+  -- (Eval_expr : z; expr_E ~>* z; (CONST I32 i_E))*
+  -- (Eval_expr : z; expr_D ~>* z; (CONST I32 i_D))*
+  -- if (s_1, moduleinst) = $allocmodule(s, module, externaddr*, val*)
+  -- if s_2 = $initelem(s_1, moduleinst, i_E*, moduleinst.FUNCS[x]**)
+  -- if s_3 = $initdata(s_2, moduleinst, i_D*, b**)
+  -- if f = { MODULE moduleinst }
+
+
+;;
+;; Invocation
+;;
+
+def $invoke(store, funcaddr, val*) : config
+def $invoke(s, fa, val^n) = s; f; val^n (CALL_ADDR fa)
+  -- if f = { MODULE {} }
+  -- if $funcinst((s; f))[fa].TYPE = t_1^n -> t_2*
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;;
+;; Auxiliaries
+;;
+
+;; Vectors
+
+grammar Blist(grammar BX : el) : el* =
+  | n:Bu32 (el:BX)^n => el^n
+
+
+
+;;
+;; Values
+;;
+
+;; Numbers
+
+grammar Bbyte : byte = 0x00 | ... | 0xFF
+
+grammar BuN(N) : uN(N) hint(show Bu#%) =
+  | n:Bbyte                 => n                       -- if $(n < 2^7 /\ n < 2^N)
+  | n:Bbyte m:BuN(($(N-7))) => $(2^7 * m + (n - 2^7))  -- if $(n >= 2^7 /\ N > 7)
+
+grammar BsN(N) : sN(N) hint(show Bs#%) =
+  | n:Bbyte                 => n                       -- if $(n < 2^6 /\ n < 2^(N-1))
+  | n:Bbyte                 => $(n - 2^7)              -- if $(2^6 <= n < 2^7 /\ n >= 2^7 - 2^(N-1))
+  | n:Bbyte i:BsN(($(N-7))) => $(2^7 * i + (n - 2^7))  -- if $(n >= 2^7 /\ N > 7)
+
+grammar BiN(N) : iN(N) hint(show Bi#%) =
+  | i:BsN(N)                => $inv_signed_(N, i)
+
+
+grammar BfN(N) : fN(N) hint(show Bf#%) =
+  | b*:Bbyte^(N/8)  => $inv_fbytes_(N, b*)
+
+
+grammar Bu32 : u32 = BuN(32)
+grammar Bu64 : u64 = BuN(64)
+
+grammar Bi32 : i32 = BiN(32)
+grammar Bi64 : i64 = BiN(64)
+
+grammar Bf32 : f32 = BfN(32)
+grammar Bf64 : f64 = BfN(64)
+
+
+;; Names
+
+var ch : char
+
+;; def $utf8(char*) : byte*
+def $utf8(ch) = b  -- if ch < U+0080 /\ ch = b
+def $utf8(ch) = b_1 b_2  -- if U+0080 <= ch < U+0800 /\ ch = $(2^6*(b_1 - 0xC0) + (b_2 - 0x80))
+def $utf8(ch) = b_1 b_2 b_3  -- if (U+0800 <= ch < U+D800 \/ U+E000 <= ch < U+10000) /\ ch = $(2^12*(b_1 - 0xE0) + 2^6*(b_2 - 0x80) + (b_3 - 0x80))
+def $utf8(ch) = b_1 b_2 b_3 b_4  -- if (U+10000 <= ch < U+11000) /\ ch = $(2^18*(b_1 - 0xF0) + 2^12*(b_2 - 0x80) + 2^6*(b_3 - 0x80) + (b_4 - 0x80))
+def $utf8(ch*) = $concat_(byte, $utf8(ch)*)
+
+grammar Bname : name =
+  | b*:Blist(Bbyte) => name  -- if $utf8(name) = b*
+
+
+;; Indices
+
+grammar Btypeidx : typeidx = x:Bu32 => x
+grammar Bfuncidx : funcidx = x:Bu32 => x
+grammar Bglobalidx : globalidx = x:Bu32 => x
+grammar Btableidx : tableidx = x:Bu32 => x
+grammar Bmemidx : memidx = x:Bu32 => x
+grammar Blocalidx : localidx = x:Bu32 => x
+grammar Blabelidx : labelidx = x:Bu32 => x
+
+grammar Bexternidx : externidx =
+  | 0x00 x:Bfuncidx => FUNC x
+  | 0x01 x:Btableidx => TABLE x
+  | 0x02 x:Bmemidx => MEM x
+  | 0x03 x:Bglobalidx => GLOBAL x
+
+
+;;
+;; Types
+;;
+
+;; Value types
+
+grammar Bvaltype : valtype =
+  | 0x7F => I32
+  | 0x7E => I64
+  | 0x7D => F32
+  | 0x7C => F64
+
+
+grammar Bresulttype : valtype* =
+  | t*:Blist(Bvaltype) => t*
+
+
+;; Type definitions
+
+grammar Bfunctype : functype =
+  | 0x60 t_1*:Bresulttype t_2*:Bresulttype => t_1* -> t_2*
+
+
+;; External types
+
+grammar Bmut : mut =
+  | 0x00 => eps
+  | 0x01 => MUT
+
+grammar Blimits : limits =
+  | 0x00 n:Bu32 => `[n .. eps]
+  | 0x01 n:Bu32 m:Bu32 => `[n .. m]
+
+grammar Bglobaltype : globaltype =
+  | t:Bvaltype mut:Bmut => mut t
+
+grammar Btabletype : tabletype =
+  | 0x70 lim:Blimits => lim
+
+grammar Bmemtype : memtype =
+  | lim:Blimits => lim
+
+
+grammar Bexterntype : externtype =
+  | 0x00 ft:Bfunctype => FUNC ft  ;; TODO: typeidx
+  | 0x01 tt:Btabletype => TABLE tt
+  | 0x02 mt:Bmemtype => MEM mt
+  | 0x03 gt:Bglobaltype => GLOBAL gt
+
+
+;;
+;; Instructions
+;;
+
+;; Block types
+
+grammar Bblocktype : blocktype =
+  | 0x40 => eps
+  | t:Bvaltype => t
+
+
+;; Control instructions
+
+grammar Binstr/control : instr =
+  | 0x00 => UNREACHABLE
+  | 0x01 => NOP
+  | 0x02 bt:Bblocktype (in:Binstr)* 0x0B => BLOCK bt in*
+  | 0x03 bt:Bblocktype (in:Binstr)* 0x0B => LOOP bt in*
+  | 0x04 bt:Bblocktype (in:Binstr)* 0x0B => IF bt in* ELSE eps
+  | 0x04 bt:Bblocktype (in_1:Binstr)* 0x05 (in_2:Binstr)* 0x0B => IF bt in_1* ELSE in_2*
+  | 0x0C l:Blabelidx => BR l
+  | 0x0D l:Blabelidx => BR_IF l
+  | 0x0E l*:Blist(Blabelidx) l_N:Blabelidx => BR_TABLE l* l_N
+  | 0x0F => RETURN
+  | 0x10 x:Bfuncidx => CALL x
+  | 0x11 x:Btypeidx 0x00 => CALL_INDIRECT x
+  | ...
+
+
+;; Parametric instructions
+
+grammar Binstr/parametric : instr = ...
+  | 0x1A => DROP
+  | 0x1B => SELECT
+  | ...
+
+
+;; Variable instructions
+
+grammar Binstr/variable : instr = ...
+  | 0x20 x:Blocalidx => LOCAL.GET x
+  | 0x21 x:Blocalidx => LOCAL.SET x
+  | 0x22 x:Blocalidx => LOCAL.TEE x
+  | 0x23 x:Bglobalidx => GLOBAL.GET x
+  | 0x24 x:Bglobalidx => GLOBAL.SET x
+  | ...
+
+
+;; Memory instructions
+
+grammar Bmemarg : memarg =
+  | n:Bu32 m:Bu32 => {ALIGN n, OFFSET m}
+
+grammar Binstr/memory : instr = ...
+  | 0x28 ao:Bmemarg => LOAD I32 ao
+  | 0x29 ao:Bmemarg => LOAD I64 ao
+  | 0x2A ao:Bmemarg => LOAD F32 ao
+  | 0x2B ao:Bmemarg => LOAD F64 ao
+  | 0x2C ao:Bmemarg => LOAD I32 (8 _ S) ao
+  | 0x2D ao:Bmemarg => LOAD I32 (8 _ U) ao
+  | 0x2E ao:Bmemarg => LOAD I32 (16 _ S) ao
+  | 0x2F ao:Bmemarg => LOAD I32 (16 _ U) ao
+  | 0x30 ao:Bmemarg => LOAD I64 (8 _ S) ao
+  | 0x31 ao:Bmemarg => LOAD I64 (8 _ U) ao
+  | 0x32 ao:Bmemarg => LOAD I64 (16 _ S) ao
+  | 0x33 ao:Bmemarg => LOAD I64 (16 _ U) ao
+  | 0x34 ao:Bmemarg => LOAD I64 (32 _ S) ao
+  | 0x35 ao:Bmemarg => LOAD I64 (32 _ U) ao
+  | 0x36 ao:Bmemarg => STORE I32 ao
+  | 0x37 ao:Bmemarg => STORE I64 ao
+  | 0x38 ao:Bmemarg => STORE F32 ao
+  | 0x39 ao:Bmemarg => STORE F64 ao
+  | 0x3A ao:Bmemarg => STORE I32 8 ao
+  | 0x3B ao:Bmemarg => STORE I32 16 ao
+  | 0x3C ao:Bmemarg => STORE I64 8 ao
+  | 0x3D ao:Bmemarg => STORE I64 16 ao
+  | 0x3E ao:Bmemarg => STORE I64 32 ao
+  | 0x3F 0x00 => MEMORY.SIZE
+  | 0x40 0x00 => MEMORY.GROW
+  | ...
+
+
+
+;; Numeric instructions
+
+grammar Binstr/numeric-const : instr = ...
+  | 0x41 i:Bi32 => CONST I32 i
+  | 0x42 i:Bi64 => CONST I64 i
+  | 0x43 p:Bf32 => CONST F32 p
+  | 0x44 p:Bf64 => CONST F64 p
+  | ...
+
+grammar Binstr/numeric-test-i32 : instr = ...
+  | 0x45 => TESTOP I32 EQZ
+  | ...
+
+grammar Binstr/numeric-rel-i32 : instr = ...
+  | 0x46 => RELOP I32 EQ
+  | 0x47 => RELOP I32 NE
+  | 0x48 => RELOP I32 (LT S)
+  | 0x49 => RELOP I32 (LT U)
+  | 0x4A => RELOP I32 (GT S)
+  | 0x4B => RELOP I32 (GT U)
+  | 0x4C => RELOP I32 (LE S)
+  | 0x4D => RELOP I32 (LE U)
+  | 0x4E => RELOP I32 (GE S)
+  | 0x4F => RELOP I32 (GE U)
+  | ...
+
+grammar Binstr/numeric-test-i64 : instr = ...
+  | 0x50 => TESTOP I64 EQZ
+  | ...
+
+grammar Binstr/numeric-rel-i64 : instr = ...
+  | 0x51 => RELOP I64 EQ
+  | 0x52 => RELOP I64 NE
+  | 0x53 => RELOP I64 (LT S)
+  | 0x54 => RELOP I64 (LT U)
+  | 0x55 => RELOP I64 (GT S)
+  | 0x56 => RELOP I64 (GT U)
+  | 0x57 => RELOP I64 (LE S)
+  | 0x58 => RELOP I64 (LE U)
+  | 0x59 => RELOP I64 (GE S)
+  | 0x5A => RELOP I64 (GE U)
+  | ...
+
+grammar Binstr/numeric-rel-f32 : instr = ...
+  | 0x5B => RELOP F32 EQ
+  | 0x5C => RELOP F32 NE
+  | 0x5D => RELOP F32 LT
+  | 0x5E => RELOP F32 GT
+  | 0x5F => RELOP F32 LE
+  | 0x60 => RELOP F32 GE
+  | ...
+
+grammar Binstr/numeric-rel-f64 : instr = ...
+  | 0x61 => RELOP F64 EQ
+  | 0x62 => RELOP F64 NE
+  | 0x63 => RELOP F64 LT
+  | 0x64 => RELOP F64 GT
+  | 0x65 => RELOP F64 LE
+  | 0x66 => RELOP F64 GE
+  | ...
+
+grammar Binstr/numeric-un-i32 : instr = ...
+  | 0x67 => UNOP I32 CLZ
+  | 0x68 => UNOP I32 CTZ
+  | 0x69 => UNOP I32 POPCNT
+  | ...
+
+grammar Binstr/numeric-bin-i32 : instr = ...
+  | 0x6A => BINOP I32 ADD
+  | 0x6B => BINOP I32 SUB
+  | 0x6C => BINOP I32 MUL
+  | 0x6D => BINOP I32 (DIV S)
+  | 0x6E => BINOP I32 (DIV U)
+  | 0x6F => BINOP I32 (REM S)
+  | 0x70 => BINOP I32 (REM U)
+  | 0x71 => BINOP I32 AND
+  | 0x72 => BINOP I32 OR
+  | 0x73 => BINOP I32 XOR
+  | 0x74 => BINOP I32 SHL
+  | 0x75 => BINOP I32 (SHR S)
+  | 0x76 => BINOP I32 (SHR U)
+  | 0x77 => BINOP I32 ROTL
+  | 0x78 => BINOP I32 ROTR
+  | ...
+
+grammar Binstr/numeric-un-i64 : instr = ...
+  | 0x79 => UNOP I64 CLZ
+  | 0x7A => UNOP I64 CTZ
+  | 0x7B => UNOP I64 POPCNT
+  | ...
+
+grammar Binstr/numeric-bin-i64 : instr = ...
+  | 0x7C => BINOP I64 ADD
+  | 0x7D => BINOP I64 SUB
+  | 0x7E => BINOP I64 MUL
+  | 0x7F => BINOP I64 (DIV S)
+  | 0x80 => BINOP I64 (DIV U)
+  | 0x81 => BINOP I64 (REM S)
+  | 0x82 => BINOP I64 (REM U)
+  | 0x83 => BINOP I64 AND
+  | 0x84 => BINOP I64 OR
+  | 0x85 => BINOP I64 XOR
+  | 0x86 => BINOP I64 SHL
+  | 0x87 => BINOP I64 (SHR S)
+  | 0x88 => BINOP I64 (SHR U)
+  | 0x89 => BINOP I64 ROTL
+  | 0x8A => BINOP I64 ROTR
+  | ...
+
+grammar Binstr/numeric-un-f32 : instr = ...
+  | 0x8B => UNOP F32 ABS
+  | 0x8C => UNOP F32 NEG
+  | 0x8D => UNOP F32 CEIL
+  | 0x8E => UNOP F32 FLOOR
+  | 0x8F => UNOP F32 TRUNC
+  | 0x90 => UNOP F32 NEAREST
+  | 0x91 => UNOP F32 SQRT
+  | ...
+
+grammar Binstr/numeric-bin-f32 : instr = ...
+  | 0x92 => BINOP F32 ADD
+  | 0x93 => BINOP F32 SUB
+  | 0x94 => BINOP F32 MUL
+  | 0x95 => BINOP F32 DIV
+  | 0x96 => BINOP F32 MIN
+  | 0x97 => BINOP F32 MAX
+  | 0x98 => BINOP F32 COPYSIGN
+  | ...
+
+grammar Binstr/numeric-un-f64 : instr = ...
+  | 0x99 => UNOP F64 ABS
+  | 0x9A => UNOP F64 NEG
+  | 0x9B => UNOP F64 CEIL
+  | 0x9C => UNOP F64 FLOOR
+  | 0x9D => UNOP F64 TRUNC
+  | 0x9E => UNOP F64 NEAREST
+  | 0x9F => UNOP F64 SQRT
+  | ...
+
+grammar Binstr/numeric-bin-f64 : instr = ...
+  | 0xA0 => BINOP F64 ADD
+  | 0xA1 => BINOP F64 SUB
+  | 0xA2 => BINOP F64 MUL
+  | 0xA3 => BINOP F64 DIV
+  | 0xA4 => BINOP F64 MIN
+  | 0xA5 => BINOP F64 MAX
+  | 0xA6 => BINOP F64 COPYSIGN
+  | ...
+
+grammar Binstr/numeric-cvt : instr = ...
+  | 0xA7 => CVTOP I32 I64 WRAP
+  | 0xA8 => CVTOP I32 F32 (TRUNC S)
+  | 0xA9 => CVTOP I32 F32 (TRUNC U)
+  | 0xAA => CVTOP I32 F64 (TRUNC S)
+  | 0xAB => CVTOP I32 F64 (TRUNC U)
+  | 0xAC => CVTOP I64 I32 (EXTEND S)
+  | 0xAD => CVTOP I64 I32 (EXTEND U)
+  | 0xAE => CVTOP I64 F32 (TRUNC S)
+  | 0xAF => CVTOP I64 F32 (TRUNC U)
+  | 0xB0 => CVTOP I64 F64 (TRUNC S)
+  | 0xB1 => CVTOP I64 F64 (TRUNC U)
+  | 0xB2 => CVTOP F32 I32 (CONVERT S)
+  | 0xB3 => CVTOP F32 I32 (CONVERT U)
+  | 0xB4 => CVTOP F32 I64 (CONVERT S)
+  | 0xB5 => CVTOP F32 I64 (CONVERT U)
+  | 0xB6 => CVTOP F32 F64 DEMOTE
+  | 0xB7 => CVTOP F64 I32 (CONVERT S)
+  | 0xB8 => CVTOP F64 I32 (CONVERT U)
+  | 0xB9 => CVTOP F64 I64 (CONVERT S)
+  | 0xBA => CVTOP F64 I64 (CONVERT U)
+  | 0xBB => CVTOP F32 F64 PROMOTE
+  | 0xBC => CVTOP I32 F32 REINTERPRET
+  | 0xBD => CVTOP I64 F64 REINTERPRET
+  | 0xBE => CVTOP F32 I32 REINTERPRET
+  | 0xBF => CVTOP F64 I64 REINTERPRET
+
+
+;; Expressions
+
+grammar Bexpr : expr =
+  | (in:Binstr)* 0x0B => in*
+
+
+
+;;
+;; Modules
+;;
+
+;; Sections
+
+var len : nat
+
+grammar Bsection_(N, grammar BX : en*) : en*  hint(desc "section") =
+  | N:Bbyte len:Bu32 en*:BX => en*  -- if len = ||BX||
+  | eps => eps
+
+
+;; Custom sections
+
+grammar Bcustom : ()* hint(desc "custom data") =
+  | Bname Bbyte* => ()
+
+grammar Bcustomsec : () hint(desc "custom section") =
+  | Bsection_(0, Bcustom) => ()
+
+
+;; Type section
+
+grammar Btype : type =
+  | ft:Bfunctype => TYPE ft
+
+grammar Btypesec : type* hint(desc "type section") =
+  | ty*:Bsection_(1, Blist(Btype)) => ty*
+
+
+;; Import section
+
+grammar Bimport : import =
+  | nm_1:Bname nm_2:Bname xt:Bexterntype => IMPORT nm_1 nm_2 xt
+
+grammar Bimportsec : import* hint(desc "import section") =
+  | im*:Bsection_(2, Blist(Bimport)) => im*
+
+
+;; Function section
+
+grammar Bfuncsec : typeidx* hint(desc "function section") =
+  | x*:Bsection_(3, Blist(Btypeidx)) => x*
+
+
+;; Table section
+
+grammar Btable : table =
+  | tt:Btabletype => TABLE tt
+
+grammar Btablesec : table* hint(desc "table section") =
+  | tab*:Bsection_(4, Blist(Btable)) => tab*
+
+
+;; Memory section
+
+grammar Bmem : mem =
+  | mt:Bmemtype => MEMORY mt
+
+grammar Bmemsec : mem* hint(desc "memory section") =
+  | mem*:Bsection_(5, Blist(Bmem)) => mem*
+
+
+;; Global section
+
+grammar Bglobal : global =
+  | gt:Bglobaltype e:Bexpr => GLOBAL gt e
+
+grammar Bglobalsec : global* hint(desc "global section") =
+  | glob*:Bsection_(6, Blist(Bglobal)) => glob*
+
+
+;; Export section
+
+grammar Bexport : export =
+  | nm:Bname xx:Bexternidx => EXPORT nm xx
+
+grammar Bexportsec : export* hint(desc "export section") =
+  | ex*:Bsection_(7, Blist(Bexport)) => ex*
+
+
+;; Start section
+
+grammar Bstart : start* =
+  | x:Bfuncidx => (START x)
+
+syntax startopt hint(show start?) = start*  ;; HACK
+
+grammar Bstartsec : start? hint(desc "start section") =
+  | startopt:Bsection_(8, Bstart) => $opt_(start, startopt)
+
+
+;; Element section
+
+grammar Belem : elem =
+  | 0x00 e:Bexpr x*:Blist(Bfuncidx) => ELEM e x*
+
+grammar Belemsec : elem* hint(desc "element section") =
+  | elem*:Bsection_(9, Blist(Belem)) => elem*
+
+
+;; Code section
+
+syntax code = (local*, expr)
+
+grammar Blocals : local* hint(desc "local") =
+  | n:Bu32 t:Bvaltype => (LOCAL t)^n
+
+grammar Bfunc : code =
+  | local**:Blist(Blocals) expr:Bexpr => ($concat_(local, local**), expr)
+
+grammar Bcode : code =
+  | len:Bu32 code:Bfunc => code  -- if len = ||Bfunc||
+
+grammar Bcodesec : code* hint(desc "code section") =
+  | code*:Bsection_(10, Blist(Bcode)) => code*
+
+
+;; Data section
+
+grammar Bdata : data =
+  | 0x00 e:Bexpr b*:Blist(Bbyte) => DATA e b*
+
+grammar Bdatasec : data* hint(desc "data section") =
+  | data*:Bsection_(11, Blist(Bdata)) => data*
+
+
+;; Modules
+
+grammar Bmodule : module =
+  | 0x00 0x61 0x73 0x6D 1:Bu32
+    Bcustomsec* type*:Btypesec
+    Bcustomsec* import*:Bimportsec
+    Bcustomsec* typeidx*:Bfuncsec
+    Bcustomsec* table*:Btablesec
+    Bcustomsec* mem*:Bmemsec
+    Bcustomsec* global*:Bglobalsec
+    Bcustomsec* export*:Bexportsec
+    Bcustomsec* start?:Bstartsec
+    Bcustomsec* elem*:Belemsec
+    Bcustomsec* (local*, expr)*:Bcodesec
+    Bcustomsec* data*:Bdatasec
+    Bcustomsec* =>
+      MODULE type* import* func* global* table* mem* elem* data* start? export*
+    -- (if func = FUNC typeidx local* expr)*
+
+
+;; ===================================================================================
+;; ===================================================================================
+;; ===================================================================================
+
+;; Contexts
+
+relation Context_ok: |- context : OK  hint(macro "%context")
+
+rule Context_ok:
+  |- C : OK
+  -- if C =
+    { TYPES ft*,
+      FUNCS ft_2*,
+      GLOBALS gt*,
+      MEMS mt*,
+      TABLES tt*,
+      LOCALS lct*,
+      LABELS rt*,
+      RETURN rt'?,
+    }
+  -- (Functype_ok: |- ft : OK)*
+  -- (Globaltype_ok: |- gt : OK)*
+  -- (Memtype_ok: |- mt : OK)*
+  -- (Tabletype_ok: |- tt : OK)*
+  -- (Functype_ok: |- ft_2 : OK)*
+  
+;; Value type ok
+
+relation Val_ok: |- val : valtype
+
+rule Val_ok:
+  |- CONST t c_t : t
+
+
+;; Result type ok
+
+relation Result_ok: |- result : valtype*
+
+rule Result_ok/result:
+  |- _VALS v* : t*
+  -- (Val_ok: |- v : t)*
+
+rule Result_ok/trap:
+  |- TRAP : t*
+
+;; Administrative instructions
+
+syntax adminexpr = admininstr*
+
+relation Instr_ok2: store; context |- admininstr : functype
+  hint(prose "%3 is valid with %4")
+relation Instrs_ok2: store; context |- admininstr* : functype
+  hint(prose "%3 is valid with %4")
+relation Expr_ok2: store; context |- adminexpr : resulttype
+  hint(prose "%3 is valid with %4")
+
+rule Instr_ok2/plain:
+  s; C |- instr : t_1* -> t_2*
+  -- Instr_ok: C |- instr : t_1* -> t_2*
+
+rule Instr_ok2/label:
+  s; C |- LABEL_ n `{instr'*} admininstr* : eps -> t?
+  -- if |t'?| = n
+  -- Instrs_ok2: s; C |- instr'* : t'? -> t?
+  -- Instrs_ok2: s; {LABELS (t'?)} ++ C |- admininstr* : eps -> t?
+
+rule Instr_ok2/frame:
+  s; C |- FRAME_ n `{f} admininstr* : eps -> t?
+  -- if |t?| = n 
+  -- Frame_ok: s |- f : C'
+  -- Expr_ok2: s; C' |- admininstr* : t?
+
+rule Instr_ok2/call_addr:
+  s; C |- CALL_ADDR funcaddr : t_1* -> t_2*
+  -- Externaddr_ok: s |- FUNC funcaddr: FUNC (t_1* -> t_2*)
+
+rule Instr_ok2/trap:
+  s; C |- TRAP : t_1* -> t_2*
+
+
+rule Instrs_ok2/empty:
+  s; C |- eps : eps -> eps
+
+rule Instrs_ok2/seq:
+  s; C |- admininstr_1 admininstr_2* : t_1* -> t_3*
+  -- Instr_ok2: s; C |- admininstr_1 : t_1* -> t_2*
+  -- Instrs_ok2: s; C |- admininstr_2* : t_2* -> t_3*
+
+rule Instrs_ok2/frame:
+  s; C |- admininstr* : t* t_1* -> t* t_2*
+  -- Instrs_ok2: s; C |- admininstr* : t_1* -> t_2*
+
+rule Expr_ok2:
+  s; C |- admininstr* : t?
+  -- Instrs_ok2: s; C |- admininstr* : eps -> t?
+
+;; External addresses
+
+relation Externaddr_ok: store |- externaddr : externtype  hint(macro "%externaddr")
+
+rule Externaddr_ok/global:
+  s |- GLOBAL a : GLOBAL globalinst.TYPE
+  -- if s.GLOBALS[a] = globalinst
+
+rule Externaddr_ok/mem:
+  s |- MEM a : MEM meminst.TYPE
+  -- if s.MEMS[a] = meminst
+
+rule Externaddr_ok/table:
+  s |- TABLE a : TABLE tableinst.TYPE
+  -- if s.TABLES[a] = tableinst
+
+rule Externaddr_ok/func:
+  s |- FUNC a : FUNC funcinst.TYPE
+  -- if s.FUNCS[a] = funcinst
+
+rule Externaddr_ok/sub:
+  s |- externaddr : xt
+  -- Externaddr_ok: s |- externaddr : xt'
+  -- Externtype_sub: |- xt' <: xt
+
+;; Instances
+
+relation Globalinst_ok: store |- globalinst : globaltype
+relation Meminst_ok: store |- meminst : memtype
+relation Tableinst_ok: store |- tableinst : tabletype
+relation Funcinst_ok: store |- funcinst : functype
+relation Exportinst_ok: store |- exportinst : OK
+
+rule Globalinst_ok:
+  s |- {TYPE mut t, VALUE val} : mut t
+  -- Globaltype_ok: |- mut t : OK
+  -- Val_ok: |- val : t
+
+rule Meminst_ok:
+  s |- {TYPE `[n..m?], BYTES b*} : `[n..m?]
+  -- Memtype_ok: |- `[n..m?] : OK
+  -- if |b*| = $(n * $($(64 * $Ki)))
+
+rule Tableinst_ok:
+  s |- {TYPE `[n..m?] , REFS (fa?)*} : `[n..m?]
+  -- Tabletype_ok: |- `[n..m?] : OK
+  -- ((Externaddr_ok: s |- FUNC fa : FUNC ft)?)*
+  -- if |(fa?)*| = n
+
+rule Funcinst_ok:
+  s |- {TYPE ft, MODULE moduleinst, CODE func} : ft
+  -- Functype_ok: |- ft : OK
+  -- Moduleinst_ok: s |- moduleinst : C
+  -- Func_ok: C |- func : ft
+
+rule Exportinst_ok:
+  s |- {NAME nm, ADDR xa} : OK
+  -- Externaddr_ok: s |- xa : xt
+
+
+;; Modules
+
+relation Moduleinst_ok: store |- moduleinst : context
+
+rule Moduleinst_ok:
+  s |- { TYPES functype*,
+         GLOBALS globaladdr*,
+         MEMS memaddr*,
+         TABLES tableaddr*,
+         FUNCS funcaddr*,
+         EXPORTS exportinst* } :
+           { TYPES functype*,
+             GLOBALS globaltype*,
+             MEMS memtype*,
+             TABLES tabletype*,
+             FUNCS functype_F*,
+           }
+  -- (Functype_ok: |- functype : OK)*
+  -- (Externaddr_ok: s |- GLOBAL globaladdr : GLOBAL globaltype)*
+  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC functype_F)*
+  -- (Externaddr_ok: s |- MEM memaddr : MEM memtype)*
+  -- (Externaddr_ok: s |- TABLE tableaddr : TABLE tabletype)*
+  -- (Exportinst_ok: s |- exportinst : OK)*
+  ----
+  -- if $disjoint_(name, (exportinst.NAME)*)
+  -- (if exportinst.ADDR <- (GLOBAL globaladdr)* (MEM memaddr)* (TABLE tableaddr)* (FUNC funcaddr)*)*
+
+
+;; Store
+
+relation Store_ok: |- store : OK
+
+rule Store_ok:
+  |- s : OK
+  -- (Globalinst_ok: s |- globalinst : globaltype)*
+  -- (Meminst_ok: s |- meminst : memtype)*
+  -- (Tableinst_ok: s |- tableinst : tabletype)*
+  -- (Funcinst_ok: s |- funcinst : functype)*
+  ----
+  -- if s = {GLOBALS globalinst*, MEMS meminst*, TABLES tableinst*, FUNCS funcinst*}
+
+;; Store extension
+
+relation Extend_globalinst: globalinst `<= globalinst
+relation Extend_meminst: meminst `<= meminst
+relation Extend_tableinst: tableinst `<= tableinst
+relation Extend_funcinst: funcinst `<= funcinst
+relation Extend_store: store `<= store
+
+rule Extend_globalinst:
+  {TYPE mut t, VALUE val} `<= {TYPE mut t, VALUE val'}
+  -- if mut = MUT \/ val = val'
+
+rule Extend_meminst:
+  {TYPE `[n..m?], BYTES b*} `<= {TYPE `[n'..m?], BYTES b'*}
+  -- if n <= n'
+  -- if |b*| <= |b'*|
+
+rule Extend_tableinst:
+  {TYPE `[n..m?], REFS ref*} `<= {TYPE `[n'..m?], REFS ref'*}
+  -- if n <= n'
+  -- if |ref*| <= |ref'*|
+
+rule Extend_funcinst:
+  {TYPE ft, MODULE mm, CODE fc} `<= {TYPE ft, MODULE mm, CODE fc}
+
+rule Extend_store:
+  s `<= s'
+  -- (Extend_globalinst: s.GLOBALS[a] `<= s'.GLOBALS[a] )^(a<|s.GLOBALS|)
+  -- (Extend_meminst: s.MEMS[a] `<= s'.MEMS[a] )^(a<|s.MEMS|)
+  -- (Extend_tableinst: s.TABLES[a] `<= s'.TABLES[a] )^(a<|s.TABLES|)
+  -- (Extend_funcinst: s.FUNCS[a] `<= s'.FUNCS[a] )^(a<|s.FUNCS|)
+
+;; Configurations
+
+relation Frame_ok: store |- frame : context
+relation State_ok: |- state : context
+relation Config_ok: |- config : resulttype
+
+rule Frame_ok:
+  s |- {LOCALS val*, MODULE moduleinst} : C ++ {LOCALS t*}
+  -- Moduleinst_ok: s |- moduleinst : C
+  -- (Val_ok: |- val : t)*
+
+rule State_ok:
+  |- s; f : C
+  -- Store_ok: |- s : OK
+  -- Frame_ok: s |- f : C
+
+rule Config_ok:
+  |- s; f; admininstr* : t?
+  -- State_ok: |- s; f : C
+  -- Expr_ok2: s; C |- admininstr* : t?
+

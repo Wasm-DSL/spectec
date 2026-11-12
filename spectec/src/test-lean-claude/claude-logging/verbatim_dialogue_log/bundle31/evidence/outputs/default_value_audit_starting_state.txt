@@ -1,0 +1,4 @@
+module constants: 12602; replayed groups: 9824; theorems checked: 5423; module Inhabited instances made opaque: 121; external instances made opaque: [Int.instInhabited, instInhabitedBool, instInhabitedNat, instInhabitedOption, instInhabitedRat, instInhabitedList, Inhabited.mk]
+theorems needing a default value: 1
+--- TLC.mem_bytes_wf
+(kernel) let-declaration type mismatch 'hd'

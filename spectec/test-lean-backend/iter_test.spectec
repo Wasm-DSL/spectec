@@ -1,0 +1,24 @@
+var n : nat
+var x : nat
+var y : nat
+
+def $zeros(nat) : nat*                     ;;-- Case 1: 0^n{}
+def $zeros(n) = 0^n
+
+def $range_shifted(nat, nat) : nat*        ;;-- Case 2: (b+i)^(i<n){}
+def $range_shifted(b, n) = $(b + i)^(i < n)
+
+def $inc(nat*) : nat*                      ;;-- Case 3: (x+1)*{x <- x_lst}
+def $inc(x*) = $(x + 1)*
+
+def $add_pairs(nat*, nat*) : nat*          ;;-- Case 4: (x+y)*{x <- x_lst, y <- y_lst}
+def $add_pairs(x*, y*) = $(x + y)*
+
+def $inc_opt(nat?) : nat?                  ;;-- Case 5: (x+1)?{x <- x_opt}
+def $inc_opt(x?) = $(x + 1)?
+
+def $double_n(nat, nat*) : nat*            ;;-- Case 6: (x+x)^n{x <- x_lst}
+def $double_n(n, x^n) = $(x + x)^n
+
+def $indexed_add(nat, nat*) : nat*         ;;-- Case 7: (x+i)^(i<n){x <- x_lst}
+def $indexed_add(n, x^n) = $(x + i)^(i < n)

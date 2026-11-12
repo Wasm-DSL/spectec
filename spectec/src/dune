@@ -14,6 +14,7 @@
     (re_export backend_interpreter)
     (re_export backend_isabelle)
     (re_export backend_rocq)
+    (re_export backend_lean)
     (re_export il2al)
   )
 )

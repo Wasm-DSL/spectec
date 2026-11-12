@@ -35,3 +35,12 @@ sig
   val explode : string -> char list
   val replace : string -> string -> string -> string
 end
+
+module NonEmptyList :
+sig
+  type 'a t [@@deriving show]
+
+  val from_list : 'a list -> 'a t option
+  val from_list_unsafe : 'a list -> 'a t
+  val to_list : 'a t -> 'a list
+end

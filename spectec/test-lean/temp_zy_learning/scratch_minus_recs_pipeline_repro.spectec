@@ -1,0 +1,23 @@
+;; Minimal repro of the fun_minus_recs_before_fun_minus_recs_case_3 positivity bug.
+;;
+;; Structural shape, mirroring $minus_recs from the real wasm-3.0 spec:
+;;   - a two-constructor "tag" type (LEFT = drop, RIGHT n = keep), standing in
+;;     for typevar's (REC n | _IDX x)
+;;   - a partial, self-recursive `def` over parallel lists (tag*, nat*)
+;;   - the "keep" clause destructures the recursive call's result via an
+;;     explicit `-- if (pattern) = $minus(...)` premise, exactly like
+;;     minus_recs's `-- if (tv'*, tu'*) = $minus_recs(tv*, tu*)`
+;;
+;; This is the shape that makes the totalizer emit a `!`-forced LetPr
+;; (rather than an `?{x <- ...}` Option-comprehension), which is what makes
+;; filter_return_prems keep the recursive premise in the `_before_` guard,
+;; which is what breaks strict positivity.
+
+syntax tag = | LEFT | RIGHT nat
+
+def $minus(tag*, nat*) : (tag*, nat*) hint(partial) hint(recfunc)
+
+def $minus(eps, eps) = (eps, eps)
+def $minus(LEFT t*, n_1 n'*) = $minus(t*, n'*)
+def $minus((RIGHT x) t*, n_1 n'*) = ((RIGHT x) t''*, n_1 n''*)
+  -- if (t''*, n''*) = $minus(t*, n'*)

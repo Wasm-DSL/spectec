@@ -1,0 +1,45 @@
+
+;; test-lean/family-hint-repro/toy.spectec:5.1-5.39
+syntax numtype = 
+  | I32
+  | I64
+  | F32
+  | F64
+
+;; test-lean/family-hint-repro/toy.spectec:6.1-6.22
+syntax vectype = 
+  | V128
+
+;; test-lean/family-hint-repro/toy.spectec:8.1-8.23
+syntax Inn = 
+  | I32
+  | I64
+
+;; test-lean/family-hint-repro/toy.spectec:9.1-9.23
+syntax Fnn = 
+  | F32
+  | F64
+
+;; test-lean/family-hint-repro/toy.spectec:10.1-10.18
+syntax Vnn = 
+  | V128
+
+;; test-lean/family-hint-repro/toy.spectec:12.1-12.21
+syntax num_(numtype : numtype)
+  ;; test-lean/family-hint-repro/toy.spectec:13.1-13.23
+  syntax num_{Inn : Inn}((Inn : Inn <: numtype)) = nat
+
+
+  ;; test-lean/family-hint-repro/toy.spectec:14.1-14.23
+  syntax num_{Fnn : Fnn}((Fnn : Fnn <: numtype)) = nat
+
+
+;; test-lean/family-hint-repro/toy.spectec:16.1-16.27
+syntax vec_{vectype : vectype}(vectype) = nat
+
+;; test-lean/family-hint-repro/toy.spectec:18.1-18.55
+def $foo(numtype : numtype, num_ : num_(numtype)) : nat*
+
+;; test-lean/family-hint-repro/toy.spectec:19.1-19.55
+def $bar(vectype : vectype, vec_ : vec_(vectype)) : nat*
+

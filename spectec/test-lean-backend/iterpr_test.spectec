@@ -1,0 +1,48 @@
+;;
+;; Minimal IterPr test cases.
+;;
+;; The SpecTec syntax for an iterated premise is:
+;;   -- (RelName: args)^(var <- list)    for an explicit zip, or
+;;   -- (RelName: args)*                 for implicit iteration over list-typed vars
+;;
+
+syntax elem = nat
+
+var n : nat
+var e : elem
+
+;; ── Arity 1 ───────────────────────────────────────────────────────────────────
+;; A unary relation over nat
+
+relation Nat_ok: nat |- nat
+rule Nat_ok/refl:
+  n |- n
+
+;; A relation over nat* whose rule iterates:
+;;   -- (Nat_ok: n |- n)*
+;; This should produce:
+;;   ∀ n ∈ n_lst, Nat_ok (n) (n)
+
+relation Nats_ok: nat* |- nat*
+rule Nats_ok/all:
+  n* |- n*
+    -- (Nat_ok: n |- n)*
+
+;; ── Arity 2 ───────────────────────────────────────────────────────────────────
+;; A binary relation (pairing two lists)
+
+relation Pair_ok: nat |- nat
+rule Pair_ok/eq:
+  n |- n
+
+;; Pairwise relation over two lists:
+;;   -- (Pair_ok: n |- e)*
+;; where n* and e* are simultaneously iterated.
+;; Expected output:
+;;   ∀ __iter_tuple ∈ n_lst |>.zip (e_lst),
+;;     Pair_ok (__iter_tuple.1) (__iter_tuple.2)
+
+relation Pairs_ok: nat* |- elem*
+rule Pairs_ok/all:
+  n* |- e*
+    -- (Pair_ok: n |- e)*

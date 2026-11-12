@@ -1,0 +1,28 @@
+{
+ "label": "Q4",
+ "section_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-Q4/section.md",
+ "constructs_written": [
+  "t_progress_be_vextunop",
+  "t_progress_be_vextbinop",
+  "t_progress_be_vnarrow",
+  "t_progress_be_vcvtop",
+  "vcvtop_lane_total",
+  "zero_lane_wf",
+  "vcvtop_step_zero",
+  "vcvtop_zero_numtype",
+  "vcvtop_full_lsize"
+ ],
+ "flags": [
+  {
+   "construct": "zero_lane_wf",
+   "line": "    `z` with `fun_zero nt z`; it used to take the function application `fun_zero nt`.) -/",
+   "issue": "Minor wording, optional: nothing here is stale. \"take\" can be read as if the lemma used to take `fun_zero nt` as an argument; it was actually stated about that function application. No other doc or inline comment in the 9 final texts is stale. The \"78 cases\" count still holds: 73 Instr_ok and 5 Instrs_ok constructors in both models. The vcvtop_trunc_sat_i16 comment also still holds: TRUNC_SAT targets are Inn, so there is no I16.",
+   "suggestion": "    `z` with `fun_zero nt z`; it used to be stated for the function application `fun_zero nt`.) -/"
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021103.032475226Z-bundle31-W-Q4-start-332884.txt -- notes the known external artifact .lake/build/lib/lean/wasm2.0.trace.nobuild (not created by this session, md5 unchanged since noted); verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023036.587004949Z-bundle31-W-Q4-end-347366.txt -- same known external artifact noted (md5 unchanged); verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline"
+ ],
+ "notes": "1. Output location: the task asked for report/agents/Q4/section.md, but the non-negotiable safety rule allows writes only under report/agents/W-Q4/. I therefore wrote /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-Q4/section.md. The scratch copies I used for reading (per-construct orig/final/error dumps) are in W-Q4/work/. No repository file, .lean file or git command was touched, and no Lean was run.\n2. Data check: I confirmed that every orig_text occurs verbatim in b31/orig/TypeProgress.lean and every final_text in b31/final3/src/TypeProgress.lean.\n3. Error mapping: the noshim error lines map onto the orig module, and the withshim lines map onto it with a +119 offset; I matched each error to its construct line. The errors in Q4.json come from the round where the original text was compiled against the new model. So vcvtop_step_zero's own errors are listed rather than an unknown-identifier error for zero_lane_wf, which was still present (with an ill-elaborated statement) in that round. t_progress_be_vcvtop's only noshim error is `unknown identifier vcvtop_full_lsize`, because that helper's header failed outright.\n4. Facts I checked that the verifier may want to recheck:\n   - vcvtop_step_half/full, halfop_total, zeroop_total, vcvtop_lanes_total, lanes_Jnn_form and shape_lanes_even are byte-identical between orig and final.\n   - HelperLemmas has no function view for fun_zero or fun_sizenn2, hence the `cases hn0`/`cases hn1` eliminations.\n   - fun_vextbinop__ orders its size premises lsizenn1 then lsizenn2 (var_1 : M, var_0 : N). fun_vextunop__ and fun_lcvtop__ use lsizenn2 then lsizenn1 (var_1 : N, var_0 : M).\n   - The pattern counts of wf_lane_.lane__case_0 (e.g. `lane__case_0 J c _ _ _ Heq`) are consistent with Lean promoting the uniform first index v_lanetype to a parameter.\n5. In vcvtop_full_lsize, `rfl` closes every equal-width lane pair (I32/F32 and also I64/F64), not only the valid one. The section says \"pairs with equal widths close by rfl\".\n6. CONVERT also admits I16\u2192F32 with LOW (fun_lcvtop___case_19), as the SpecTec side condition allows. The section lists it neutrally."
+}

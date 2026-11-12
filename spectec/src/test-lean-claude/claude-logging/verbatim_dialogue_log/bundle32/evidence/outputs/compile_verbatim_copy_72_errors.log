@@ -1,0 +1,699 @@
+wasm2.0.lean:762:30: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:878:19: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:884:19: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:913:21: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:919:21: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1034:21: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1040:21: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1089:23: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1095:23: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1118:25: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1159:23: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1165:23: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1277:25: warning: Variable name `Inn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1277:31: warning: Variable name `Inn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1283:25: warning: Variable name `Inn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1283:31: warning: Variable name `Fnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1289:25: warning: Variable name `Fnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1289:31: warning: Variable name `Inn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1295:25: warning: Variable name `Fnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1295:31: warning: Variable name `Fnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1345:12: warning: Variable name `v_Lnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1432:23: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1432:29: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1438:23: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1438:29: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1520:25: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1520:31: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1526:25: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1526:31: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1549:27: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1549:33: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1613:25: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1613:31: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1619:25: warning: Variable name `v_Fnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1619:31: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1730:27: warning: Variable name `Jnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1730:33: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1730:37: warning: Variable name `Jnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1730:43: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1736:27: warning: Variable name `Jnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1736:33: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1736:37: warning: Variable name `Fnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1736:43: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1742:27: warning: Variable name `Fnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1742:33: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1742:37: warning: Variable name `Inn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1742:43: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1748:27: warning: Variable name `Fnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1748:33: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1748:37: warning: Variable name `Fnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1748:43: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1772:29: warning: Variable name `v_Jnn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1772:35: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1805:31: warning: Variable name `Jnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1805:37: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1805:41: warning: Variable name `Jnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1805:47: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1844:33: warning: Variable name `Jnn_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1844:39: warning: Variable name `M_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1844:43: warning: Variable name `Jnn_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1844:49: warning: Variable name `M_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:1894:25: warning: Variable name `v_Inn` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:2485:30: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:3734:11: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:3864:10: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:3953:10: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:4688:11: warning: Variable name `v_N` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12699:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12712:19: warning: Variable name `s` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12725:19: warning: Variable name `s` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12730:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12743:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12756:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12769:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12782:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12787:21: warning: Variable name `f` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12800:19: warning: Variable name `s` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:12945:65: warning: Variable name `elem_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:13015:49: warning: Variable name `elem_2` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:13037:78: warning: Variable name `elem_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:13095:72: warning: Variable name `elem_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:14636:131: warning: Variable name `elem_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:14707:2: error: Function expected at
+  wf_admininstr.admininstr_case_20 ?m.3 ?m.4
+but this term has type
+  wf_admininstr (admininstr.VVUNOP ?m.3 ?m.4)
+
+Note: Expected a function because this term is being applied to the argument
+  (by decide)
+wasm2.0.lean:14711:15: error: Too many variable names provided at alternative `admininstr_case_20`: 4 provided, but 2 expected
+wasm2.0.lean:14711:15: error: Alternative `admininstr_case_20` is not needed
+wasm2.0.lean:14711:2: error: Alternative `admininstr_case_19` has not been provided
+wasm2.0.lean:14722:47: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14748:4: error: Alternative `admininstr_case_71` is not needed
+wasm2.0.lean:14747:4: error: Alternative `admininstr_case_70` has not been provided
+wasm2.0.lean:14755:4: error: Alternative `admininstr_case_71` is not needed
+wasm2.0.lean:14754:4: error: Alternative `admininstr_case_70` has not been provided
+wasm2.0.lean:14783:4: error: Too many variable names provided at alternative `admininstr_case_72`: 5 provided, but 0 expected
+wasm2.0.lean:14783:4: error: Alternative `admininstr_case_72` is not needed
+wasm2.0.lean:14782:4: error: Alternative `admininstr_case_71` has not been provided
+wasm2.0.lean:14788:4: error: Alternative `admininstr_case_71` is not needed
+wasm2.0.lean:14787:4: error: Alternative `admininstr_case_70` has not been provided
+wasm2.0.lean:14789:45: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14790:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14791:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14798:45: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14804:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14815:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14848:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14856:47: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+
+Note: Inferred this name from the expected resulting type of `.admininstr_case_73`:
+  wf_admininstr admininstr.TRAP
+wasm2.0.lean:14958:74: error: Application type mismatch: The argument
+  wf_admininstr.admininstr_case_44 x ?m.16429
+has type
+  wf_admininstr (admininstr.LOCAL_TEE x)
+but is expected to have type
+  wf_admininstr (admininstr.LOCAL_SET x)
+in the application
+  iswf_Forall_singleton (wf_admininstr.admininstr_case_44 x ?m.16429)
+wasm2.0.lean:15286:17: warning: Variable name `k` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:15340:161: warning: Variable name `elem_1` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16184:18: warning: Variable name `j_17` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16185:62: warning: Variable name `j_17` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16190:18: warning: Variable name `i_82780` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16191:109: warning: Variable name `j_18` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16192:18: warning: Variable name `j_19` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+wasm2.0.lean:16921:35: error: Application type mismatch: The argument
+  some Inn.I32
+has type
+  Option Inn
+but is expected to have type
+  vectype
+in the application
+  wf_admininstr.admininstr_case_57 (some Inn.I32)
+wasm2.0.lean:16934:4: error: Application type mismatch: The argument
+  iswf_Forall_cons
+    (wf_loadop_.loadop__case_0 (numtype_Inn ?m.14) ?m.14 (loadop_Inn.mk_loadop_Inn (sz.mk_sz 8) ?m.16)
+      (wf_loadop_Inn.loadop_Inn_case_0 ?m.14 (sz.mk_sz 8) ?m.16 32 ?m.21 (wf_sz.sz_case_0 8 ?m.24) ?m.25) rfl)
+    (iswf_Forall_nil (wf_loadop_ (numtype_Inn ?m.14)))
+has type
+  Forall (wf_loadop_ (numtype_Inn ?m.14)) [loadop_.mk_loadop__0 ?m.14 (loadop_Inn.mk_loadop_Inn (sz.mk_sz 8) ?m.16)]
+of sort `Prop` but is expected to have type
+  memarg
+of sort `Type` in the application
+  wf_admininstr.admininstr_case_56 ?m.4 ?m.5 ?m.6
+    (iswf_Forall_cons
+      (wf_loadop_.loadop__case_0 (numtype_Inn ?m.14) ?m.14 (loadop_Inn.mk_loadop_Inn (sz.mk_sz 8) ?m.16)
+        (wf_loadop_Inn.loadop_Inn_case_0 ?m.14 (sz.mk_sz 8) ?m.16 32 ?m.21 (wf_sz.sz_case_0 8 ?m.24) ?m.25) rfl)
+      (iswf_Forall_nil (wf_loadop_ (numtype_Inn ?m.14))))
+wasm2.0.lean:16935:84: error: Expected type must not contain metavariables
+  size (valtype_numtype ?m.19) ≠ none
+wasm2.0.lean:16978:69: error: Application type mismatch: The argument
+  iswf_Forall_nil ?m.419
+has type
+  Forall ?m.419 []
+but is expected to have type
+  wf_frame ?m.416
+in the application
+  wf_admininstr.admininstr_case_71 ?m.415 ?m.416 ?m.417 (iswf_Forall_nil ?m.419)
+wasm2.0.lean:16979:49: error: unsolved goals
+z : state
+hsok : Store_ok (fun_store z)
+hst : wf_state z
+k : Nat
+val_lst : List val
+bt : blocktype
+instr_lst : List instr
+v_n✝ : n
+t_1_lst✝ t_2_lst✝ : List valtype
+var_0✝ : functype
+a✝⁵ : var_0✝ = functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)
+a✝⁴ : k = val_lst.length
+a✝³ : k = t_1_lst✝.length
+a✝² : v_n✝ = t_2_lst✝.length
+a✝¹ : fun_blocktype z bt var_0✝
+hcfg :
+  wf_config
+    (config.mk_config z (Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ++ [admininstr.BLOCK bt instr_lst]))
+hais :
+  Forall (fun e => wf_admininstr e)
+    (Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ++ [admininstr.BLOCK bt instr_lst])
+a✝ : wf_blocktype bt
+hinstrs : Forall (fun v_instr_elem => wf_instr v_instr_elem) instr_lst
+x : admininstr
+hx : x ∈ ?m.422
+⊢ x ∈ Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ∨ x = admininstr.BLOCK bt instr_lst
+wasm2.0.lean:16986:8: error: Application type mismatch: The argument
+  iswf_Forall_cons (wf_instr.instr_case_5 bt instr_lst hbt hinstrs) (iswf_Forall_nil wf_instr)
+has type
+  Forall wf_instr [instr.LOOP bt instr_lst]
+but is expected to have type
+  wf_frame ?m.955
+in the application
+  wf_admininstr.admininstr_case_71 ?m.954 ?m.955 ?m.956
+    (iswf_Forall_cons (wf_instr.instr_case_5 bt instr_lst hbt hinstrs) (iswf_Forall_nil wf_instr))
+wasm2.0.lean:16987:49: error: unsolved goals
+z : state
+hsok : Store_ok (fun_store z)
+hst : wf_state z
+k : Nat
+val_lst : List val
+bt : blocktype
+instr_lst : List instr
+t_1_lst✝ : List valtype
+v_n✝ : n
+t_2_lst✝ : List valtype
+var_0✝ : functype
+a✝⁴ : var_0✝ = functype.mk_functype (list.mk_list t_1_lst✝) (list.mk_list t_2_lst✝)
+a✝³ : k = val_lst.length
+a✝² : k = t_1_lst✝.length
+a✝¹ : v_n✝ = t_2_lst✝.length
+a✝ : fun_blocktype z bt var_0✝
+hcfg :
+  wf_config
+    (config.mk_config z (Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ++ [admininstr.LOOP bt instr_lst]))
+hais :
+  Forall (fun e => wf_admininstr e)
+    (Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ++ [admininstr.LOOP bt instr_lst])
+hbt : wf_blocktype bt
+hinstrs : Forall (fun v_instr_elem => wf_instr v_instr_elem) instr_lst
+x : admininstr
+hx : x ∈ ?m.967
+⊢ x ∈ Map (fun v_val_elem => admininstr_val v_val_elem) val_lst ∨ x = admininstr.LOOP bt instr_lst
+wasm2.0.lean:16996:30: error: Function expected at
+  wf_admininstr.admininstr_case_72
+but this term has type
+  wf_admininstr admininstr.TRAP
+
+Note: Expected a function because this term is being applied to the argument
+  _
+wasm2.0.lean:17004:4: error: Alternative `admininstr_case_43` is not needed
+wasm2.0.lean:17003:4: error: Alternative `admininstr_case_42` has not been provided
+wasm2.0.lean:17010:4: error: Alternative `admininstr_case_46` is not needed
+wasm2.0.lean:17009:4: error: Alternative `admininstr_case_45` has not been provided
+wasm2.0.lean:17029:4: error: Alternative `admininstr_case_52` is not needed
+wasm2.0.lean:17028:4: error: Alternative `admininstr_case_51` has not been provided
+wasm2.0.lean:17046:4: error: Alternative `admininstr_case_53` is not needed
+wasm2.0.lean:17045:4: error: Alternative `admininstr_case_52` has not been provided
+wasm2.0.lean:17063:4: error: Alternative `admininstr_case_53` is not needed
+wasm2.0.lean:17062:4: error: Alternative `admininstr_case_52` has not been provided
+wasm2.0.lean:17079:4: error: Too many variable names provided at alternative `admininstr_case_54`: 4 provided, but 2 expected
+wasm2.0.lean:17079:4: error: Alternative `admininstr_case_54` is not needed
+wasm2.0.lean:17078:4: error: Alternative `admininstr_case_53` has not been provided
+wasm2.0.lean:17098:28: error: Function expected at
+  wf_admininstr.admininstr_case_20 ?m.7883 ?m.7884
+but this term has type
+  wf_admininstr (admininstr.VVUNOP ?m.7883 ?m.7884)
+
+Note: Expected a function because this term is being applied to the argument
+  (by decide)
+wasm2.0.lean:17102:28: error: Function expected at
+  wf_admininstr.admininstr_case_20 ?m.8220 ?m.8221
+but this term has type
+  wf_admininstr (admininstr.VVUNOP ?m.8220 ?m.8221)
+
+Note: Expected a function because this term is being applied to the argument
+  (by decide)
+wasm2.0.lean:17109:28: error: Function expected at
+  wf_admininstr.admininstr_case_20 ?m.8563 ?m.8564
+but this term has type
+  wf_admininstr (admininstr.VVUNOP ?m.8563 ?m.8564)
+
+Note: Expected a function because this term is being applied to the argument
+  (by decide)
+wasm2.0.lean:17116:28: error: Function expected at
+  wf_admininstr.admininstr_case_20 ?m.8900 ?m.8901
+but this term has type
+  wf_admininstr (admininstr.VVUNOP ?m.8900 ?m.8901)
+
+Note: Expected a function because this term is being applied to the argument
+  (by decide)
+wasm2.0.lean:17122:4: error: Too many variable names provided at alternative `admininstr_case_20`: 4 provided, but 2 expected
+wasm2.0.lean:17122:4: error: Alternative `admininstr_case_20` is not needed
+wasm2.0.lean:17121:4: error: Alternative `admininstr_case_19` has not been provided
+wasm2.0.lean:17174:4: error: Alternative `admininstr_case_66` is not needed
+wasm2.0.lean:17173:4: error: Alternative `admininstr_case_65` has not been provided
+wasm2.0.lean:16979:58: warning: This simp argument is unused:
+  hx
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵h̵x̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+wasm2.0.lean:16987:58: warning: This simp argument is unused:
+  hx
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵h̵x̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+wasm2.0.lean:17239:4: error: Alternative `admininstr_case_71` is not needed
+wasm2.0.lean:17238:4: error: Alternative `admininstr_case_70` has not been provided
+wasm2.0.lean:17252:31: error: Function expected at
+  wf_admininstr.admininstr_case_72
+but this term has type
+  wf_admininstr admininstr.TRAP
+
+Note: Expected a function because this term is being applied to the argument
+  _
+wasm2.0.lean:17262:4: error: Alternative `admininstr_case_44` is not needed
+wasm2.0.lean:17261:4: error: Alternative `admininstr_case_43` has not been provided
+wasm2.0.lean:17269:4: error: Alternative `admininstr_case_47` is not needed
+wasm2.0.lean:17268:4: error: Alternative `admininstr_case_46` has not been provided
+wasm2.0.lean:17278:4: error: Alternative `admininstr_case_49` is not needed
+wasm2.0.lean:17277:4: error: Alternative `admininstr_case_48` has not been provided
+wasm2.0.lean:17284:4: error: Alternative `admininstr_case_51` is not needed
+wasm2.0.lean:17283:4: error: Alternative `admininstr_case_50` has not been provided
+wasm2.0.lean:17298:4: error: Alternative `admininstr_case_55` is not needed
+wasm2.0.lean:17297:4: error: Alternative `admininstr_case_54` has not been provided
+wasm2.0.lean:17329:4: error: Too many variable names provided at alternative `admininstr_case_20`: 4 provided, but 2 expected
+wasm2.0.lean:17329:4: error: Alternative `admininstr_case_20` is not needed
+wasm2.0.lean:17328:4: error: Alternative `admininstr_case_19` has not been provided
+wasm2.0.lean:17359:4: error: Too many variable names provided at alternative `admininstr_case_67`: 2 provided, but 1 expected
+wasm2.0.lean:17359:4: error: Alternative `admininstr_case_67` is not needed
+wasm2.0.lean:17358:4: error: Alternative `admininstr_case_66` has not been provided
+Command exited with non-zero status 1
+WALL 22.83 s  MAXRSS 2621096 KB

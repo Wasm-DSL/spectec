@@ -102,3 +102,27 @@ struct
   let replace pattern replacement s =
     Str.global_replace (Str.regexp_string pattern) replacement s
 end
+
+module NonEmptyList =
+struct
+  type 'a t = {
+    head: 'a;
+    tail: 'a list;
+  }
+  [@@deriving show]
+
+
+  let from_list_unsafe (l : 'a list) : 'a t =
+    match l with
+    | [] -> failwith "NonEmptyList.from_list_unsafe: empty list"
+    | head::tail -> { head; tail }
+
+  let from_list (l : 'a list) : 'a t option =
+    match l with
+    | [] -> None
+    | l -> Some (from_list_unsafe l)
+
+  let to_list (nel : 'a t) : 'a list =
+    nel.head :: nel.tail
+
+end

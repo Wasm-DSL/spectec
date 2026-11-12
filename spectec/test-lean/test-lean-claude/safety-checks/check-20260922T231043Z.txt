@@ -1,0 +1,42 @@
+Safety check run at 20260922T231043Z
+Baseline: spectec/test-lean/test-lean-claude/safety-checks/00-baseline-git-status.txt
+
+=== Full current git status --porcelain ===
+ M spectec/test-lean/wasm2.0.lean
+?? .vscode/
+?? _opam/
+?? spectec/1---
+?? spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+?? spectec/blahblah.lean
+?? spectec/check_wasm2.0.lean
+?? spectec/check_wasm2.0.v
+?? spectec/check_wasm2.0_OLD.lean
+?? spectec/diegowasm2.0.lean
+?? spectec/diegowasm3.0.lean
+?? spectec/fixed2lean3.0.lean
+?? spectec/fixed3lean3.0.lean
+?? spectec/fixed4lean3.0.lean
+?? spectec/fixed_wasm2.0.lean
+?? spectec/fixedlean2.0.lean
+?? spectec/fixedlean3.0.lean
+?? spectec/handcopy.lean
+?? spectec/huhrocq3.0.v
+?? spectec/new.diff
+?? spectec/new_wasm1.0.lean
+?? spectec/new_wasm2.0.lean
+?? spectec/oldlean2.0.lean
+?? spectec/sandbox.lean
+?? spectec/temp2wasm3.0.lean
+?? spectec/tempwasm3.0.lean
+?? spectec/test-lean/test-lean-claude/
+?? spectec/test-lean/todaywasm2.0.lean
+?? spectec/test-lean/todaywasm3.0.lean
+?? spectec/test-rocq/_CoqProject
+?? spectec/test-rocq/test-rocq.opam
+?? spectec/update_fixedlean2.0.lean
+?? spectec/wasm2.0.v
+?? spectec/wasm2.0_new.lean
+?? spectec/wasm3.0.v
+
+=== Lines new since baseline AND outside test-lean-claude/ (should be EMPTY) ===
+

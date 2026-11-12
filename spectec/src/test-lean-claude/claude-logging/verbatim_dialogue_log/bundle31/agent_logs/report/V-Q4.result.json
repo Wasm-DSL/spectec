@@ -1,0 +1,119 @@
+{
+ "label": "V-Q4",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-Q4/section.verified.md",
+ "corrections": [
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "The statement left out that the motive also requires the operands to be well-formed (`Forall wf_val vcs`).",
+   "fixed": "Changed \"operand values vcs\" to \"well-formed operand values vcs\"."
+  },
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "\"Without the views, the first errors are unknown identifier lsize ... and unknown identifier lsizenn1\". This skipped the second recorded error, the failing `assumption` at 5422:68.",
+   "fixed": "Now lists all three: lsize (H128), the failing `assumption` of that `have`, and lsizenn1 (E)."
+  },
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "Said case_3/_14 \"are the generated rules of $vextunop__\". They are only two of the 16 per-lane-pair rules.",
+   "fixed": "\"... the generated rules of `$vextunop__` for I16\u2192I32 and I8\u2192I16\"."
+  },
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "Quoted the rule `(VEXTUNOP sh_2 sh_1 ...)` right after calling the theorem's sh_2 the source. In the rule, sh_1 is the source. The quote is correct but the names clash.",
+   "fixed": "Added \"(The rule's `sh_1` is the source shape, i.e. this theorem's `sh_2`.)\""
+  },
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "\"adds two implicit size variables\". var_1 and var_0 are explicit binders of the rule, passed as `_`.",
+   "fixed": "\"passes the two new explicit size arguments `var_1`, `var_0` as `_`\". Also noted that the result equation is still `rfl`."
+  },
+  {
+   "construct": "t_progress_be_vextunop",
+   "wrong": "Did not say why the wf_vextunop__ pattern problem never appears as an error.",
+   "fixed": "Added that `Hsz` is now the Nat `var_1`, and that the `exact absurd Hsz \u2026` alternative fails inside `first`, which reports only its last alternative's error."
+  },
+  {
+   "construct": "t_progress_be_vextbinop",
+   "wrong": "No-views error list did not say where `lsizenn1` occurs.",
+   "fixed": "Added \"(also in `Hext`)\" (5510:51)."
+  },
+  {
+   "construct": "t_progress_be_vextbinop",
+   "wrong": "\"case_3/_4/_14/_19 are the rules of $vextbinop__\". They are the subset the proof uses.",
+   "fixed": "\"... the rules of `$vextbinop__` that the proof uses\"."
+  },
+  {
+   "construct": "t_progress_be_vextbinop",
+   "wrong": "Item 3 of the with-views error list (\"Like wf_lane_.lane__case_0, it gained size variables...\") was vague. It was also presented as an error, but it is not among the recorded errors (5619:32 and 2x 5656:94).",
+   "fixed": "Now states the new premises (`fun_lsizenn2 (Jnn_2) var_1`, `fun_lsizenn1 (Jnn_1) var_0`). The old rcases patterns bind `Hsz` to the Nat var_1, and the `try exact absurd Hsz \u2026` fails silently. lane__case_0 gained its fun_lsize premise (used in HW2). Neither change shows among the three recorded errors."
+  },
+  {
+   "construct": "t_progress_be_vnarrow",
+   "wrong": "\"no case split ... because the rule has no size side condition of its own\". This leaves out the main reason: Step_pure.vnarrow is one generic rule, unlike $vextunop__'s per-lane-pair rules.",
+   "fixed": "\"`Step_pure.vnarrow` is a single rule, generic in `Jnn_1`/`Jnn_2`, with no size side condition to check.\""
+  },
+  {
+   "construct": "t_progress_be_vcvtop",
+   "wrong": "\"Without the views, the first error is unknown identifier vcvtop_full_lsize\". It is the only recorded error (the list has one entry; lists are capped at three).",
+   "fixed": "\"the only recorded error is ...\""
+  },
+  {
+   "construct": "t_progress_be_vcvtop",
+   "wrong": "\"Each helper returns a Step_pure for (v128.const c_1) (VCVTOP sh_2 sh_1 vcvtop)\". Under the theorem's own names (sh_1 = L2 X M2, sh_2 = L1 X M1, defined just above) this has the shapes swapped. The helpers return VCVTOP (L2 X M2) (L1 X M1) op.",
+   "fixed": "\"... for `(v128.const c_1) (VCVTOP (L2 X M2) (L1 X M1) op)`, i.e. this theorem's `VCVTOP sh_1 sh_2 op` (rule Step_pure/vcvtop)\"."
+  },
+  {
+   "construct": "vcvtop_lane_total",
+   "wrong": "\"The patterns `\u2026 _ _ hs` now bind the wrong fields.\" The patterns differ by family: DEMOTE is `_ hs` and PROMOTE_LOW is `hs`, and in each case `hs` lands on the Nat var_1.",
+   "fixed": "Lists the old pattern of each family and says each now binds `hs` to the Nat `var_1`."
+  },
+  {
+   "construct": "vcvtop_lane_total",
+   "wrong": "The original sketch said `decide` on `hs` refutes the pairs. For CONVERT and TRUNC_SAT the proof first splits hs (rcases) and applies `absurd h1/h2 (by decide)`.",
+   "fixed": "Added \"(split into `h1`/`h2` for CONVERT and TRUNC_SAT)\"."
+  },
+  {
+   "construct": "vcvtop_lane_total",
+   "wrong": "\"the range premise\". For float lanes the skipped premise is `wf_fN var_0 x`, not a range bound.",
+   "fixed": "\"the `wf_uN`/`wf_fN` premise\"."
+  },
+  {
+   "construct": "zero_lane_wf",
+   "wrong": "The rule premise `fun_fzero (Option.get! (size \u2026)) z` used z for the fN witness, while z : num_ is the zero in the restated lemma. The rule's output `mk_num__1 Fnn _` was not given.",
+   "fixed": "Uses x: \"`fun_fzero (Option.get! (size \u2026)) x`, with output `mk_num__1 Fnn x`\" and \"`fun_fzero N x`\"."
+  },
+  {
+   "construct": "vcvtop_step_zero",
+   "wrong": "The statement left out the two `wf_shape` hypotheses.",
+   "fixed": "\"(valid shapes, number-type lanes on both sides)\"."
+  },
+  {
+   "construct": "vcvtop_zero_numtype",
+   "wrong": "Gave only the TRUNC_SAT fall-through `exact \u27e8F64, I32, rfl, rfl\u27e9`. The DEMOTE branch falls through to \u27e8F64, F32, \u2026\u27e9.",
+   "fixed": "Added \"(`\u27e8numtype.F64, numtype.F32, rfl, rfl\u27e9` in the DEMOTE branch)\"."
+  },
+  {
+   "construct": "vcvtop_full_lsize",
+   "wrong": "Quoted an error message that does not exist: \"`hcond` has type \u2115 but is expected to be a Prop\". The recorded errors are \"Application type mismatch: hcond has type \u2115 of sort Type but is expected ?m of sort Prop in absurd hcond\" and \"Expected type must not contain metavariables \u00ac?m\".",
+   "fixed": "Replaced with an accurate paraphrase of both errors."
+  },
+  {
+   "construct": "vcvtop_full_lsize",
+   "wrong": "The original sketch said the equal-width pairs close by rfl \"(the views compute)\". The original proof ran against the old model's def `lsize`; the function views did not exist yet.",
+   "fixed": "\"(`lsize` computes)\"."
+  }
+ ],
+ "flags": [
+  {
+   "construct": "zero_lane_wf",
+   "line": "    `z` with `fun_zero nt z`; it used to take the function application `fun_zero nt`.) -/",
+   "issue": "Confirmed (minor wording, optional). \"take\" can be read as if the lemma took `fun_zero nt` as an argument; it was stated about that function application. I also checked the other comments: no doc or inline comment in the 9 final texts is stale. \"78 cases\" holds in both models (73 Instr_ok + 5 Instrs_ok). The vcvtop_trunc_sat_i16 comment holds (TRUNC_SAT targets are Inn).",
+   "suggestion": "    `z` with `fun_zero nt z`; it used to be stated for the function application `fun_zero nt`.) -/"
+  }
+ ],
+ "safety_checks": [
+  "V-Q4-start: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023103.781732055Z-bundle31-V-Q4-start-347687.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (notes only the known external artifact .lake/build/lib/lean/wasm2.0.trace.nobuild, 'not created by this session', md5 unchanged since noted)",
+  "V-Q4-end: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024949.226996746Z-bundle31-V-Q4-end-361152.txt -- verdict: OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline (same known external artifact, md5 unchanged since noted)"
+ ],
+ "confidence": "High. I checked every claim against the code and the spec, without running Lean. The sources: orig_text/final_text (each occurs verbatim in orig/ and final3/src/TypeProgress.lean), the recorded errors (mapped to source lines; withshim = orig + 119), the old and new model definitions, the HelperLemmas views, and the spec files 1-syntax, 3-numerics, 6-typing and 8-reduction.\n\nWhat holds: the rule and constructor shapes (wf_shape, wf_lane_, the four wf_vcvtop__ families, wf_vextunop__/wf_vextbinop__, fun_vextunop__/fun_vextbinop__/fun_lcvtop__ cases, Step_pure.vnarrow, fun_vcvtop___case_2, fun_zero/fun_fzero, zero_is_wf), the premise orders and var types, the case numbers and lane pairs, and the absence of views for $zero and $sizenn2. The cascade statuses, the axioms trunc_sat_total/demote_nonempty/promote_nonempty, and the users of zero_lane_wf and vcvtop_lane_total also hold. vcvtop_step_half/full, halfop_total, zeroop_total, vcvtop_lanes_total, lanes_Jnn_form and shape_lanes_even are byte-identical in orig and final.\n\nNone of the 20 corrections changes the substance of a proof sketch. The two real factual errors were the made-up error message in vcvtop_full_lsize and the anachronistic \\\"(the views compute)\\\" in its original sketch. The rest are a swapped-shape ambiguity and precision fixes.\n\nHousekeeping: the writer's section is at W-Q4/section.md, not Q4/section.md. I read it there and left it unedited. The corrected version is the only file left in V-Q4/; I deleted my temporary dumps."
+}

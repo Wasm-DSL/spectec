@@ -1,0 +1,104 @@
+
+; TODO: check Claude-generated file
+(rule                                    ; declares a build rule — "here's how to produce something"
+  (action (with-stdout-to test_spectec_output.lean.act   ; captures stdout into this file
+    (run ../src/exe-spectec/main.exe          ; run this executable...
+         test.spectec                         ; ...with this positional arg (the input file)
+         --lean                               ; ...and this flag  ← ADD MORE ARGS HERE
+    )
+  ))
+  (deps                                  ; things this rule depends on (triggers rebuild if changed)
+    (file ../src/exe-spectec/main.exe)   ; the executable itself
+    (glob_files *.spectec)               ; any .spectec file in this directory
+  )
+)
+
+(rule
+  (alias runtest)                        ; `dune runtest` triggers this
+  (action (diff test_spectec_output.lean         ; diff: left = expected (golden file, committed to git)
+                test_spectec_output.lean.act))       ;       right = actual (just produced by the rule above)
+)
+
+; ---- BEq detection test ----
+
+(rule
+  (action (with-stdout-to test_beq_output.lean.act
+    (run ../src/exe-spectec/main.exe
+         test_beq.spectec
+         --lean
+    )
+  ))
+  (deps
+    (file ../src/exe-spectec/main.exe)
+    (glob_files *.spectec)
+  )
+)
+
+(rule
+  (alias runtest)
+  (action (diff test_beq_output.lean
+                test_beq_output.lean.act))
+)                                        ; test PASSES if files are identical, FAILS if different
+
+(rule
+  (mode promote)
+  (targets
+    test_spectec_output_00-elab.il
+    test_spectec_output_01-ite.il
+    test_spectec_output_02-let-intro-mech.il
+    test_spectec_output_03-typefamily-removal.il
+    test_spectec_output_04-remove-indexed-types.il
+    test_spectec_output_05-totalize.il
+    test_spectec_output_06-else.il
+    test_spectec_output_07-else-simplification.il
+    test_spectec_output_08-uncase-removal.il
+    test_spectec_output_09-sub-expansion.il
+    test_spectec_output_10-pattern-simp.il
+    test_spectec_output_11-sub.il
+    test_spectec_output_12-definition-to-relation.il
+    test_spectec_output_13-sideconditions.il
+    test_spectec_output_14-alias-demut.il
+    test_spectec_output_15-improve-ids.il
+    test_spectec_output_16-single-pattern-match.il
+  )
+  (deps (file ../src/exe-spectec/main.exe) (glob_files *.spectec))
+  (action (run ../src/exe-spectec/main.exe test.spectec
+               --lean
+               --print-all-il-to "test_spectec_output_%s.il"
+               --ite --let-intro-mech --typefamily-removal --remove-indexed-types
+               --totalize --else --else-simplification --uncase-removal
+               --sub-expansion --pattern-simp --sub --definition-to-relation
+               --sideconditions --alias-demut --improve-ids --single-pattern-match))
+)
+
+(rule
+  (mode promote)
+  (targets
+    test_spectec_output_ast_00-elab.il
+    test_spectec_output_ast_01-ite.il
+    test_spectec_output_ast_02-let-intro-mech.il
+    test_spectec_output_ast_03-typefamily-removal.il
+    test_spectec_output_ast_04-remove-indexed-types.il
+    test_spectec_output_ast_05-totalize.il
+    test_spectec_output_ast_06-else.il
+    test_spectec_output_ast_07-else-simplification.il
+    test_spectec_output_ast_08-uncase-removal.il
+    test_spectec_output_ast_09-sub-expansion.il
+    test_spectec_output_ast_10-pattern-simp.il
+    test_spectec_output_ast_11-sub.il
+    test_spectec_output_ast_12-definition-to-relation.il
+    test_spectec_output_ast_13-sideconditions.il
+    test_spectec_output_ast_14-alias-demut.il
+    test_spectec_output_ast_15-improve-ids.il
+    test_spectec_output_ast_16-single-pattern-match.il
+  )
+  (deps (file ../src/exe-spectec/main.exe) (glob_files *.spectec))
+  (action (run ../src/exe-spectec/main.exe test.spectec
+               --lean
+               --print-all-il-to "test_spectec_output_ast_%s.il"
+               --print-il-as-ast
+               --ite --let-intro-mech --typefamily-removal --remove-indexed-types
+               --totalize --else --else-simplification --uncase-removal
+               --sub-expansion --pattern-simp --sub --definition-to-relation
+               --sideconditions --alias-demut --improve-ids --single-pattern-match))
+)

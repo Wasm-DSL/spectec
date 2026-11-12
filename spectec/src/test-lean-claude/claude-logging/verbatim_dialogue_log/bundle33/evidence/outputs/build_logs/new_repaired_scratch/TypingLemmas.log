@@ -1,0 +1,32 @@
+TypingLemmas.lean:632:48: warning: This simp argument is unused:
+  Option.get
+
+Hint: Omit it from the simp argument list.
+  simp [size, valtype_numtype, Option.bind,̵ ̵O̵p̵t̵i̵o̵n̵.̵g̵e̵t̵] at size_constraint ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+TypingLemmas.lean:485:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypingLemmas.lean:486:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+TypingLemmas.lean:892:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:993:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1065:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1117:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1236:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1781:33: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+WALL 36.01 s  MAXRSS 4500172 KB

@@ -1,0 +1,435 @@
+=== Safety check at 20261005T135008.426855077Z (label: prove-C16, pid 1511808) ===
+--- git status (porcelain) ---
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.trace
+ M spectec/src/test-lean-claude/.lake/config/0/lakefile.olean
+ M spectec/src/test-lean-claude/.lake/config/0/lakefile.olean.trace
+ M spectec/src/test-lean-claude/ExtensionLemmas.lean
+ M spectec/src/test-lean-claude/HelperLemmas.lean
+ M spectec/src/test-lean-claude/TypePreservation.lean
+ M spectec/src/test-lean-claude/claude-logging/for-claude/NOTES.md
+ M spectec/src/test-lean-claude/claude-logging/for-claude/is_wf_theorems.md
+ M spectec/src/test-lean-claude/claude-logging/for-humans/SUMMARY.md
+ M spectec/src/test-lean-claude/lakefile.lean
+ M spectec/test-lean/todaywasm2.0.lean
+ D spectec/test-lean/todaywasm3.0.lean
+?? Irreducible.lean
+?? Irreducible2.lean
+?? PrintFalse.lean
+?? specification/bleh/
+?? spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+?? spectec/FETCH_HEAD
+?? spectec/check_wasm2.0.lean
+?? spectec/check_wasm2.0.v
+?? spectec/check_wasm2.0_OLD.lean
+?? spectec/diegochanges.diff
+?? spectec/diegowasm2.0.lean
+?? "spectec/diegowasm3.0 copy.lean"
+?? spectec/diegowasm3.0.lean
+?? spectec/oldwasm2.0.lean
+?? spectec/src/temp_zy_dev/scraps.md
+?? spectec/src/test-lean-claude/.lake/build/ir/TypeProgress.c
+?? spectec/src/test-lean-claude/.lake/build/ir/TypeProgress.c.hash
+?? spectec/src/test-lean-claude/.lake/build/ir/TypeProgress.setup.json
+?? spectec/src/test-lean-claude/.lake/build/lib/lean/TypeProgress.ilean
+?? spectec/src/test-lean-claude/.lake/build/lib/lean/TypeProgress.ilean.hash
+?? spectec/src/test-lean-claude/.lake/build/lib/lean/TypeProgress.olean
+?? spectec/src/test-lean-claude/.lake/build/lib/lean/TypeProgress.olean.hash
+?? spectec/src/test-lean-claude/.lake/build/lib/lean/TypeProgress.trace
+?? spectec/src/test-lean-claude/TypeProgress.lean
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T051653Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052302Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052315Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052753Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052754Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052838Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T052913Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T053024Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T104703Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T104802.773196005Z-race-test-1-1401716.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T104802.773311050Z-race-test-3-1401722.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T104802.773784184Z-race-test-4-1401725.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T104802.774668476Z-race-test-2-1401719.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T105044.711769660Z-audit-model-1402775.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T105046.386631709Z-sig-tp-tpp-1402870.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T105050.478255929Z-audit-isabelle-1403015.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T105834.343499008Z-sig-tp-tpp-1407122.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T110027.780706365Z-audit-nonvacuity-1407704.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T110323.296096552Z-audit-model-1409284.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T110438.150722636Z-sig-typing-base-1409669.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T110613.091248193Z-audit-isabelle-1410267.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T110752.675225714Z-sig-ext-1410890.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111428.916898417Z-audit-nonvacuity-1414080.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111717.794823783Z-sig-ext-1415746.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111723.831417771Z-sig-typing-base-1415848.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111855.110329633Z-v2verify-audit-isabelle-F1-factual-1416131.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111924.472408458Z-v2verify-audit-nonvacuity-NV-F1-factual-1416355.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T111934.673831395Z-sig-ext-1416535.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112112.499480571Z-v2verify-audit-nonvacuity-NV-F2-factual-1417090.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112350.393785053Z-main-after-helper-patch-1418919.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112353.007210008Z-v2verify-audit-isabelle-F1-factual-1419011.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112420.292417890Z-v2verify-sig-ext-SE-1-factual-1419254.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112429.236325975Z-v2verify-audit-nonvacuity-NV-F1-factual-1419430.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112504.367601446Z-main-after-typeprogress-1419998.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112641.404113995Z-psig-2-1422187.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112641.408650526Z-psig-3-1422194.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112642.075481149Z-psig-1-1422370.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112648.270703751Z-v2verify-audit-nonvacuity-NV-F2-factual-1422567.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T112851.842240610Z-v2verify-sig-ext-SE-1-factual-1427224.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113139.523423421Z-psig-1-1428592.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113312.723146652Z-psig-4-1429037.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113313.927529760Z-psig-audit-1-1429126.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113326.142333151Z-psig-3-1429418.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113435.239337142Z-psig-5-1430555.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113439.594425750Z-psig-2-1430682.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113605.161518765Z-psig-6-1432040.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113833.181503908Z-psig-audit-1-1434109.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T113859.116483595Z-psig-audit-3-1434407.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T114124.414276783Z-psig-5-1435411.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T114201.007384817Z-psig-4-1435710.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T114453.852916928Z-psig-audit-3-1436860.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T114522.471671328Z-psig-audit-2-1437025.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T114808.142122037Z-psig-6-1437880.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T115312.043741700Z-psig-audit-2-1439236.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T115339.818699235Z-psig-audit-5-1439401.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120102.765656476Z-psig-audit-5-1440774.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120132.350017997Z-psig-audit-4-1440924.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120238.598015971Z-main-after-ext-patch-1441459.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120825.043777929Z-psig-audit-4-1443107.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120853.798872292Z-psig-audit-6-1443285.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T120855.260689566Z-psig-fix-4-1443382.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121103.450803035Z-psig-fix-4-1444066.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121726.747454260Z-psig-audit-6-1445526.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121842.431268349Z-main-after-progress-sigs-1446203.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121953.844455783Z-prove-H01-1446504.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121954.798257226Z-prove-M01-1446593.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T121955.709970672Z-prove-H02-1446684.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122303.428651422Z-prove-H01-1448840.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122331.411649851Z-prove-M01-1449209.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122337.220238575Z-prove-H01-1449314.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122348.279849962Z-prove-H02-1449626.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122400.513756392Z-prove-H03-1449768.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122405.410131932Z-prove-H04-1449895.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122446.300605905Z-prove-H05-1450525.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T122943.500187024Z-prove-H03-1453812.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123020.722176558Z-prove-H06-1454291.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123034.046246269Z-prove-H04-1454559.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123159.539373813Z-prove-H05-1455479.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123229.685854438Z-prove-H05-1455870.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123254.174736664Z-prove-H07-1456110.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123311.328509011Z-prove-H08-1456364.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123903.692665554Z-prove-H07-1461458.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T123937.111720403Z-prove-H07-1461898.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124020.984045220Z-prove-H06-1462154.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124023.611334297Z-prove-H09-1462268.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124113.924909634Z-prove-H10-1462710.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124515.214807172Z-prove-H08-1464640.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124537.707307803Z-prove-H08-1465088.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124721.010550415Z-prove-H11-1465787.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T124951.696210375Z-prove-H10-1467707.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T125218.077898091Z-prove-H09-1470709.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T125221.044587151Z-prove-H12-1470871.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T125420.993671975Z-prove-H13-1471497.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T125753.789859210Z-prove-H12-1473415.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T125905.870699348Z-prove-H14-1474195.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T130424.031516204Z-prove-H13-1478359.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T130504.658965104Z-prove-H11-1478934.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T130603.900092417Z-prove-H15-1479555.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T130605.741674110Z-prove-C01-1479648.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131124.242875157Z-prove-C01-1489077.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131156.939596070Z-prove-H15-1489446.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131211.646689724Z-prove-C02-1489614.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131242.494241501Z-prove-C03-1489946.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131310.938149528Z-prove-H14-1490478.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131419.195725904Z-prove-H14-1491033.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131525.170205236Z-prove-C04-1491681.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131659.511517413Z-prove-C02-1492903.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131735.814979728Z-prove-C05-1493124.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131855.549516827Z-prove-C03-1493978.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T131941.765679882Z-prove-C06-1494440.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132056.222426417Z-prove-C04-1495195.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132140.416733109Z-prove-C07-1495507.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132155.287754287Z-prove-C05-1495721.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132247.096771055Z-prove-C08-1496363.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132317.513776918Z-prove-C06-1496679.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132348.633407433Z-prove-C06-1497071.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132430.475032623Z-prove-C09-1497547.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132707.982754788Z-prove-C07-1498892.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T132805.558456430Z-prove-C10-1499308.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133026.972314375Z-prove-C08-1500795.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133131.096466910Z-prove-C11-1501194.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133304.026686736Z-prove-C09-1502219.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133326.804334906Z-prove-C09-1502482.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133420.631174240Z-prove-C12-1502656.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133745.709210840Z-prove-C10-1504170.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T133905.122184663Z-prove-C10-1505060.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134018.301779316Z-prove-C12-1505512.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134021.905933195Z-prove-C13-1505880.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134039.944016442Z-prove-C11-1506162.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134127.833560989Z-prove-C14-1506528.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134128.550181250Z-prove-C11-1506619.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134235.811949698Z-prove-C15-1507182.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134441.506947336Z-prove-C14-1508228.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134510.967426726Z-prove-C16-1508517.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134729.949676019Z-prove-C15-1509919.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134732.619008879Z-prove-C13-1510018.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134801.327662004Z-prove-C17-1510223.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T134830.481094447Z-prove-C18-1510543.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261005T135008.426855077Z-prove-C16-1511808.txt.partial
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/verify_against_baseline.sh
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle20/
+?? spectec/temp-wasm-3/email_stuff.md
+?? spectec/test-rocq/_opam/
+?? spectec/test-rocq/echo
+?? spectec/test-rocq/rocq-temp.export
+?? spectec/test-rocq/test-rocq.opam
+?? spectec/test-rocq/upd_label_unchanged_typing_verified_walkthrough.md
+?? spectec/wasm1.0_00-elab.il
+?? spectec/wasm1.0_01-ite.il
+?? spectec/wasm1.0_02-let-intro-mech.il
+?? spectec/wasm1.0_03-typefamily-removal.il
+?? spectec/wasm1.0_04-remove-indexed-types.il
+?? spectec/wasm1.0_05-totalize.il
+?? spectec/wasm1.0_06-else.il
+?? spectec/wasm1.0_07-else-simplification.il
+?? spectec/wasm1.0_08-uncase-removal.il
+?? spectec/wasm1.0_09-sub-expansion.il
+?? spectec/wasm1.0_10-pattern-simp.il
+?? spectec/wasm1.0_11-sub.il
+?? spectec/wasm1.0_12-definition-to-relation.il
+?? spectec/wasm1.0_13-sideconditions.il
+?? spectec/wasm1.0_14-alias-demut.il
+?? spectec/wasm1.0_15-improve-ids.il
+?? spectec/wasm1.0_16-single-pattern-match.il
+?? spectec/wasm1.0_ast_00-elab.il
+?? spectec/wasm1.0_ast_01-ite.il
+?? spectec/wasm1.0_ast_02-let-intro-mech.il
+?? spectec/wasm1.0_ast_03-typefamily-removal.il
+?? spectec/wasm1.0_ast_04-remove-indexed-types.il
+?? spectec/wasm1.0_ast_05-totalize.il
+?? spectec/wasm1.0_ast_06-else.il
+?? spectec/wasm1.0_ast_07-else-simplification.il
+?? spectec/wasm1.0_ast_08-uncase-removal.il
+?? spectec/wasm1.0_ast_09-sub-expansion.il
+?? spectec/wasm1.0_ast_10-pattern-simp.il
+?? spectec/wasm1.0_ast_11-sub.il
+?? spectec/wasm1.0_ast_12-definition-to-relation.il
+?? spectec/wasm1.0_ast_13-sideconditions.il
+?? spectec/wasm1.0_ast_14-alias-demut.il
+?? spectec/wasm1.0_ast_15-improve-ids.il
+?? spectec/wasm1.0_ast_16-single-pattern-match.il
+?? spectec/wasm2.0_00-elab.il
+?? spectec/wasm2.0_01-ite.il
+?? spectec/wasm2.0_02-let-intro-mech.il
+?? spectec/wasm2.0_03-typefamily-removal.il
+?? spectec/wasm2.0_04-remove-indexed-types.il
+?? spectec/wasm2.0_05-totalize.il
+?? spectec/wasm2.0_06-else.il
+?? spectec/wasm2.0_07-else-simplification.il
+?? spectec/wasm2.0_08-uncase-removal.il
+?? spectec/wasm2.0_09-sub-expansion.il
+?? spectec/wasm2.0_10-pattern-simp.il
+?? spectec/wasm2.0_11-sub.il
+?? spectec/wasm2.0_12-definition-to-relation.il
+?? spectec/wasm2.0_13-sideconditions.il
+?? spectec/wasm2.0_14-alias-demut.il
+?? spectec/wasm2.0_15-improve-ids.il
+?? spectec/wasm2.0_16-single-pattern-match.il
+?? spectec/wasm2.0_ast_00-elab.il
+?? spectec/wasm2.0_ast_01-ite.il
+?? spectec/wasm2.0_ast_02-let-intro-mech.il
+?? spectec/wasm2.0_ast_03-typefamily-removal.il
+?? spectec/wasm2.0_ast_04-remove-indexed-types.il
+?? spectec/wasm2.0_ast_05-totalize.il
+?? spectec/wasm2.0_ast_06-else.il
+?? spectec/wasm2.0_ast_07-else-simplification.il
+?? spectec/wasm2.0_ast_08-uncase-removal.il
+?? spectec/wasm2.0_ast_09-sub-expansion.il
+?? spectec/wasm2.0_ast_10-pattern-simp.il
+?? spectec/wasm2.0_ast_11-sub.il
+?? spectec/wasm2.0_ast_12-definition-to-relation.il
+?? spectec/wasm2.0_ast_13-sideconditions.il
+?? spectec/wasm2.0_ast_14-alias-demut.il
+?? spectec/wasm2.0_ast_15-improve-ids.il
+?? spectec/wasm2.0_ast_16-single-pattern-match.il
+?? spectec/wasm3.0.v
+?? spectec/wasm3.0_00-elab.il
+?? spectec/wasm3.0_01-ite.il
+?? spectec/wasm3.0_02-let-intro-mech.il
+?? spectec/wasm3.0_03-typefamily-removal.il
+?? spectec/wasm3.0_04-remove-indexed-types.il
+?? spectec/wasm3.0_05-totalize.il
+?? spectec/wasm3.0_06-else.il
+?? spectec/wasm3.0_07-else-simplification.il
+?? spectec/wasm3.0_08-uncase-removal.il
+?? spectec/wasm3.0_09-sub-expansion.il
+?? spectec/wasm3.0_10-pattern-simp.il
+?? spectec/wasm3.0_11-sub.il
+?? spectec/wasm3.0_12-definition-to-relation.il
+?? spectec/wasm3.0_13-sideconditions.il
+?? spectec/wasm3.0_14-alias-demut.il
+?? spectec/wasm3.0_15-improve-ids.il
+?? spectec/wasm3.0_16-single-pattern-match.il
+?? spectec/wasm3.0_ast_00-elab.il
+?? spectec/wasm3.0_ast_01-ite.il
+?? spectec/wasm3.0_ast_02-let-intro-mech.il
+?? spectec/wasm3.0_ast_03-typefamily-removal.il
+?? spectec/wasm3.0_ast_04-remove-indexed-types.il
+?? spectec/wasm3.0_ast_05-totalize.il
+?? spectec/wasm3.0_ast_06-else.il
+?? spectec/wasm3.0_ast_07-else-simplification.il
+?? spectec/wasm3.0_ast_08-uncase-removal.il
+?? spectec/wasm3.0_ast_09-sub-expansion.il
+?? spectec/wasm3.0_ast_10-pattern-simp.il
+?? spectec/wasm3.0_ast_11-sub.il
+?? spectec/wasm3.0_ast_12-definition-to-relation.il
+?? spectec/wasm3.0_ast_13-sideconditions.il
+?? spectec/wasm3.0_ast_14-alias-demut.il
+?? spectec/wasm3.0_ast_15-improve-ids.il
+?? spectec/wasm3.0_ast_16-single-pattern-match.il
+?? spectec/zy_sandbox.v
+
+--- Any changes outside spectec/src/test-lean-claude/ ? ---
+spectec/test-lean/todaywasm2.0.lean
+spectec/test-lean/todaywasm3.0.lean
+Irreducible.lean
+Irreducible2.lean
+PrintFalse.lean
+specification/bleh/
+spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+spectec/FETCH_HEAD
+spectec/check_wasm2.0.lean
+spectec/check_wasm2.0.v
+spectec/check_wasm2.0_OLD.lean
+spectec/diegochanges.diff
+spectec/diegowasm2.0.lean
+"spectec/diegowasm3.0
+spectec/diegowasm3.0.lean
+spectec/oldwasm2.0.lean
+spectec/src/temp_zy_dev/scraps.md
+spectec/temp-wasm-3/email_stuff.md
+spectec/test-rocq/_opam/
+spectec/test-rocq/echo
+spectec/test-rocq/rocq-temp.export
+spectec/test-rocq/test-rocq.opam
+spectec/test-rocq/upd_label_unchanged_typing_verified_walkthrough.md
+spectec/wasm1.0_00-elab.il
+spectec/wasm1.0_01-ite.il
+spectec/wasm1.0_02-let-intro-mech.il
+spectec/wasm1.0_03-typefamily-removal.il
+spectec/wasm1.0_04-remove-indexed-types.il
+spectec/wasm1.0_05-totalize.il
+spectec/wasm1.0_06-else.il
+spectec/wasm1.0_07-else-simplification.il
+spectec/wasm1.0_08-uncase-removal.il
+spectec/wasm1.0_09-sub-expansion.il
+spectec/wasm1.0_10-pattern-simp.il
+spectec/wasm1.0_11-sub.il
+spectec/wasm1.0_12-definition-to-relation.il
+spectec/wasm1.0_13-sideconditions.il
+spectec/wasm1.0_14-alias-demut.il
+spectec/wasm1.0_15-improve-ids.il
+spectec/wasm1.0_16-single-pattern-match.il
+spectec/wasm1.0_ast_00-elab.il
+spectec/wasm1.0_ast_01-ite.il
+spectec/wasm1.0_ast_02-let-intro-mech.il
+spectec/wasm1.0_ast_03-typefamily-removal.il
+spectec/wasm1.0_ast_04-remove-indexed-types.il
+spectec/wasm1.0_ast_05-totalize.il
+spectec/wasm1.0_ast_06-else.il
+spectec/wasm1.0_ast_07-else-simplification.il
+spectec/wasm1.0_ast_08-uncase-removal.il
+spectec/wasm1.0_ast_09-sub-expansion.il
+spectec/wasm1.0_ast_10-pattern-simp.il
+spectec/wasm1.0_ast_11-sub.il
+spectec/wasm1.0_ast_12-definition-to-relation.il
+spectec/wasm1.0_ast_13-sideconditions.il
+spectec/wasm1.0_ast_14-alias-demut.il
+spectec/wasm1.0_ast_15-improve-ids.il
+spectec/wasm1.0_ast_16-single-pattern-match.il
+spectec/wasm2.0_00-elab.il
+spectec/wasm2.0_01-ite.il
+spectec/wasm2.0_02-let-intro-mech.il
+spectec/wasm2.0_03-typefamily-removal.il
+spectec/wasm2.0_04-remove-indexed-types.il
+spectec/wasm2.0_05-totalize.il
+spectec/wasm2.0_06-else.il
+spectec/wasm2.0_07-else-simplification.il
+spectec/wasm2.0_08-uncase-removal.il
+spectec/wasm2.0_09-sub-expansion.il
+spectec/wasm2.0_10-pattern-simp.il
+spectec/wasm2.0_11-sub.il
+spectec/wasm2.0_12-definition-to-relation.il
+spectec/wasm2.0_13-sideconditions.il
+spectec/wasm2.0_14-alias-demut.il
+spectec/wasm2.0_15-improve-ids.il
+spectec/wasm2.0_16-single-pattern-match.il
+spectec/wasm2.0_ast_00-elab.il
+spectec/wasm2.0_ast_01-ite.il
+spectec/wasm2.0_ast_02-let-intro-mech.il
+spectec/wasm2.0_ast_03-typefamily-removal.il
+spectec/wasm2.0_ast_04-remove-indexed-types.il
+spectec/wasm2.0_ast_05-totalize.il
+spectec/wasm2.0_ast_06-else.il
+spectec/wasm2.0_ast_07-else-simplification.il
+spectec/wasm2.0_ast_08-uncase-removal.il
+spectec/wasm2.0_ast_09-sub-expansion.il
+spectec/wasm2.0_ast_10-pattern-simp.il
+spectec/wasm2.0_ast_11-sub.il
+spectec/wasm2.0_ast_12-definition-to-relation.il
+spectec/wasm2.0_ast_13-sideconditions.il
+spectec/wasm2.0_ast_14-alias-demut.il
+spectec/wasm2.0_ast_15-improve-ids.il
+spectec/wasm2.0_ast_16-single-pattern-match.il
+spectec/wasm3.0.v
+spectec/wasm3.0_00-elab.il
+spectec/wasm3.0_01-ite.il
+spectec/wasm3.0_02-let-intro-mech.il
+spectec/wasm3.0_03-typefamily-removal.il
+spectec/wasm3.0_04-remove-indexed-types.il
+spectec/wasm3.0_05-totalize.il
+spectec/wasm3.0_06-else.il
+spectec/wasm3.0_07-else-simplification.il
+spectec/wasm3.0_08-uncase-removal.il
+spectec/wasm3.0_09-sub-expansion.il
+spectec/wasm3.0_10-pattern-simp.il
+spectec/wasm3.0_11-sub.il
+spectec/wasm3.0_12-definition-to-relation.il
+spectec/wasm3.0_13-sideconditions.il
+spectec/wasm3.0_14-alias-demut.il
+spectec/wasm3.0_15-improve-ids.il
+spectec/wasm3.0_16-single-pattern-match.il
+spectec/wasm3.0_ast_00-elab.il
+spectec/wasm3.0_ast_01-ite.il
+spectec/wasm3.0_ast_02-let-intro-mech.il
+spectec/wasm3.0_ast_03-typefamily-removal.il
+spectec/wasm3.0_ast_04-remove-indexed-types.il
+spectec/wasm3.0_ast_05-totalize.il
+spectec/wasm3.0_ast_06-else.il
+spectec/wasm3.0_ast_07-else-simplification.il
+spectec/wasm3.0_ast_08-uncase-removal.il
+spectec/wasm3.0_ast_09-sub-expansion.il
+spectec/wasm3.0_ast_10-pattern-simp.il
+spectec/wasm3.0_ast_11-sub.il
+spectec/wasm3.0_ast_12-definition-to-relation.il
+spectec/wasm3.0_ast_13-sideconditions.il
+spectec/wasm3.0_ast_14-alias-demut.il
+spectec/wasm3.0_ast_15-improve-ids.il
+spectec/wasm3.0_ast_16-single-pattern-match.il
+spectec/zy_sandbox.v

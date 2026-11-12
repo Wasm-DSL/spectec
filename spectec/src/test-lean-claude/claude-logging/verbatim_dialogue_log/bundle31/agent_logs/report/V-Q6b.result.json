@@ -1,0 +1,50 @@
+{
+ "label": "V-Q6b",
+ "verified_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/V-Q6b/section.verified.md",
+ "corrections": [
+  {
+   "construct": "t_progress_be_vload_val (Original proof sketch)",
+   "wrong": "\"out of range it read the default `meminst`, whose byte list is empty\". The old `fun_mem` is `s.MEMS[f.MODULE.MEMS[x]!]!`. An out-of-range module index gives the default address 0 (memaddr = Nat), and that then reads `S.mems[0]`, which is a real memory whenever the store has one. Only an out-of-range store address gives the default meminst (`(default : meminst).BYTES = []`, as the old `mem_bytes_wf` uses).",
+   "fixed": "\"...was always defined, because each out-of-range `!` lookup returned a default: address `0` from the module's list, or, from the store, the default `meminst`, whose byte list is empty.\""
+  },
+  {
+   "construct": "t_progress_be_vload_val (Current proof sketch)",
+   "wrong": "\"`subst Hcontext` makes `C.mems` literally `C'.mems`\". After the subst, `Hlen` is about `(upd_local_label_return C' ...).MEMS`. That is only definitionally equal to `C'.MEMS`, and `fun_mem_typed ... Hlen` is accepted by defeq.",
+   "fixed": "\"makes `C.mems` definitionally `C'.mems` (`upd_local_label_return` changes only locals, labels and return), so `Hlen` serves as the bound for `C'`.\""
+  },
+  {
+   "construct": "t_progress_be_vload_val (Current proof sketch)",
+   "wrong": "\"`obtain \u27e8mi, Hmem\u27e9 := \u27e8_, fun_mem_typed ...\u27e9`, so `Hmem : fun_mem (s;f) 0 mi` with `mi = S.mems[F.module.memaddrs[0]]`\". This suggests the proof has that equation. The real code obtains from an ascribed `\u2203 mi, fun_mem ... mi`, so `mi` is a fresh opaque variable. The text also left out the ascription.",
+   "fixed": "Shows the ascription `obtain \u27e8mi, Hmem\u27e9 : \u2203 mi, fun_mem (s;f) 0 mi := \u27e8_, ...\u27e9` and says the existential hides that `mi` is `S.mems[F.module.memaddrs[0]]`, so every fact about `mi` comes from `Hmem`."
+  },
+  {
+   "construct": "t_progress_be_vload_pack (Statement)",
+   "wrong": "\"Lean `VLOAD V128 (SHAPE M X N sx)`\". That is spec notation. The Lean constructor is `vloadop_.SHAPEX_ (sz.mk_sz v_M) v_N v_sx`.",
+   "fixed": "\"Lean `VLOAD V128 (SHAPEX_ M N sx)`\", the same abbreviation style the section uses for SPLAT/ZERO."
+  },
+  {
+   "construct": "t_progress_be_vstore (Original proof sketch)",
+   "wrong": "\"So the instruction always steps to `with_mem (s;f) 0 (n1+offset) 16 b*`\". This reads as a deterministic claim. In the model, `Step.vstore_oob` also applies out of bounds; what holds is that `vstore_val` is always available.",
+   "fixed": "\"So `Step.vstore_val` always applies, even out of bounds (where `Step.vstore_oob` applies too), and steps to `with_mem ...` with an empty instruction sequence.\""
+  },
+  {
+   "construct": "vstore_lane_progress (Original proof sketch)",
+   "wrong": "\"No bounds are needed, so the instruction never traps.\" This is false. Out of bounds, `Step.vstore_lane_oob` also applies, so the instruction can trap. The lemma just never needs the trap rule.",
+   "fixed": "\"The rule has no memory-bounds premise and `with_mem` was total, so this step exists even out of bounds, where `Step.vstore_lane_oob` also applies. The lemma therefore needs no trap case.\""
+  }
+ ],
+ "flags": [
+  {
+   "construct": "t_progress_be_vload_zero, t_progress_be_vload_lane, t_progress_be_vstore, t_progress_be_vstore_lane",
+   "issue": "Comment consistency (cosmetic). These four proofs add the same new `subst Hcontext` plus memory-bound lines as vload_val/pack/splat. They lack the one-line comment `-- memory `0` exists (`C.MEMS = C'.MEMS`, typed by the frame's module)` that the other three carry (final3 TypeProgress.lean:6853, 6914, 7062). The writer mentioned this in their notes but not in their flags; I confirmed it.",
+   "line": "final3/src/TypeProgress.lean:7156, 7192, 7263, 7290",
+   "suggestion": "Optionally add the same comment above each `subst Hcontext`. No functional effect."
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023030.399286643Z-bundle31-V-Q6b-start-347180.txt. Verdict: \"OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline\". It lists only the known external Lake artifact spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild, md5 unchanged since noted.",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T024343.420387555Z-bundle31-V-Q6b-end-358629.txt. Verdict: \"OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline\". Same known external artifact (wasm2.0.trace.nobuild), md5 unchanged.",
+  "My only writes: section.verified.md in my directory .../report/agents/V-Q6b/. A scratch work/ subdirectory I created there was deleted before the end check. No repository writes besides the two check.sh reports. No git, lake or Lean runs."
+ ],
+ "confidence": "High.\n\n**Input path.** The input `.../report/agents/Q6b/section.md` does not exist. I verified the writer's actual file `.../report/agents/W-Q6b/section.md`, as their notes say.\n\n**What I checked, construct by construct:**\n- **Texts and statements:** `final_text`/`orig_text` appear verbatim in `final3/src/TypeProgress.lean` and `orig/TypeProgress.lean`. A mechanical comparison shows all 7 `t_progress_be_*` statements unchanged. `vstore_lane_progress` differs only by the new first premise `0 < f.MODULE.MEMS.length`.\n- **Errors:** every recorded error, in both settings, matches the section's \"what broke\" text. That includes the slot-by-slot argument claims: `by simp` lands in `var_0`, and `Hfunsize`/`wf_uN` land in the wrong premise slots. I checked these against the old and new `Step_read`/`Step` constructors (`vload_*`, `vstore_val`, `vstore_lane_oob`, `vstore_lane_val`), and the swapped lane-bound / `proj_lane__0` order is real.\n- **Model definitions:** checked `fun_mem`, `fun_with_mem` (needs only `x < |memaddrs|`), `wf_shape`, `wf_lane_`, `fun_lsize`, `fun_jsize`, the old `lsize`/`jsize`/`with_mem`/`splice`, `wf_vloadop_` and `wf_sz`.\n- **HelperLemmas:** the `lsize`/`jsize` views, `fun_jsize_jsize`, `fun_lsize_lsize`, `fun_mem_inv`, and the doc saying partial functions get no view.\n- **TypeProgress helpers:** `Moduleinst_ok_mem_addr`, `fun_mem_typed`, the restated `wf_config_mem_bytes`, `minst_invert_mems`, `Moduleinst_ok_lengths`, `lanes_nth_wf`, `wf_lane_Jnn_inv`/`_some`, and the axioms `vbytes_inv`/`ibytes_inv`/`lanes_len`.\n- **Spec rules:** `6-typing.spectec` 490-525, `8-reduction.spectec` 492-578 (including `vstore_lane-oob` comparing `i+offset+N` in bits, and the `$jsize` premises), `5-runtime-aux.spectec` 78-109 and `1-syntax.spectec` 208-230.\n- **Rocq:** line references 5109/5138/5204/5253/5280/5324/5339/2520/2464/2506 all match; Rocq's vstore proof has no trap case; Rocq's `with_mem` is a Definition.\n- **Caller:** `t_progress_be_vstore_lane` is the only caller of `vstore_lane_progress`.\n\n**Corrections.** The six fixes are precision fixes; none changes the story of a construct. The one substantive error was \"the instruction never traps\" in `vstore_lane_progress`.\n\nI did not run Lean."
+}

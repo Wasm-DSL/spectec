@@ -1,0 +1,122 @@
+Instrs_ok2.rec {a✝ : store}
+  {motive_1 : (a : context) → (a_1 : admininstr) → (a_2 : functype) → Instr_ok2 a✝ a a_1 a_2 → Prop}
+  {motive_2 : (a : context) → (a_1 : List admininstr) → (a_2 : functype) → Instrs_ok2 a✝ a a_1 a_2 → Prop}
+  {motive_3 : (a : context) → (a_1 : adminexpr) → (a_2 : resulttype) → Expr_ok2 a✝ a a_1 a_2 → Prop}
+  (plain :
+    ∀ (C : context) (v_instr : instr) (t_1_lst t_2_lst : List valtype)
+      (a : Instr_ok C v_instr (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst))) (a_1 : wf_store a✝)
+      (a_2 : wf_context C) (a_3 : wf_instr v_instr),
+      motive_1 C (admininstr_instr v_instr) (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) ⋯)
+  (label :
+    ∀ (C : context) (v_n : n) (instr'_lst : List instr) (admininstr_lst : List admininstr) (t_lst t'_lst : List valtype)
+      (a :
+        Instrs_ok2 a✝ C (Map (fun instr'_elem => admininstr_instr instr'_elem) instr'_lst)
+          (functype.mk_functype (list.mk_list t'_lst) (list.mk_list t_lst)))
+      (a_1 :
+        Instrs_ok2 a✝
+          ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+              LABELS := [list.mk_list t'_lst], RETURN := none } ++
+            C)
+          admininstr_lst (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)))
+      (a_2 : wf_store a✝) (a_3 : wf_context C) (a_4 : wf_admininstr (admininstr.LABEL_ v_n instr'_lst admininstr_lst))
+      (a_5 :
+        wf_context
+          { TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+            LABELS := [list.mk_list t'_lst], RETURN := none })
+      (a_6 : v_n = t'_lst.length),
+      motive_2 C (Map (fun instr'_elem => admininstr_instr instr'_elem) instr'_lst)
+          (functype.mk_functype (list.mk_list t'_lst) (list.mk_list t_lst)) a →
+        motive_2
+            ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [],
+                LOCALS := [], LABELS := [list.mk_list t'_lst], RETURN := none } ++
+              C)
+            admininstr_lst (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)) a_1 →
+          motive_1 C (admininstr.LABEL_ v_n instr'_lst admininstr_lst)
+            (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)) ⋯)
+  (Instr_ok2_frame :
+    ∀ (C : context) (v_n : n) (f : frame) (admininstr_lst : List admininstr) (t_lst : List valtype) (C' : context)
+      (a : Frame_ok a✝ f C')
+      (a_1 :
+        Expr_ok2 a✝
+          ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+              LABELS := [], RETURN := some (list.mk_list t_lst) } ++
+            C')
+          admininstr_lst (list.mk_list t_lst))
+      (a_2 : wf_store a✝) (a_3 : wf_context C) (a_4 : wf_context C')
+      (a_5 : wf_admininstr (admininstr.FRAME_ v_n f admininstr_lst))
+      (a_6 :
+        wf_context
+          { TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+            LABELS := [], RETURN := some (list.mk_list t_lst) })
+      (a_7 : v_n = t_lst.length),
+      motive_3
+          ({ TYPES := [], FUNCS := [], GLOBALS := [], TABLES := [], MEMS := [], ELEMS := [], DATAS := [], LOCALS := [],
+              LABELS := [], RETURN := some (list.mk_list t_lst) } ++
+            C')
+          admininstr_lst (list.mk_list t_lst) a_1 →
+        motive_1 C (admininstr.FRAME_ v_n f admininstr_lst)
+          (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)) ⋯)
+  (call_addr :
+    ∀ (C : context) (v_funcaddr : funcaddr) (t_1_lst t_2_lst : List valtype)
+      (a :
+        Externaddr_ok a✝ (externaddr.FUNC v_funcaddr)
+          (externtype.FUNC (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst))))
+      (a_1 : wf_store a✝) (a_2 : wf_context C) (a_3 : wf_admininstr (admininstr.CALL_ADDR v_funcaddr))
+      (a_4 : wf_externtype (externtype.FUNC (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)))),
+      motive_1 C (admininstr.CALL_ADDR v_funcaddr) (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst))
+        ⋯)
+  (ref :
+    ∀ (C : context) (v_ref : ref) (rt : reftype) (a : Ref_ok a✝ v_ref rt) (a_1 : wf_store a✝) (a_2 : wf_context C),
+      motive_1 C (admininstr_ref v_ref) (functype.mk_functype (list.mk_list []) (list.mk_list [valtype_reftype rt])) ⋯)
+  (trap :
+    ∀ (C : context) (t_1_lst t_2_lst : List valtype) (a : wf_store a✝) (a_1 : wf_context C)
+      (a_2 : wf_admininstr admininstr.TRAP),
+      motive_1 C admininstr.TRAP (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) ⋯)
+  (empty :
+    ∀ (C : context) (a : wf_store a✝) (a_1 : wf_context C),
+      motive_2 C [] (functype.mk_functype (list.mk_list []) (list.mk_list [])) ⋯)
+  (instr :
+    ∀ (C : context) (v_admininstr : admininstr) (t_1_lst t_2_lst : List valtype)
+      (a : Instr_ok2 a✝ C v_admininstr (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)))
+      (a_1 : wf_store a✝) (a_2 : wf_context C) (a_3 : wf_admininstr v_admininstr),
+      motive_1 C v_admininstr (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) a →
+        motive_2 C [v_admininstr] (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) ⋯)
+  (seq :
+    ∀ (C : context) (admininstr_1_lst admininstr_2_lst : List admininstr) (t_1_lst t_3_lst t_2_lst : List valtype)
+      (a : Instrs_ok2 a✝ C admininstr_1_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)))
+      (a_1 : Instrs_ok2 a✝ C admininstr_2_lst (functype.mk_functype (list.mk_list t_2_lst) (list.mk_list t_3_lst)))
+      (a_2 : wf_store a✝) (a_3 : wf_context C)
+      (a_4 : Forall (fun admininstr_1_elem => wf_admininstr admininstr_1_elem) admininstr_1_lst)
+      (a_5 : Forall (fun admininstr_2_elem => wf_admininstr admininstr_2_elem) admininstr_2_lst),
+      motive_2 C admininstr_1_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) a →
+        motive_2 C admininstr_2_lst (functype.mk_functype (list.mk_list t_2_lst) (list.mk_list t_3_lst)) a_1 →
+          motive_2 C (admininstr_1_lst ++ admininstr_2_lst)
+            (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_3_lst)) ⋯)
+  (sub :
+    ∀ (C : context) (admininstr_lst : List admininstr) (t'_1_lst t'_2_lst t_1_lst t_2_lst : List valtype)
+      (a : Instrs_ok2 a✝ C admininstr_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)))
+      (a_1 : Resulttype_sub (list.mk_list t'_1_lst) (list.mk_list t_1_lst))
+      (a_2 : Resulttype_sub (list.mk_list t_2_lst) (list.mk_list t'_2_lst)) (a_3 : wf_store a✝) (a_4 : wf_context C)
+      (a_5 : Forall (fun v_admininstr_elem => wf_admininstr v_admininstr_elem) admininstr_lst),
+      motive_2 C admininstr_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) a →
+        motive_2 C admininstr_lst (functype.mk_functype (list.mk_list t'_1_lst) (list.mk_list t'_2_lst)) ⋯)
+  (Instrs_ok2_frame :
+    ∀ (C : context) (admininstr_lst : List admininstr) (t_lst t_1_lst t_2_lst : List valtype)
+      (a : Instrs_ok2 a✝ C admininstr_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)))
+      (a_1 : wf_store a✝) (a_2 : wf_context C)
+      (a_3 : Forall (fun v_admininstr_elem => wf_admininstr v_admininstr_elem) admininstr_lst),
+      motive_2 C admininstr_lst (functype.mk_functype (list.mk_list t_1_lst) (list.mk_list t_2_lst)) a →
+        motive_2 C admininstr_lst
+          (functype.mk_functype (list.mk_list (t_lst ++ t_1_lst)) (list.mk_list (t_lst ++ t_2_lst))) ⋯)
+  (mk_Expr_ok2 :
+    ∀ (C : context) (admininstr_lst : List admininstr) (t_lst : List valtype)
+      (a : Instrs_ok2 a✝ C admininstr_lst (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)))
+      (a_1 : wf_store a✝) (a_2 : wf_context C)
+      (a_3 : Forall (fun v_admininstr_elem => wf_admininstr v_admininstr_elem) admininstr_lst),
+      motive_2 C admininstr_lst (functype.mk_functype (list.mk_list []) (list.mk_list t_lst)) a →
+        motive_3 C admininstr_lst (list.mk_list t_lst) ⋯)
+  {a✝¹ : context} {a✝² : List admininstr} {a✝³ : functype} (t : Instrs_ok2 a✝ a✝¹ a✝² a✝³) : motive_2 a✝¹ a✝² a✝³ t
+TypeProgress.lean:8151:2: warning: '#check Instrs_ok2.rec' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+WALL 21.24 s  MAXRSS 4750688 KB

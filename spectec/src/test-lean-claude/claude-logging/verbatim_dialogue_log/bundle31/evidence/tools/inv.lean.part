@@ -1,0 +1,53 @@
+/-! ### Inversion of the state lookups (Lean-only)
+
+The lookups `fun_type`, `fun_func`, `fun_global`, `fun_table`, `fun_mem`, `fun_elem`, `fun_data`
+and `fun_local` are relations with one constructor each. These lemmas read off its premises (the
+index bounds) and its output, for a lookup whose output is a term rather than a variable (`cases`
+cannot unify such an output with the constructor's indexing expression). -/
+
+theorem fun_type_inv {s : store} {f : frame} {x : uN} {ft : functype} :
+    fun_type (state.mk_state s f) x ft →
+    proj_uN_0 x < f.MODULE.TYPES.length ∧ ft = f.MODULE.TYPES[proj_uN_0 x]! := by
+  rintro ⟨⟩; exact ⟨‹_›, rfl⟩
+
+theorem fun_func_inv {s : store} {f : frame} {x : uN} {fi : funcinst} :
+    fun_func (state.mk_state s f) x fi →
+    proj_uN_0 x < f.MODULE.FUNCS.length ∧ f.MODULE.FUNCS[proj_uN_0 x]! < s.FUNCS.length ∧
+      fi = s.FUNCS[f.MODULE.FUNCS[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_global_inv {s : store} {f : frame} {x : uN} {gi : globalinst} :
+    fun_global (state.mk_state s f) x gi →
+    proj_uN_0 x < f.MODULE.GLOBALS.length ∧ f.MODULE.GLOBALS[proj_uN_0 x]! < s.GLOBALS.length ∧
+      gi = s.GLOBALS[f.MODULE.GLOBALS[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_table_inv {s : store} {f : frame} {x : uN} {ti : tableinst} :
+    fun_table (state.mk_state s f) x ti →
+    proj_uN_0 x < f.MODULE.TABLES.length ∧ f.MODULE.TABLES[proj_uN_0 x]! < s.TABLES.length ∧
+      ti = s.TABLES[f.MODULE.TABLES[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_mem_inv {s : store} {f : frame} {x : uN} {mi : meminst} :
+    fun_mem (state.mk_state s f) x mi →
+    proj_uN_0 x < f.MODULE.MEMS.length ∧ f.MODULE.MEMS[proj_uN_0 x]! < s.MEMS.length ∧
+      mi = s.MEMS[f.MODULE.MEMS[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_elem_inv {s : store} {f : frame} {x : uN} {ei : eleminst} :
+    fun_elem (state.mk_state s f) x ei →
+    proj_uN_0 x < f.MODULE.ELEMS.length ∧ f.MODULE.ELEMS[proj_uN_0 x]! < s.ELEMS.length ∧
+      ei = s.ELEMS[f.MODULE.ELEMS[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_data_inv {s : store} {f : frame} {x : uN} {di : datainst} :
+    fun_data (state.mk_state s f) x di →
+    proj_uN_0 x < f.MODULE.DATAS.length ∧ f.MODULE.DATAS[proj_uN_0 x]! < s.DATAS.length ∧
+      di = s.DATAS[f.MODULE.DATAS[proj_uN_0 x]!]! := by
+  rintro ⟨⟩; exact ⟨‹_›, ‹_›, rfl⟩
+
+theorem fun_local_inv {s : store} {f : frame} {x : uN} {v : val} :
+    fun_local (state.mk_state s f) x v →
+    proj_uN_0 x < f.LOCALS.length ∧ v = f.LOCALS[proj_uN_0 x]! := by
+  rintro ⟨⟩; exact ⟨‹_›, rfl⟩
+

@@ -1,0 +1,94 @@
+;; BEq detection test: polymorphic functions with various [BEq X] patterns.
+;;
+;; Expected Lean output:
+;;   Group 1 (count_, reverse_)            — NO [BEq X]
+;;   Group 2 (elem_, remove1_)             — [BEq X]  (direct: MemE / CmpE EqOp)
+;;   Group 3 (subset_)                     — [BEq X]  (transitive 1 level via elem_)
+;;   Group 4 (equal_sets_)                 — [BEq X]  (transitive 2 levels via subset_)
+;;   Group 5 (even_len_, odd_len_)         — NO [BEq X]  (mutual recursion, no eq)
+;;   Group 6 (has_dup_, has_dup_tl_)       — [BEq X]  (tl: direct; dup: transitive)
+;;   Group 7 (lookup_)                     — [BEq K] NOT [BEq V]  (only key compared)
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 1: Structural operations — no equality checks, no [BEq X]
+;; ────────────────────────────────────────────────────────────────
+
+def $count_(syntax X, X*) : nat
+def $count_(syntax X, eps) = 0
+def $count_(syntax X, w w'*) = $(1 + $count_(X, w'*))
+
+def $reverse_(syntax X, X*) : X*
+def $reverse_(syntax X, eps) = eps
+def $reverse_(syntax X, w w'*) = $reverse_(X, w'*) ++ w
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 2: Direct [BEq X] — equality on type-param variable
+;;   elem_    : MemE  on element of type X
+;;   remove1_ : CmpE EqOp on element of type X
+;; ────────────────────────────────────────────────────────────────
+
+def $elem_(syntax X, X, X*) : bool
+def $elem_(syntax X, w, eps) = false
+def $elem_(syntax X, w, w'*) = (w <- w'*)
+
+def $remove1_(syntax X, X, X*) : X*
+def $remove1_(syntax X, w, eps) = eps
+def $remove1_(syntax X, w, w_1 w'*) = w'*                       -- if w = w_1
+def $remove1_(syntax X, w, w_1 w'*) = w_1 $remove1_(X, w, w'*) -- otherwise
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 3: Transitive [BEq X] at 1 level — calls Group 2
+;;   subset_ calls elem_, so subset_ transitively needs [BEq X]
+;; ────────────────────────────────────────────────────────────────
+
+def $subset_(syntax X, X*, X*) : bool
+def $subset_(syntax X, eps, w'*) = true
+def $subset_(syntax X, w_1 w*, w'*) = $elem_(X, w_1, w'*) /\ $subset_(X, w*, w'*)
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 4: Transitive [BEq X] at 2 levels — calls Group 3
+;;   equal_sets_ calls subset_ which calls elem_
+;; ────────────────────────────────────────────────────────────────
+
+def $equal_sets_(syntax X, X*, X*) : bool
+def $equal_sets_(syntax X, w*, w'*) = $subset_(X, w*, w'*) /\ $subset_(X, w'*, w*)
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 5: Mutual recursion WITHOUT [BEq X]
+;;   even_len_ <-> odd_len_ : pure structural recursion
+;; ────────────────────────────────────────────────────────────────
+
+def $even_len_(syntax X, X*) : bool
+def $odd_len_(syntax X, X*) : bool
+
+def $even_len_(syntax X, eps) = true
+def $even_len_(syntax X, w w'*) = $odd_len_(X, w'*)
+
+def $odd_len_(syntax X, eps) = false
+def $odd_len_(syntax X, w w'*) = $even_len_(X, w'*)
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 6: Mutual recursion WITH [BEq X]
+;;   has_dup_tl_ needs [BEq X] directly (CmpE EqOp in guard)
+;;   has_dup_    needs [BEq X] transitively (calls has_dup_tl_)
+;; ────────────────────────────────────────────────────────────────
+
+def $has_dup_(syntax X, X*) : bool
+def $has_dup_tl_(syntax X, X, X*) : bool
+
+def $has_dup_(syntax X, eps) = false
+def $has_dup_(syntax X, w w'*) = $has_dup_tl_(X, w, w'*) \/ $has_dup_(X, w'*)
+
+def $has_dup_tl_(syntax X, w, eps) = false
+def $has_dup_tl_(syntax X, w, w_1 w'*) = true                      -- if w = w_1
+def $has_dup_tl_(syntax X, w, w_1 w'*) = $has_dup_tl_(X, w, w'*)  -- otherwise
+
+;; ────────────────────────────────────────────────────────────────
+;; Group 7: Two type params — only K needs [BEq K], V does not
+;;   lookup_ compares keys (type K) but only reads values (type V)
+;; ────────────────────────────────────────────────────────────────
+
+def $lookup_(syntax K, syntax V, K*, V*, K) : V?
+def $lookup_(syntax K, syntax V, eps, eps, k) = eps
+def $lookup_(syntax K, syntax V, k_1 k'*, v_1 v'*, k) = v_1                       -- if k = k_1
+def $lookup_(syntax K, syntax V, k_1 k'*, v_1 v'*, k) = $lookup_(K, V, k'*, v'*, k) -- otherwise

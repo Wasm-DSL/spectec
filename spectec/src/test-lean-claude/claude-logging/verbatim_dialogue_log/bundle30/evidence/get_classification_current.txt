@@ -1,0 +1,274 @@
+# getbang2.py on wasm2.0.lean (md5 4207ecaaae9d5e501ff51ef2fa6b41d5); first block = all declarations, 'refined' = inductive relations only
+Option.get! occurrences: 1365
+  in iteration source  UNGUARDED: 187
+  in iteration source  guarded  : 0
+  elsewhere             guarded  : 1093
+  elsewhere             UNGUARDED: 85
+--- in source, unguarded: 187 in 4 relations/decls
+      128  fun_vbinop_
+       56  fun_vunop_
+        2  fun_instantiate
+        1  iswf_vcvtop_lcvtop_results
+     e.g. get! (proj_lane__1 lane_1_77_elem)   in fun_vunop__case_25
+     e.g. get! (proj_lane__1 lane_1_78_elem)   in fun_vunop__case_25
+     e.g. get! (proj_lane__1 lane_1_74_elem)   in fun_vunop__case_24
+--- elsewhere, unguarded: 85 in 47 relations/decls
+       15  fun_vcvtop__
+        4  vswizzle
+        3  unop_val
+        3  binop_val
+        3  cvtop_val
+        3  vunop
+        3  vbinop_val
+        2  iswf_vbinop_Jnn_inv_lanes
+        2  vrelop
+        2  vextract_lane_num
+        2  vextunop
+        2  vextbinop
+        2  vcvtop
+        2  call_addr
+        2  table_grow_succeed
+        2  vstore_lane_val
+        2  memory_grow_succeed
+        2  iswf_num_Inn_proj
+        1  unop__is_wf
+        1  testop__is_wf
+        1  relop__is_wf
+        1  cvtop___is_wf
+        1  iswf_lane_proj0_payload_wf
+        1  iswf_vunop_Jnn_inv_lanes
+        1  vunop__is_wf
+        1  vbinop__is_wf
+        1  vrelop__is_wf
+        1  lcvtop___is_wf
+        1  vcvtop___is_wf
+        1  vextunop___is_wf
+        1  vextbinop___is_wf
+        1  vshiftop__is_wf
+        1  default__is_wf
+        1  growtable_is_wf
+        1  growmemory_is_wf
+        1  unop_trap
+        1  binop_trap
+        1  testop
+        1  relop
+        1  cvtop_trap
+        1  vunop_trap
+        1  vbinop_trap
+        1  vshiftop
+        1  vextract_lane_pack
+        1  br_table_lt
+        1  fun_instantiate
+        1  iswf_I32_iadd1
+     e.g. get! (var_0)   in unop__is_wf
+     e.g. get! (var_0)   in testop__is_wf
+     e.g. get! (var_0)   in relop__is_wf
+--- in source, guarded: 0 in 0 relations/decls
+=== refined (inductive declarations only)
+  else  UNGUARDED  17
+  else  guarded    1111
+  src   UNGUARDED  186
+--- every unguarded / closed occurrence:
+  5703 src  UNGUARDED fun_vunop__case_25         get! (proj_lane__1 lane_1_77_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5706 src  UNGUARDED fun_vunop__case_25         get! (proj_lane__1 lane_1_78_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5712 src  UNGUARDED fun_vunop__case_24         get! (proj_lane__1 lane_1_74_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5715 src  UNGUARDED fun_vunop__case_24         get! (proj_lane__1 lane_1_75_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5721 src  UNGUARDED fun_vunop__case_23         get! (proj_lane__1 lane_1_71_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5724 src  UNGUARDED fun_vunop__case_23         get! (proj_lane__1 lane_1_72_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5730 src  UNGUARDED fun_vunop__case_22         get! (proj_lane__1 lane_1_68_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5733 src  UNGUARDED fun_vunop__case_22         get! (proj_lane__1 lane_1_69_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5739 src  UNGUARDED fun_vunop__case_21         get! (proj_lane__1 lane_1_65_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5742 src  UNGUARDED fun_vunop__case_21         get! (proj_lane__1 lane_1_66_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5748 src  UNGUARDED fun_vunop__case_20         get! (proj_lane__1 lane_1_62_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5751 src  UNGUARDED fun_vunop__case_20         get! (proj_lane__1 lane_1_63_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5757 src  UNGUARDED fun_vunop__case_19         get! (proj_lane__1 lane_1_59_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5760 src  UNGUARDED fun_vunop__case_19         get! (proj_lane__1 lane_1_60_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5766 src  UNGUARDED fun_vunop__case_18         get! (proj_lane__1 lane_1_56_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5769 src  UNGUARDED fun_vunop__case_18         get! (proj_lane__1 lane_1_57_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5775 src  UNGUARDED fun_vunop__case_17         get! (proj_lane__1 lane_1_53_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5778 src  UNGUARDED fun_vunop__case_17         get! (proj_lane__1 lane_1_54_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5784 src  UNGUARDED fun_vunop__case_16         get! (proj_lane__1 lane_1_50_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5787 src  UNGUARDED fun_vunop__case_16         get! (proj_lane__1 lane_1_51_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5793 src  UNGUARDED fun_vunop__case_15         get! (proj_lane__1 lane_1_47_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5796 src  UNGUARDED fun_vunop__case_15         get! (proj_lane__1 lane_1_48_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5802 src  UNGUARDED fun_vunop__case_14         get! (proj_lane__1 lane_1_44_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5805 src  UNGUARDED fun_vunop__case_14         get! (proj_lane__1 lane_1_45_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5811 src  UNGUARDED fun_vunop__case_13         get! (proj_lane__1 lane_1_41_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5814 src  UNGUARDED fun_vunop__case_13         get! (proj_lane__1 lane_1_42_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5820 src  UNGUARDED fun_vunop__case_12         get! (proj_lane__1 lane_1_38_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  5823 src  UNGUARDED fun_vunop__case_12         get! (proj_lane__1 lane_1_39_elem)  [inductive fun_vunop__before_fun_vunop__case_26 : shape ]
+  6105 src  UNGUARDED fun_vunop__case_12         get! (proj_lane__1 lane_1_38_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6108 src  UNGUARDED fun_vunop__case_12         get! (proj_lane__1 lane_1_39_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6114 src  UNGUARDED fun_vunop__case_13         get! (proj_lane__1 lane_1_41_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6117 src  UNGUARDED fun_vunop__case_13         get! (proj_lane__1 lane_1_42_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6123 src  UNGUARDED fun_vunop__case_14         get! (proj_lane__1 lane_1_44_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6126 src  UNGUARDED fun_vunop__case_14         get! (proj_lane__1 lane_1_45_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6132 src  UNGUARDED fun_vunop__case_15         get! (proj_lane__1 lane_1_47_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6135 src  UNGUARDED fun_vunop__case_15         get! (proj_lane__1 lane_1_48_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6141 src  UNGUARDED fun_vunop__case_16         get! (proj_lane__1 lane_1_50_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6144 src  UNGUARDED fun_vunop__case_16         get! (proj_lane__1 lane_1_51_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6150 src  UNGUARDED fun_vunop__case_17         get! (proj_lane__1 lane_1_53_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6153 src  UNGUARDED fun_vunop__case_17         get! (proj_lane__1 lane_1_54_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6159 src  UNGUARDED fun_vunop__case_18         get! (proj_lane__1 lane_1_56_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6162 src  UNGUARDED fun_vunop__case_18         get! (proj_lane__1 lane_1_57_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6168 src  UNGUARDED fun_vunop__case_19         get! (proj_lane__1 lane_1_59_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6171 src  UNGUARDED fun_vunop__case_19         get! (proj_lane__1 lane_1_60_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6177 src  UNGUARDED fun_vunop__case_20         get! (proj_lane__1 lane_1_62_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6180 src  UNGUARDED fun_vunop__case_20         get! (proj_lane__1 lane_1_63_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6186 src  UNGUARDED fun_vunop__case_21         get! (proj_lane__1 lane_1_65_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6189 src  UNGUARDED fun_vunop__case_21         get! (proj_lane__1 lane_1_66_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6195 src  UNGUARDED fun_vunop__case_22         get! (proj_lane__1 lane_1_68_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6198 src  UNGUARDED fun_vunop__case_22         get! (proj_lane__1 lane_1_69_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6204 src  UNGUARDED fun_vunop__case_23         get! (proj_lane__1 lane_1_71_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6207 src  UNGUARDED fun_vunop__case_23         get! (proj_lane__1 lane_1_72_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6213 src  UNGUARDED fun_vunop__case_24         get! (proj_lane__1 lane_1_74_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6216 src  UNGUARDED fun_vunop__case_24         get! (proj_lane__1 lane_1_75_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6222 src  UNGUARDED fun_vunop__case_25         get! (proj_lane__1 lane_1_77_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6225 src  UNGUARDED fun_vunop__case_25         get! (proj_lane__1 lane_1_78_elem)  [inductive fun_vunop_ : shape → vunop_ → vec_ → Option (]
+  6350 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_1_233_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6350 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_2_155_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6354 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_1_234_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6354 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_2_156_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6361 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_1_230_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6361 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_2_152_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6365 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_1_231_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6365 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_2_153_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6372 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_1_227_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6372 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_2_149_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6376 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_1_228_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6376 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_2_150_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6383 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_1_224_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6383 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_2_146_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6387 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_1_225_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6387 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_2_147_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6394 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_1_221_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6394 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_2_143_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6398 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_1_222_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6398 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_2_144_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6405 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_1_218_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6405 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_2_140_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6409 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_1_219_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6409 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_2_141_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6416 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_1_215_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6416 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_2_137_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6420 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_1_216_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6420 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_2_138_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6427 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_1_212_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6427 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_2_134_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6431 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_1_213_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6431 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_2_135_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6438 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_1_209_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6438 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_2_131_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6442 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_1_210_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6442 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_2_132_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6449 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_1_206_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6449 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_2_128_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6453 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_1_207_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6453 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_2_129_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6460 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_1_203_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6460 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_2_125_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6464 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_1_204_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6464 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_2_126_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6471 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_1_200_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6471 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_2_122_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6475 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_1_201_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6475 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_2_123_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6482 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_1_197_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6482 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_2_119_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6486 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_1_198_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6486 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_2_120_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6493 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_1_194_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6493 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_2_116_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6497 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_1_195_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6497 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_2_117_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6504 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_1_191_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6504 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_2_113_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6508 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_1_192_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6508 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_2_114_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6515 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_1_188_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6515 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_2_110_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6519 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_1_189_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  6519 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_2_111_elem)  [inductive fun_vbinop__before_fun_vbinop__case_52 : shap]
+  7730 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_1_188_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7730 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_2_110_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7734 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_1_189_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7734 src  UNGUARDED fun_vbinop__case_36        get! (proj_lane__1 lane_2_111_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7741 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_1_191_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7741 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_2_113_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7745 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_1_192_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7745 src  UNGUARDED fun_vbinop__case_37        get! (proj_lane__1 lane_2_114_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7752 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_1_194_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7752 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_2_116_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7756 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_1_195_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7756 src  UNGUARDED fun_vbinop__case_38        get! (proj_lane__1 lane_2_117_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7763 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_1_197_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7763 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_2_119_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7767 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_1_198_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7767 src  UNGUARDED fun_vbinop__case_39        get! (proj_lane__1 lane_2_120_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7774 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_1_200_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7774 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_2_122_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7778 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_1_201_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7778 src  UNGUARDED fun_vbinop__case_40        get! (proj_lane__1 lane_2_123_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7785 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_1_203_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7785 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_2_125_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7789 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_1_204_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7789 src  UNGUARDED fun_vbinop__case_41        get! (proj_lane__1 lane_2_126_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7796 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_1_206_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7796 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_2_128_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7800 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_1_207_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7800 src  UNGUARDED fun_vbinop__case_42        get! (proj_lane__1 lane_2_129_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7807 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_1_209_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7807 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_2_131_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7811 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_1_210_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7811 src  UNGUARDED fun_vbinop__case_43        get! (proj_lane__1 lane_2_132_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7818 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_1_212_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7818 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_2_134_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7822 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_1_213_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7822 src  UNGUARDED fun_vbinop__case_44        get! (proj_lane__1 lane_2_135_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7829 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_1_215_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7829 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_2_137_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7833 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_1_216_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7833 src  UNGUARDED fun_vbinop__case_45        get! (proj_lane__1 lane_2_138_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7840 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_1_218_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7840 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_2_140_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7844 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_1_219_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7844 src  UNGUARDED fun_vbinop__case_46        get! (proj_lane__1 lane_2_141_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7851 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_1_221_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7851 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_2_143_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7855 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_1_222_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7855 src  UNGUARDED fun_vbinop__case_47        get! (proj_lane__1 lane_2_144_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7862 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_1_224_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7862 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_2_146_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7866 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_1_225_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7866 src  UNGUARDED fun_vbinop__case_48        get! (proj_lane__1 lane_2_147_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7873 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_1_227_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7873 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_2_149_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7877 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_1_228_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7877 src  UNGUARDED fun_vbinop__case_49        get! (proj_lane__1 lane_2_150_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7884 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_1_230_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7884 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_2_152_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7888 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_1_231_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7888 src  UNGUARDED fun_vbinop__case_50        get! (proj_lane__1 lane_2_153_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7895 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_1_233_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7895 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_2_155_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7899 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_1_234_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+  7899 src  UNGUARDED fun_vbinop__case_51        get! (proj_lane__1 lane_2_156_elem)  [inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ →]
+ 10048 else UNGUARDED fun_vcvtop___case_2        get! (var_1_elem)  [inductive fun_vcvtop___before_fun_vcvtop___case_3 : sha]
+ 10062 else UNGUARDED fun_vcvtop___case_1        get! (var_1_elem)  [inductive fun_vcvtop___before_fun_vcvtop___case_3 : sha]
+ 10078 else UNGUARDED fun_vcvtop___case_0        get! (var_2_elem)  [inductive fun_vcvtop___before_fun_vcvtop___case_3 : sha]
+ 10099 else UNGUARDED fun_vcvtop___case_0        get! (var_2_elem)  [inductive fun_vcvtop__ : shape → shape → vcvtop__ → vec]
+ 10114 else UNGUARDED fun_vcvtop___case_1        get! (var_1_elem)  [inductive fun_vcvtop__ : shape → shape → vcvtop__ → vec]
+ 10130 else UNGUARDED fun_vcvtop___case_2        get! (var_1_elem)  [inductive fun_vcvtop__ : shape → shape → vcvtop__ → vec]
+ 14581 else UNGUARDED vshiftop                   get! (var_0_elem)  [inductive Step_pure : List admininstr → List admininstr]
+ 14605 else UNGUARDED vswizzle                   get! (proj_lane__0 ((ci_lst)[k]!))  [inductive Step_pure : List admininstr → List admininstr]
+ 14606 else UNGUARDED vswizzle                   get! (proj_lane__0 ((ci_lst)[k]!))  [inductive Step_pure : List admininstr → List admininstr]
+ 14609 else UNGUARDED vswizzle                   get! (proj_lane__0 ((ci_lst)[k]!))  [inductive Step_pure : List admininstr → List admininstr]
+ 14628 else UNGUARDED vextract_lane_num          get! (unpacknum_ (lanetype_numtype nt) ((lanes_ (shape.X (lanetype_numtype n)  [inductive Step_pure : List admininstr → List admininstr]
+ 14635 else UNGUARDED vextract_lane_pack         get! (proj_lane__0 ((lanes_ (shape.X (lanetype_packtype pt) (dim.mk_dim v_N))  [inductive Step_pure : List admininstr → List admininstr]
+ 15124 else UNGUARDED call_addr                  get! (var_0_elem)  [inductive Step_read : config → List admininstr → Prop w]
+ 15134 else UNGUARDED call_addr                  get! (var_0_elem)  [inductive Step_read : config → List admininstr → Prop w]
+ 15544 else UNGUARDED vstore_lane_val            get! (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) )  [inductive Step : config → config → Prop where]
+ 15545 else UNGUARDED vstore_lane_val            get! (proj_lane__0 ((lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_M)) )  [inductive Step : config → config → Prop where]
+ 16190 else UNGUARDED fun_instantiate_case_0     get! (var_4_elem)  [inductive fun_instantiate : store → module → List exter]
+ 16196 src  UNGUARDED fun_instantiate_case_0     get! (var_9_elem)  [inductive fun_instantiate : store → module → List exter]
+ 16197 src  UNGUARDED fun_instantiate_case_0     get! (var_10_elem)  [inductive fun_instantiate : store → module → List exter]

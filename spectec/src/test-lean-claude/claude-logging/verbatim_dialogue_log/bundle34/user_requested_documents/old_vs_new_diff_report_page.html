@@ -1,0 +1,679 @@
+<title>EXTEND Removal Diff</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column with a sticky contents rail on wide screens; wide tables scroll inside their own frame. */
+:root {
+  --bg: #f5f6f9; --surface: #ffffff; --fg: #181a22; --muted: #5a5e70; --rule: #dde0e9;
+  --accent: #4b45c4; --code-bg: #eceef5; --code-fg: #2b2d3a;
+  --del: #c4473e; --gen: #4b45c4; --hand: #7a74df; --mod: #a9a5ee; --pos: #b0821f;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-head: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111219; --surface: #191b24; --fg: #e6e7ee; --muted: #a2a5b8; --rule: #2b2e3c;
+  --accent: #a39dff; --code-bg: #232634; --code-fg: #dcdcf0;
+  --del: #ef8178; --gen: #a39dff; --hand: #8580e6; --mod: #5e59b8; --pos: #e1b75c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111219; --surface: #191b24; --fg: #e6e7ee; --muted: #a2a5b8; --rule: #2b2e3c;
+  --accent: #a39dff; --code-bg: #232634; --code-fg: #dcdcf0;
+  --del: #ef8178; --gen: #a39dff; --hand: #8580e6; --mod: #5e59b8; --pos: #e1b75c; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.page { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
+.eyebrow { font: 500 12px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 600 clamp(26px, 4vw, 38px)/1.15 var(--font-head); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.tile-n { font: 600 26px/1.2 var(--font-head); font-variant-numeric: tabular-nums; color: var(--accent); }
+.tile-l { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.ledger { display: grid; gap: 10px; }
+.ledger-title { font: 600 14px/1.3 var(--font-head); }
+.bar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; gap: 2px; background: var(--rule); }
+.seg { display: block; min-width: 3px; }
+.seg-del { background: var(--del); } .seg-gen { background: var(--gen); } .seg-hand { background: var(--hand); } .seg-mod { background: var(--mod); } .seg-pos { background: var(--pos); }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.lg-n { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--fg); }
+.source { font-size: 12.5px; color: var(--muted); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 26px; }
+@media (min-width: 1060px) { .layout { grid-template-columns: 220px minmax(0, 1fr); } }
+nav.toc { align-self: start; font-size: 13.5px; }
+@media (min-width: 1060px) { nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); max-height: calc(100vh - 32px); overflow: auto; } }
+nav.toc .toc-h { font: 500 12px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+nav.toc a { color: var(--fg); text-decoration: none; display: block; padding: 3px 8px; border-radius: 5px; border-left: 2px solid transparent; }
+nav.toc a:hover { background: var(--surface); border-left-color: var(--accent); }
+nav.toc a:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { min-width: 0; }
+#report-body { max-width: 920px; }
+#report-body > p, #report-body > ul { max-width: 76ch; }
+h2 { font: 600 23px/1.25 var(--font-head); margin: 40px 0 12px; padding-top: 14px; border-top: 1px solid var(--rule); text-wrap: balance; scroll-margin-top: 16px; }
+h2:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+h3 { font: 600 17px/1.3 var(--font-head); margin: 26px 0 8px; text-wrap: balance; scroll-margin-top: 16px; }
+p { margin: 10px 0; }
+ul { margin: 8px 0; padding-left: 22px; }
+li { margin: 3px 0; }
+li > ul { margin: 2px 0; }
+strong { font-weight: 600; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); color: var(--code-fg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.code-wrap { overflow-x: auto; background: var(--code-bg); border-radius: 6px; margin: 10px 0; }
+.code-wrap pre { margin: 0; padding: 12px 14px; }
+.code-wrap code { background: none; padding: 0; font-size: 13px; overflow-wrap: normal; white-space: pre; }
+.table-wrap { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; font-size: 12.5px; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+tbody tr:last-child td { border-bottom: 0; }
+td code { font-size: .84em; }
+.foot { margin-top: 48px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+<div class="page">
+<header class="top">
+<div class="eyebrow">Lean proof of Wasm 2.0 type safety · bundle 33 · 2026-11-11</div>
+<h1>Old vs new: the <code>EXTEND</code> removal across the model and the proof</h1>
+<p class="lede">The old proof with <code>OLD_wasm2.0.lean</code> (which still has the dead <code>EXTEND</code> instruction) against the repaired proof with the regenerated <code>wasm2.0.lean</code>, in <code>spectec/src/test-lean-claude/</code>.</p>
+<div class="tiles"><div class="tile"><div class="tile-n">211</div><div class="tile-l">lines of OLD differ from NEW, every one classified</div></div><div class="tile"><div class="tile-n">17</div><div class="tile-l">lines changed in the proof modules this turn</div></div><div class="tile"><div class="tile-n">0</div><div class="tile-l">errors and <code>sorry</code> in all nine modules</div></div><div class="tile"><div class="tile-n">12,775</div><div class="tile-l">declarations compared in Lean, no user-level statement changed</div></div><div class="tile"><div class="tile-n">0 / 5,496</div><div class="tile-l">theorems needing an <code>Inhabited</code> default</div></div></div>
+<div class="ledger" aria-label="How the 211 differing lines break down">
+<div class="ledger-title">The 211 differing lines, to scale</div>
+<div class="bar" role="img" aria-label="Deleted, mention EXTEND: 7, Renumbered, generated model: 102, Renumbered, model’s proofs: 56, Renumbered, proof modules: 15, Spec position in a comment: 31"><span class="seg seg-del" style="flex-grow:7" title="Deleted, mention EXTEND: 7"></span><span class="seg seg-gen" style="flex-grow:102" title="Renumbered, generated model: 102"></span><span class="seg seg-hand" style="flex-grow:56" title="Renumbered, model’s proofs: 56"></span><span class="seg seg-mod" style="flex-grow:15" title="Renumbered, proof modules: 15"></span><span class="seg seg-pos" style="flex-grow:31" title="Spec position in a comment: 31"></span></div>
+<ul class="legend"><li><span class="sw seg-del"></span><span class="lg-n">7</span><span class="lg-l">Deleted, mention <code>EXTEND</code></span></li><li><span class="sw seg-gen"></span><span class="lg-n">102</span><span class="lg-l">Renumbered, generated model</span></li><li><span class="sw seg-hand"></span><span class="lg-n">56</span><span class="lg-l">Renumbered, model’s proofs</span></li><li><span class="sw seg-mod"></span><span class="lg-n">15</span><span class="lg-l">Renumbered, proof modules</span></li><li><span class="sw seg-pos"></span><span class="lg-n">31</span><span class="lg-l">Spec position in a comment</span></li></ul>
+</div>
+<div class="source">Source: <code>claude-logging/verbatim_dialogue_log/bundle33/user_requested_documents/old_vs_new_diff_report.md</code> (version 4, md5 <code>2c936a0f…</code>). The text below is that report, laid out for the browser.</div>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><div class="toc-h">Contents</div><ol><li><a href="#0-bottom-line">0. Bottom line</a></li><li><a href="#1-line-level-summary">1. Line-level summary</a></li><li><a href="#2-the-cause">2. The cause</a></li><li><a href="#3-the-model-old-wasm2-0-lean-wasm2-0-lean-194-lines">3. The model: <code>OLD_wasm2.0.lean</code> → <code>wasm2.0.lean</code> (194 lines)</a></li><li><a href="#4-the-proof-modules-17-lines">4. The proof modules (17 lines)</a></li><li><a href="#5-lean-level-comparison-elaborated-declarations">5. Lean-level comparison (elaborated declarations)</a></li><li><a href="#6-every-top-level-construct-whose-text-changed">6. Every top-level construct whose text changed</a></li><li><a href="#7-builds">7. Builds</a></li><li><a href="#8-left-unchanged-and-other-notes">8. Left unchanged, and other notes</a></li><li><a href="#9-method-and-evidence">9. Method and evidence</a></li><li><a href="#appendix-a-all-56-changed-lines-of-the-model-s-proofs-3-4">Appendix A. All 56 changed lines of the model&#x27;s proofs (§3.4)</a></li><li><a href="#appendix-b-lean-level-lists-5">Appendix B. Lean-level lists (§5)</a></li><li><a href="#appendix-c-all-17-changed-lines-of-the-proof-modules-4">Appendix C. All 17 changed lines of the proof modules (§4)</a></li><li><a href="#appendix-d-byte-level-facts-1">Appendix D. Byte-level facts (§1)</a></li><li><a href="#appendix-e-verifier-findings-and-how-each-was-addressed">Appendix E. Verifier findings and how each was addressed</a></li></ol></nav>
+<main><div id="report-body">
+<p>Bundle 33, 2026-11-11. This report compares two complete states of <code>spectec/src/test-lean-claude/</code>.</p>
+<ul><li>
+<strong>OLD:</strong> the old proof together with <code>OLD_wasm2.0.lean</code>, the model that still has <code>EXTEND</code>. This is HEAD <code>afb06bf8d</code>, whose <code>wasm2.0.lean</code> is byte-identical to <code>OLD_wasm2.0.lean</code>.
+</li><li>
+<strong>NEW:</strong> the new proof together with <code>wasm2.0.lean</code>, i.e. the files now in the working tree. The model is the bundle32 port, and the proof modules are as repaired this turn.
+</li></ul>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>OLD md5</th><th>NEW md5</th><th>lines OLD → NEW</th><th>top-level constructs</th></tr></thead><tbody><tr><td><code>ExtendedDeriveDecEq.lean</code></td><td><code>e9b33702…</code></td><td><code>e9b33702…</code> (same)</td><td>738 → 738</td><td>24</td></tr><tr><td><code>wasm2.0.lean</code></td><td><code>4207ecaa…</code></td><td><code>fdfafb39…</code></td><td>17,527 → 17,522</td><td>897</td></tr><tr><td><code>HelperLemmas.lean</code></td><td><code>7b0db228…</code></td><td><code>7b0db228…</code> (same)</td><td>1,041 → 1,041</td><td>118</td></tr><tr><td><code>Subtyping.lean</code></td><td><code>4f5c6ca9…</code></td><td><code>4f5c6ca9…</code> (same)</td><td>680 → 680</td><td>52</td></tr><tr><td><code>TypingLemmas.lean</code></td><td><code>6284f02c…</code></td><td><code>21429230…</code></td><td>1,956 → 1,954</td><td>97</td></tr><tr><td><code>TypePreservationPure.lean</code></td><td><code>13c13840…</code></td><td><code>ff4fd477…</code></td><td>1,974 → 1,974</td><td>85</td></tr><tr><td><code>ExtensionLemmas.lean</code></td><td><code>1e2a23a5…</code></td><td><code>1e2a23a5…</code> (same)</td><td>2,172 → 2,172</td><td>135</td></tr><tr><td><code>TypePreservation.lean</code></td><td><code>5241649e…</code></td><td><code>4c4bb6a6…</code></td><td>2,912 → 2,912</td><td>143</td></tr><tr><td><code>TypeProgress.lean</code></td><td><code>8087d55b…</code></td><td><code>5e00f3b5…</code></td><td>8,248 → 8,248</td><td>318</td></tr></tbody></table></div>
+<p>These nine files are the modules that <code>lakefile.lean</code> builds. In OLD the model file is <code>OLD_wasm2.0.lean</code>; in NEW it is <code>wasm2.0.lean</code>.</p>
+<ul><li>
+<strong>What is computed.</strong> The tables and the main counts are computed by <code>report33.py</code> (§9) from the files, the build logs and the Lean outputs, and the generator asserts many of the facts it prints. Some numbers in the explanations are typed into it by hand.
+</li><li>
+<strong>What was checked.</strong> Three rounds of independent read-only readers checked versions 1 to 3 against the files (Appendix E). The fixes made after the third round, in this version 4, were checked by the generator&#x27;s assertions and by me, not by a fourth reader.
+</li><li>
+<strong>The whole directory.</strong> <code>git status</code> for the directory, not counting <code>claude-logging/</code>, lists: <code>OLD_wasm2.0.lean</code> (modified), <code>TypePreservation.lean</code> (modified), <code>TypePreservationPure.lean</code> (modified), <code>TypeProgress.lean</code> (modified), <code>TypingLemmas.lean</code> (modified), <code>wasm2.0.lean</code> (modified), <code>wasm2.0_prevattempt.lean</code> (deleted).
+<ul><li>
+<code>wasm2.0.lean</code> and the four repaired modules are the subject of this report.
+</li><li>
+The other two are outside both builds, since the lakefile does not build them. You changed both before bundle32:
+<ul><li>
+At HEAD, <code>OLD_wasm2.0.lean</code> held an older model (16,508 lines, md5 <code>059c0051…</code>). It now holds HEAD&#x27;s <code>wasm2.0.lean</code> (17,527 lines, md5 <code>4207ecaa…</code>).
+</li><li>
+<code>wasm2.0_prevattempt.lean</code> (15,537 lines, md5 <code>72748a07…</code> at HEAD) was deleted.
+</li></ul>
+</li><li>
+<code>lakefile.lean</code>, <code>lake-manifest.json</code> and <code>lean-toolchain</code> are unchanged.
+</li></ul>
+</li></ul>
+<h2 id="0-bottom-line">0. Bottom line</h2>
+<ul><li>
+<strong>One cause.</strong> The mech-backend merge deleted one line of the Wasm 2.0 spec: the dead instruction <code>EXTEND numtype n</code>. Every difference below follows from that. (The merge also removed a <code>$fzero</code> hint, but OLD&#x27;s model had already been generated without it; see §2.)
+</li><li>
+<strong>Text.</strong> 211 lines of OLD differ from NEW: 194 in the model and 17 in the proof modules. Each falls into one of three kinds, and none is unexplained:
+<ul><li>
+<strong>7 lines deleted</strong>, because they mention the removed constructor: 5 in the model and 2 match arms in <code>TypingLemmas</code>.
+</li><li>
+<strong>173 lines renumber a well-formedness constructor name</strong>, <code>instr_case_K</code>/<code>admininstr_case_K</code> → K−1 for K ≥ 20:
+<ul><li>
+102 in the generated model;
+</li><li>
+56 in the model&#x27;s proofs (the bundle32 port);
+</li><li>
+15 in the proof modules.
+</li></ul>
+</li><li>
+<strong>31 generated comments</strong> cite a spec position that moved up one line.
+</li></ul>
+</li><li>
+<strong>Structure.</strong> No top-level construct was added, removed, renamed or reordered in any of the nine files.
+<ul><li>
+All 1,869 constructs match OLD one for one.
+</li><li>
+53 have changed text: 24 in code, and 29 only in their source-position comment.
+</li></ul>
+</li><li>
+<strong>Statements.</strong> No user-level theorem, definition, inductive type or constructor changed its statement. This is checked in Lean, over the 12,775 declarations common to both builds, with constructor numbers mapped (§5).
+<ul><li>
+The constructor <code>EXTEND</code> itself is gone, from <code>instr</code> and <code>admininstr</code>, together with its two well-formedness cases.
+</li><li>
+<strong>Unchanged statements, smaller types.</strong> The check compares statements by name. Statements that mention <code>instr</code> or <code>admininstr</code> keep their text, but now range over types with one constructor fewer. That is the intended effect, and it changes nothing of substance: no typing rule ever mentioned <code>EXTEND</code> (§2), so no configuration satisfying the main theorems&#x27; typing hypotheses could contain it, even in OLD.
+</li><li>
+Every other declaration whose type changed is one Lean generates automatically.
+</li><li>
+<strong>Changed terms.</strong> Terms changed in 5 user-level definitions and 115 user-level theorems. For user-level declarations, these are exactly the ones whose terms refer directly to a declaration whose type changed or that is new. Mostly that is a case eliminator of the four inductives or the matcher of <code>ai_principal_typing</code> (§5).
+</li></ul>
+</li><li>
+<strong>Soundness.</strong> Both states compile with 0 errors and 0 <code>sorry</code>, and no theorem depends on <code>sorryAx</code>.
+<ul><li>
+Every user-level theorem present in both has the same axioms. The only 4 differences are numbered auxiliary sub-proofs whose numbers shifted.
+</li><li>
+<code>t_preservation</code> has 35 axioms and <code>t_progress</code> 74, the same lists as in OLD.
+</li><li>
+The <code>Inhabited</code>-default audit finds no theorem needing a default: 0 of 5,517 in OLD and 0 of 5,496 in NEW.
+</li><li>
+The build logs are identical once line numbers and timings are stripped: the same 171 warnings and the same info output.
+</li></ul>
+</li></ul>
+<h2 id="1-line-level-summary">1. Line-level summary</h2>
+<div class="table-wrap"><table><thead><tr><th>file</th><th>lines OLD → NEW</th><th>deleted (<code>EXTEND</code>)</th><th>constructor renumbered</th><th>spec position comment</th><th>total OLD lines differing</th></tr></thead><tbody><tr><td><code>ExtendedDeriveDecEq.lean</code></td><td>738 → 738</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>wasm2.0.lean</code></td><td>17,527 → 17,522</td><td>5</td><td>158 (102 generated + 56 in proofs)</td><td>31</td><td>194</td></tr><tr><td><code>HelperLemmas.lean</code></td><td>1,041 → 1,041</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>Subtyping.lean</code></td><td>680 → 680</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>TypingLemmas.lean</code></td><td>1,956 → 1,954</td><td>2</td><td>3</td><td>0</td><td>5</td></tr><tr><td><code>TypePreservationPure.lean</code></td><td>1,974 → 1,974</td><td>0</td><td>2</td><td>0</td><td>2</td></tr><tr><td><code>ExtensionLemmas.lean</code></td><td>2,172 → 2,172</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>TypePreservation.lean</code></td><td>2,912 → 2,912</td><td>0</td><td>2</td><td>0</td><td>2</td></tr><tr><td><code>TypeProgress.lean</code></td><td>8,248 → 8,248</td><td>0</td><td>8</td><td>0</td><td>8</td></tr><tr><td><strong>total</strong></td><td></td><td>7</td><td>173</td><td>31</td><td><strong>211</strong></td></tr></tbody></table></div>
+<p><strong>How the lines were matched:</strong></p>
+<ul><li>
+From each OLD file, delete the lines that mention the removed constructor (§3.1, §4.1).
+</li><li>
+The remaining lines align one for one with the NEW file, which has exactly the same length.
+</li><li>
+Each differing pair is classified by the rule that maps it, so no line-matching heuristic is involved.
+</li><li>
+0 pairs are left unexplained.
+</li><li>
+Four modules are byte-identical: <code>ExtendedDeriveDecEq</code>, <code>HelperLemmas</code>, <code>Subtyping</code>, <code>ExtensionLemmas</code>.
+</li><li>
+<strong>Bytes.</strong> All 18 files (9 OLD, 9 NEW) are valid UTF-8 with LF line endings, no byte-order mark and exactly one final newline. Their trailing whitespace and tabs are the same in OLD and NEW. Sizes and full md5 sums are in Appendix D.
+</li></ul>
+<h2 id="2-the-cause">2. The cause</h2>
+<p><strong>The spec line.</strong> mech-backend commit <code>28073cddd</code> (&quot;Remove extend instruction&quot;) deleted line 474 of <code>specification/wasm-2.0/1-syntax.spectec</code>, in the numeric-instruction fragment (<code>syntax instr/num hint(desc &quot;numeric instruction&quot;)</code>):</p>
+<div class="code-wrap"><pre><code>  | EXTEND numtype n                 hint(show %.EXTEND#%#_#S)</code></pre></div>
+<p><strong>No other change matters.</strong> The merge also brought in mech-backend&#x27;s removal of <code>def $fzero hint(wfopt)</code> from <code>C-hints.spectec</code> (commit <code>5d6980fef</code>). OLD&#x27;s generated base had already been produced without that hint (bundle29).</p>
+<ul><li>
+In bundle32 the HEAD generator was run on the HEAD spec with only the <code>EXTEND</code> line restored, and it reproduced OLD&#x27;s generated base byte for byte (<code>bundle32/evidence/outputs/generator_check.txt</code>).
+</li><li>
+So the hint&#x27;s removal contributes nothing to the OLD → NEW difference: neither OLD&#x27;s base nor the HEAD spec has the hint. (With the hint, the generator emits an extra <code>fzero_is_wf</code>.)
+</li><li>
+Nor do the merge&#x27;s generator changes affect the Wasm 2.0 Lean output. Those changes are:
+<ul><li>
+the ImproveIds name-clash fix;
+</li><li>
+the Sideconditions let-reordering;
+</li><li>
+DefToRel&#x27;s <code>hint(axiom)</code>.
+</li></ul>
+</li></ul>
+<p><strong>What the instruction was.</strong> In Wasm 2.0 terms, <code>instr.EXTEND numtype n</code> was a dead production. In OLD:</p>
+<ul><li>
+it is mentioned only on the 5 generated lines of §3.1 and in two match arms in <code>TypingLemmas</code>;
+</li><li>
+no validation rule mentions it, and <code>Instr_ok</code> has 73 rules in both versions;
+</li><li>
+no reduction rule mentions it, and <code>Step_pure</code>, <code>Step_read</code> and <code>Step</code> have 54, 47 and 23 rules in both versions.
+</li></ul>
+<p><strong>The real extension instructions are unchanged.</strong> They live under other constructors:</p>
+<ul><li>
+<code>i32.extend8_s</code> and its siblings are <code>UNOP</code> with <code>unop_Inn.EXTEND n</code>;
+</li><li>
+<code>i64.extend_i32_s/u</code> is <code>CVTOP</code> with <code>cvtop__Inn_1_Inn_2.EXTEND sx</code>;
+</li><li>
+the SIMD extensions are <code>VCVTOP</code> with <code>vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND half sx</code>.
+</li></ul>
+<p><strong>Why so many names moved.</strong> The backend names the constructors of the well-formedness predicates by position: constructor K (from 0) of <code>wf_instr</code> is <code>instr_case_K</code>, and likewise <code>admininstr_case_K</code> for <code>wf_admininstr</code>.</p>
+<ul><li>
+<code>EXTEND</code> was constructor 19 of both <code>instr</code> and <code>admininstr</code> (68 → 67 and 74 → 73 constructors).
+</li><li>
+So every later case moved down by one: <code>wf_instr</code> goes from 68 to 67 cases, and <code>wf_admininstr</code> from 74 to 73.
+</li><li>
+The two predicates number their cases alike for K ≤ 67. In OLD, cases 68–73 of <code>wf_admininstr</code> are the six administrative-only instructions.
+</li></ul>
+<p>The renaming was done by meaning, not by arithmetic. Every OLD case except the removed case 19 matched exactly one NEW case with identical text: arguments, premises and conclusion. That gives 67 matches in <code>wf_instr</code> and 73 in <code>wf_admininstr</code>. Case 19 has no counterpart, no NEW case is left over, and no match is ambiguous.</p>
+<h2 id="3-the-model-old-wasm2-0-lean-wasm2-0-lean-194-lines">3. The model: <code>OLD_wasm2.0.lean</code> → <code>wasm2.0.lean</code> (194 lines)</h2>
+<h3 id="3-1-deleted-the-five-lines-that-mention-extend">3.1 Deleted: the five lines that mention <code>EXTEND</code></h3>
+<div class="table-wrap"><table><thead><tr><th>OLD line</th><th>construct</th><th>deleted line</th></tr></thead><tbody><tr><td>1953</td><td><code>inductive instr</code></td><td><code>| EXTEND (v_numtype : numtype) (v_n : n) : instr</code></td></tr><tr><td>2062</td><td><code>inductive wf_instr</code></td><td><code>| instr_case_19 (v_numtype : numtype) (v_n : n) : wf_instr (instr.EXTEND v_numtype v_n)</code></td></tr><tr><td>12206</td><td><code>inductive admininstr</code></td><td><code>| EXTEND (v_numtype : numtype) (v_n : n) : admininstr</code></td></tr><tr><td>12287</td><td><code>def admininstr_instr</code></td><td><code>| instr.EXTEND x0 x1 =&gt; admininstr.EXTEND x0 x1</code></td></tr><tr><td>12409</td><td><code>inductive wf_admininstr</code></td><td><code>| admininstr_case_19 (v_numtype : numtype) (v_n : n) : wf_admininstr (admininstr.EXTEND v_numtype v_n)</code></td></tr></tbody></table></div>
+<h3 id="3-2-renumbered-constructor-declarations-in-the-generated-model-102-lines">3.2 Renumbered constructor declarations in the generated model (102 lines)</h3>
+<p>Each of these lines declares one case of <code>wf_instr</code> or <code>wf_admininstr</code>. Only the name changed; the rest of the declaration is identical. The full map, with the instruction each case is about:</p>
+<div class="table-wrap"><table><thead><tr><th>OLD → NEW</th><th>instruction</th><th><code>wf_instr</code> line OLD → NEW</th><th><code>wf_admininstr</code> line OLD → NEW</th></tr></thead><tbody><tr><td><code>*_case_0</code> … <code>*_case_18</code></td><td>(unchanged)</td><td>19 cases, same names</td><td>19 cases, same names</td></tr><tr><td><code>*_case_19</code></td><td><strong><code>EXTEND</code>, deleted</strong> (§3.1)</td><td>2062 → —</td><td>12409 → —</td></tr><tr><td><code>_case_20</code> → <code>_case_19</code></td><td><code>VCONST</code></td><td>2063 → 2061</td><td>12410 → 12405</td></tr><tr><td><code>_case_21</code> → <code>_case_20</code></td><td><code>VVUNOP</code></td><td>2067 → 2065</td><td>12414 → 12409</td></tr><tr><td><code>_case_22</code> → <code>_case_21</code></td><td><code>VVBINOP</code></td><td>2068 → 2066</td><td>12415 → 12410</td></tr><tr><td><code>_case_23</code> → <code>_case_22</code></td><td><code>VVTERNOP</code></td><td>2069 → 2067</td><td>12416 → 12411</td></tr><tr><td><code>_case_24</code> → <code>_case_23</code></td><td><code>VVTESTOP</code></td><td>2070 → 2068</td><td>12417 → 12412</td></tr><tr><td><code>_case_25</code> → <code>_case_24</code></td><td><code>VUNOP</code></td><td>2071 → 2069</td><td>12418 → 12413</td></tr><tr><td><code>_case_26</code> → <code>_case_25</code></td><td><code>VBINOP</code></td><td>2075 → 2073</td><td>12422 → 12417</td></tr><tr><td><code>_case_27</code> → <code>_case_26</code></td><td><code>VTESTOP</code></td><td>2079 → 2077</td><td>12426 → 12421</td></tr><tr><td><code>_case_28</code> → <code>_case_27</code></td><td><code>VRELOP</code></td><td>2083 → 2081</td><td>12430 → 12425</td></tr><tr><td><code>_case_29</code> → <code>_case_28</code></td><td><code>VSHIFTOP</code></td><td>2087 → 2085</td><td>12434 → 12429</td></tr><tr><td><code>_case_30</code> → <code>_case_29</code></td><td><code>VBITMASK</code></td><td>2091 → 2089</td><td>12438 → 12433</td></tr><tr><td><code>_case_31</code> → <code>_case_30</code></td><td><code>VSWIZZLE</code></td><td>2094 → 2092</td><td>12441 → 12436</td></tr><tr><td><code>_case_32</code> → <code>_case_31</code></td><td><code>VSHUFFLE</code></td><td>2098 → 2096</td><td>12445 → 12440</td></tr><tr><td><code>_case_33</code> → <code>_case_32</code></td><td><code>VSPLAT</code></td><td>2103 → 2101</td><td>12450 → 12445</td></tr><tr><td><code>_case_34</code> → <code>_case_33</code></td><td><code>VEXTRACT_LANE</code></td><td>2106 → 2104</td><td>12453 → 12448</td></tr><tr><td><code>_case_35</code> → <code>_case_34</code></td><td><code>VREPLACE_LANE</code></td><td>2112 → 2110</td><td>12459 → 12454</td></tr><tr><td><code>_case_36</code> → <code>_case_35</code></td><td><code>VEXTUNOP</code></td><td>2116 → 2114</td><td>12463 → 12458</td></tr><tr><td><code>_case_37</code> → <code>_case_36</code></td><td><code>VEXTBINOP</code></td><td>2121 → 2119</td><td>12468 → 12463</td></tr><tr><td><code>_case_38</code> → <code>_case_37</code></td><td><code>VNARROW</code></td><td>2126 → 2124</td><td>12473 → 12468</td></tr><tr><td><code>_case_39</code> → <code>_case_38</code></td><td><code>VCVTOP</code></td><td>2133 → 2131</td><td>12480 → 12475</td></tr><tr><td><code>_case_40</code> → <code>_case_39</code></td><td><code>REF_NULL</code></td><td>2138 → 2136</td><td>12485 → 12480</td></tr><tr><td><code>_case_41</code> → <code>_case_40</code></td><td><code>REF_FUNC</code></td><td>2139 → 2137</td><td>12486 → 12481</td></tr><tr><td><code>_case_42</code> → <code>_case_41</code></td><td><code>REF_IS_NULL</code></td><td>2142 → 2140</td><td>12489 → 12484</td></tr><tr><td><code>_case_43</code> → <code>_case_42</code></td><td><code>LOCAL_GET</code></td><td>2143 → 2141</td><td>12490 → 12485</td></tr><tr><td><code>_case_44</code> → <code>_case_43</code></td><td><code>LOCAL_SET</code></td><td>2146 → 2144</td><td>12493 → 12488</td></tr><tr><td><code>_case_45</code> → <code>_case_44</code></td><td><code>LOCAL_TEE</code></td><td>2149 → 2147</td><td>12496 → 12491</td></tr><tr><td><code>_case_46</code> → <code>_case_45</code></td><td><code>GLOBAL_GET</code></td><td>2152 → 2150</td><td>12499 → 12494</td></tr><tr><td><code>_case_47</code> → <code>_case_46</code></td><td><code>GLOBAL_SET</code></td><td>2155 → 2153</td><td>12502 → 12497</td></tr><tr><td><code>_case_48</code> → <code>_case_47</code></td><td><code>TABLE_GET</code></td><td>2158 → 2156</td><td>12505 → 12500</td></tr><tr><td><code>_case_49</code> → <code>_case_48</code></td><td><code>TABLE_SET</code></td><td>2161 → 2159</td><td>12508 → 12503</td></tr><tr><td><code>_case_50</code> → <code>_case_49</code></td><td><code>TABLE_SIZE</code></td><td>2164 → 2162</td><td>12511 → 12506</td></tr><tr><td><code>_case_51</code> → <code>_case_50</code></td><td><code>TABLE_GROW</code></td><td>2167 → 2165</td><td>12514 → 12509</td></tr><tr><td><code>_case_52</code> → <code>_case_51</code></td><td><code>TABLE_FILL</code></td><td>2170 → 2168</td><td>12517 → 12512</td></tr><tr><td><code>_case_53</code> → <code>_case_52</code></td><td><code>TABLE_COPY</code></td><td>2173 → 2171</td><td>12520 → 12515</td></tr><tr><td><code>_case_54</code> → <code>_case_53</code></td><td><code>TABLE_INIT</code></td><td>2177 → 2175</td><td>12524 → 12519</td></tr><tr><td><code>_case_55</code> → <code>_case_54</code></td><td><code>ELEM_DROP</code></td><td>2181 → 2179</td><td>12528 → 12523</td></tr><tr><td><code>_case_56</code> → <code>_case_55</code></td><td><code>LOAD</code></td><td>2184 → 2182</td><td>12531 → 12526</td></tr><tr><td><code>_case_57</code> → <code>_case_56</code></td><td><code>STORE</code></td><td>2188 → 2186</td><td>12535 → 12530</td></tr><tr><td><code>_case_58</code> → <code>_case_57</code></td><td><code>VLOAD</code></td><td>2197 → 2195</td><td>12544 → 12539</td></tr><tr><td><code>_case_59</code> → <code>_case_58</code></td><td><code>VLOAD_LANE</code></td><td>2201 → 2199</td><td>12548 → 12543</td></tr><tr><td><code>_case_60</code> → <code>_case_59</code></td><td><code>VSTORE</code></td><td>2206 → 2204</td><td>12553 → 12548</td></tr><tr><td><code>_case_61</code> → <code>_case_60</code></td><td><code>VSTORE_LANE</code></td><td>2209 → 2207</td><td>12556 → 12551</td></tr><tr><td><code>_case_62</code> → <code>_case_61</code></td><td><code>MEMORY_SIZE</code></td><td>2214 → 2212</td><td>12561 → 12556</td></tr><tr><td><code>_case_63</code> → <code>_case_62</code></td><td><code>MEMORY_GROW</code></td><td>2215 → 2213</td><td>12562 → 12557</td></tr><tr><td><code>_case_64</code> → <code>_case_63</code></td><td><code>MEMORY_FILL</code></td><td>2216 → 2214</td><td>12563 → 12558</td></tr><tr><td><code>_case_65</code> → <code>_case_64</code></td><td><code>MEMORY_COPY</code></td><td>2217 → 2215</td><td>12564 → 12559</td></tr><tr><td><code>_case_66</code> → <code>_case_65</code></td><td><code>MEMORY_INIT</code></td><td>2218 → 2216</td><td>12565 → 12560</td></tr><tr><td><code>_case_67</code> → <code>_case_66</code></td><td><code>DATA_DROP</code></td><td>2221 → 2219</td><td>12568 → 12563</td></tr><tr><td><code>_case_68</code> → <code>_case_67</code></td><td><code>REF_FUNC_ADDR</code></td><td>—</td><td>12571 → 12566</td></tr><tr><td><code>_case_69</code> → <code>_case_68</code></td><td><code>REF_HOST_ADDR</code></td><td>—</td><td>12572 → 12567</td></tr><tr><td><code>_case_70</code> → <code>_case_69</code></td><td><code>CALL_ADDR</code></td><td>—</td><td>12573 → 12568</td></tr><tr><td><code>_case_71</code> → <code>_case_70</code></td><td><code>LABEL_</code></td><td>—</td><td>12574 → 12569</td></tr><tr><td><code>_case_72</code> → <code>_case_71</code></td><td><code>FRAME_</code></td><td>—</td><td>12578 → 12573</td></tr><tr><td><code>_case_73</code> → <code>_case_72</code></td><td><code>TRAP</code></td><td>—</td><td>12582 → 12577</td></tr></tbody></table></div>
+<p>That is 48 <code>wf_instr</code> lines and 54 <code>wf_admininstr</code> lines, 102 in all. No other generated line refers to these cases.</p>
+<h3 id="3-3-source-position-comments-31-lines">3.3 Source-position comments (31 lines)</h3>
+<p>The generator heads some constructs with a comment giving the spec position they come from. Every <code>1-syntax.spectec:L.c</code> with L &gt; 474 now reads L−1, because the line above it was deleted. The 31 affected comments head these constructs (OLD → NEW line):</p>
+<p><code>instr</code> (1932→1932), <code>wf_instr</code> (2006→2005), <code>expr</code> (2226→2224), <code>elemmode</code> (2229→2227), <code>wf_elemmode</code> (2238→2236), <code>datamode</code> (2248→2246), <code>wf_datamode</code> (2256→2254), <code>type</code> (2265→2263), <code>«local»</code> (2270→2268), <code>func</code> (2275→2273), <code>wf_func</code> (2282→2280), <code>global</code> (2290→2288), <code>wf_global</code> (2297→2295), <code>table</code> (2304→2302), <code>wf_table</code> (2309→2307), <code>mem</code> (2316→2314), <code>wf_mem</code> (2321→2319), <code>elem</code> (2328→2326), <code>wf_elem</code> (2335→2333), <code>data</code> (2343→2341), <code>wf_data</code> (2350→2348), <code>start</code> (2358→2356), <code>wf_start</code> (2363→2361), <code>externidx</code> (2370→2368), <code>wf_externidx</code> (2378→2376), <code>«export»</code> (2394→2392), <code>wf_export</code> (2399→2397), <code>«import»</code> (2407→2405), <code>wf_import</code> (2412→2410), <code>module</code> (2421→2419), <code>wf_module</code> (2428→2426).</p>
+<p>Example, <code>instr</code>: <code>/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:552.1-553.22 -/</code> → <code>/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 -/</code>.</p>
+<h3 id="3-4-the-model-s-proofs-renumbered-references-56-lines">3.4 The model&#x27;s proofs: renumbered references (56 lines)</h3>
+<p>These are the deviations of the bundle32 port. Every one renames a <code>wf_admininstr</code> case inside a proof body; no statement changed. They are logged line by line in <code>bundle32/user_requested_documents/deviations_in_copying.md</code>, and listed again in Appendix A.</p>
+<div class="table-wrap"><table><thead><tr><th>construct</th><th>lines</th><th>renamings (OLD → NEW, instruction × lines)</th></tr></thead><tbody><tr><td><code>iswf_admininstr_VCONST</code></td><td>1</td><td>20→19 <code>VCONST</code> ×1</td></tr><tr><td><code>iswf_admininstr_VCONST_inv</code></td><td>1</td><td>20→19 <code>VCONST</code> ×1</td></tr><tr><td><code>Step_pure_is_wf</code></td><td>14</td><td>44→43 <code>LOCAL_SET</code> ×1, 71→70 <code>LABEL_</code> ×3, 72→71 <code>FRAME_</code> ×1, 73→72 <code>TRAP</code> ×9</td></tr><tr><td><code>iswf_store_I32_8</code></td><td>1</td><td>57→56 <code>STORE</code> ×1</td></tr><tr><td><code>iswf_load_I32_8_U</code></td><td>1</td><td>56→55 <code>LOAD</code> ×1</td></tr><tr><td><code>Step_read_is_wf</code></td><td>28</td><td>20→19 <code>VCONST</code> ×6, 43→42 <code>LOCAL_GET</code> ×1, 46→45 <code>GLOBAL_GET</code> ×1, 48→47 <code>TABLE_GET</code> ×2, 49→48 <code>TABLE_SET</code> ×4, 52→51 <code>TABLE_FILL</code> ×2, 53→52 <code>TABLE_COPY</code> ×4, 54→53 <code>TABLE_INIT</code> ×2, 66→65 <code>MEMORY_INIT</code> ×2, 71→70 <code>LABEL_</code> ×3, 72→71 <code>FRAME_</code> ×1</td></tr><tr><td><code>Step_is_wf</code></td><td>10</td><td>20→19 <code>VCONST</code> ×1, 44→43 <code>LOCAL_SET</code> ×1, 47→46 <code>GLOBAL_SET</code> ×1, 49→48 <code>TABLE_SET</code> ×1, 51→50 <code>TABLE_GROW</code> ×1, 55→54 <code>ELEM_DROP</code> ×1, 67→66 <code>DATA_DROP</code> ×1, 71→70 <code>LABEL_</code> ×2, 72→71 <code>FRAME_</code> ×1</td></tr></tbody></table></div>
+<h2 id="4-the-proof-modules-17-lines">4. The proof modules (17 lines)</h2>
+<p><strong>What the error column shows.</strong> It is what Lean reports for the OLD line when compiled against the NEW model. Each module was compiled with the earlier modules already repaired.</p>
+<h3 id="4-1-deleted-two-match-arms-on-the-removed-constructor">4.1 Deleted: two match arms on the removed constructor</h3>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>OLD line</th><th>construct</th><th>deleted line</th><th>why</th></tr></thead><tbody><tr><td><code>TypingLemmas</code></td><td>131</td><td><code>def instr_of</code></td><td><code>| admininstr.EXTEND x0 x1 =&gt; some (instr.EXTEND x0 x1)</code></td><td><code>instr_of : admininstr → Option instr</code> is the partial inverse of <code>admininstr_instr</code> (Rocq <code>typing_lemmas.v:124</code>). It has one arm per <code>admininstr</code> constructor (74 in OLD, 73 in NEW), and the <code>EXTEND</code> arm no longer type-checks. Lean: &quot;Invalid pattern: Expected a constructor or constant marked with <code>[match_pattern]</code>&quot;</td></tr><tr><td><code>TypingLemmas</code></td><td>454</td><td><code>def ai_principal_typing</code></td><td><code>| admininstr.EXTEND _ _ =&gt; False</code></td><td><code>ai_principal_typing</code> gives the principal type of an administrative instruction. Its <code>EXTEND</code> arm said <code>False</code>, and with the constructor gone the arm is an invalid pattern. Deleting a <code>False</code> arm in front of the final <code>| _ =&gt; True</code> would normally make that case <code>True</code>, but here the case no longer exists, so no other arm changes meaning. Lean: &quot;Invalid pattern: Expected a constructor or constant marked with <code>[match_pattern]</code>&quot;</td></tr></tbody></table></div>
+<h3 id="4-2-renumbered-constructor-references-15-lines">4.2 Renumbered constructor references (15 lines)</h3>
+<p>The full OLD and NEW text of all 17 changed lines is in Appendix C.</p>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>line OLD → NEW</th><th>construct</th><th>change</th><th>instruction</th><th>role of the line</th><th>error without the change</th></tr></thead><tbody><tr><td><code>TypePreservation</code></td><td>1347 → 1347</td><td><code>wf_vconst_parts</code></td><td><code>admininstr_case_20</code> → <code>admininstr_case_19</code></td><td><code>VCONST</code></td><td>Destructs <code>wf_admininstr (VCONST vt c)</code> into its two premises.</td><td>Too many variable names provided at alternative <code>admininstr_case_20</code>: 4 provided, but 2 expected / Alternative <code>admininstr_case_20</code> is not needed / Alternative <code>admininstr_case_19</code> has not been provided</td></tr><tr><td><code>TypePreservation</code></td><td>2164 → 2164</td><td><code>t_read_preservation</code></td><td><code>admininstr_case_72</code> → <code>admininstr_case_71</code></td><td><code>FRAME_</code></td><td>Preservation of <code>Step_read</code>, <code>call_addr</code> case: a function call becomes <code>FRAME_ n f [LABEL_ n [] body]</code>. It destructs the well-formedness of that <code>FRAME_</code> to reach the <code>LABEL_</code> inside.</td><td>Too many variable names provided at alternative <code>admininstr_case_72</code>: 5 provided, but 0 expected / Alternative <code>admininstr_case_72</code> is not needed / Alternative <code>admininstr_case_71</code> has not been provided</td></tr><tr><td><code>TypePreservationPure</code></td><td>1072 → 1072</td><td><code>Step_pure__local_tee_preserves</code></td><td><code>admininstr_case_45</code> → <code>admininstr_case_44</code></td><td><code>LOCAL_TEE</code></td><td>Preservation for <code>local.tee x</code> ↪ <code>val val local.set x</code>. It destructs <code>wf_admininstr (LOCAL_TEE x)</code> and builds <code>wf_instr (LOCAL_SET x)</code>.</td><td>Alternative <code>admininstr_case_45</code> is not needed / Alternative <code>admininstr_case_44</code> has not been provided</td></tr><tr><td><code>TypePreservationPure</code></td><td>1085 → 1085</td><td><code>Step_pure__local_tee_preserves</code></td><td><code>instr_case_44</code> → <code>instr_case_43</code></td><td><code>LOCAL_SET</code></td><td>Preservation for <code>local.tee x</code> ↪ <code>val val local.set x</code>. It destructs <code>wf_admininstr (LOCAL_TEE x)</code> and builds <code>wf_instr (LOCAL_SET x)</code>.</td><td>Type mismatch wf_instr.instr_case_44 v_x hwfl has type wf_instr (instr.LOCAL_TEE v_x) but is expected to have type wf_instr (instr.LOCAL_SET v_x)</td></tr><tr><td><code>TypeProgress</code></td><td>800 → 800</td><td><code>wf_forall_admin_val</code></td><td><code>admininstr_case_20</code> → <code>admininstr_case_19</code></td><td><code>VCONST</code></td><td>Values are well formed iff their <code>admininstr</code> images are; this line builds the image&#x27;s well-formedness for one kind of value.</td><td>Application type mismatch: The argument c has type vec_ but is expected to have type vvunop in the application wf_admininstr.admininstr_case_20 vt c</td></tr><tr><td><code>TypeProgress</code></td><td>801 → 801</td><td><code>wf_forall_admin_val</code></td><td><code>admininstr_case_40</code> → <code>admininstr_case_39</code></td><td><code>REF_NULL</code></td><td>Values are well formed iff their <code>admininstr</code> images are; this line builds the image&#x27;s well-formedness for one kind of value.</td><td>Application type mismatch: The argument rt has type reftype but is expected to have type funcidx in the application wf_admininstr.admininstr_case_40 rt</td></tr><tr><td><code>TypeProgress</code></td><td>802 → 802</td><td><code>wf_forall_admin_val</code></td><td><code>admininstr_case_68</code> → <code>admininstr_case_67</code></td><td><code>REF_FUNC_ADDR</code></td><td>Values are well formed iff their <code>admininstr</code> images are; this line builds the image&#x27;s well-formedness for one kind of value.</td><td>Type mismatch wf_admininstr.admininstr_case_68 a has type wf_admininstr (admininstr.REF_HOST_ADDR a) but is expected to have type wf_admininstr (admininstr_val (val.REF_FUNC_ADDR a))</td></tr><tr><td><code>TypeProgress</code></td><td>803 → 803</td><td><code>wf_forall_admin_val</code></td><td><code>admininstr_case_69</code> → <code>admininstr_case_68</code></td><td><code>REF_HOST_ADDR</code></td><td>Values are well formed iff their <code>admininstr</code> images are; this line builds the image&#x27;s well-formedness for one kind of value.</td><td>Type mismatch wf_admininstr.admininstr_case_69 a has type wf_admininstr (admininstr.CALL_ADDR a) but is expected to have type wf_admininstr (admininstr_val (val.REF_HOST_ADDR a))</td></tr><tr><td><code>TypeProgress</code></td><td>814 → 814</td><td><code>wf_forall_admin_val</code></td><td><code>admininstr_case_20</code> → <code>admininstr_case_19</code></td><td><code>VCONST</code></td><td>Converse direction: destructs <code>wf_admininstr (VCONST vt c)</code> to build <code>wf_val</code>.</td><td>Too many variable names provided at alternative <code>admininstr_case_20</code>: 4 provided, but 2 expected / Alternative <code>admininstr_case_20</code> is not needed / Alternative <code>admininstr_case_19</code> has not been provided</td></tr><tr><td><code>TypeProgress</code></td><td>839 → 839</td><td><code>wf_config_label</code></td><td><code>admininstr_case_71</code> → <code>admininstr_case_70</code></td><td><code>LABEL_</code></td><td>Rocq <code>type_progress.v:857</code>. It destructs <code>wf_admininstr (LABEL_ n bes es)</code>.</td><td>Alternative <code>admininstr_case_71</code> is not needed / Alternative <code>admininstr_case_70</code> has not been provided</td></tr><tr><td><code>TypeProgress</code></td><td>856 → 856</td><td><code>wf_config_frame</code></td><td><code>admininstr_case_72</code> → <code>admininstr_case_71</code></td><td><code>FRAME_</code></td><td>Rocq <code>type_progress.v:870</code>. It destructs <code>wf_admininstr (FRAME_ n f es)</code>.</td><td>Too many variable names provided at alternative <code>admininstr_case_72</code>: 5 provided, but 0 expected / Alternative <code>admininstr_case_72</code> is not needed / Alternative <code>admininstr_case_71</code> has not been provided</td></tr><tr><td><code>TypeProgress</code></td><td>7784 → 7784</td><td><code>t_progress_e_Instr_ok2_frame</code></td><td><code>admininstr_case_72</code> → <code>admininstr_case_71</code></td><td><code>FRAME_</code></td><td>Progress, frame case. The body is well formed under the inner frame, by destructing <code>wf_admininstr (FRAME_ …)</code>.</td><td>Too many variable names provided at alternative <code>admininstr_case_72</code>: 5 provided, but 0 expected / Alternative <code>admininstr_case_72</code> is not needed / Alternative <code>admininstr_case_71</code> has not been provided</td></tr><tr><td><code>TypingLemmas</code></td><td>570 → 568</td><td><code>instr_typing_inversion</code></td><td><code>instr_case_20</code> → <code>instr_case_19</code></td><td><code>VCONST</code></td><td>Inverts <code>Instr_ok</code> into the principal type. Its <code>vconst</code> case destructs <code>wf_instr (VCONST …)</code>.</td><td>Too many variable names provided at alternative <code>instr_case_20</code>: 4 provided, but 2 expected / Alternative <code>instr_case_20</code> is not needed / Alternative <code>instr_case_19</code> has not been provided</td></tr><tr><td><code>TypingLemmas</code></td><td>1681 → 1679</td><td><code>construct_ai_val</code></td><td><code>instr_case_20</code> → <code>instr_case_19</code></td><td><code>VCONST</code></td><td>Types a value as an administrative instruction. The vector case builds <code>wf_instr (VCONST V128 c)</code>.</td><td>Application type mismatch: The argument c_t has type vec_ but is expected to have type vvunop in the application wf_instr.instr_case_20 vectype.V128 c_t</td></tr><tr><td><code>TypingLemmas</code></td><td>1747 → 1745</td><td><code>construct_ais_trap</code></td><td><code>admininstr_case_73</code> → <code>admininstr_case_72</code></td><td><code>TRAP</code></td><td><code>TRAP</code> has every type. The proof needs <code>wf_admininstr TRAP</code>.</td><td>Unknown constant <code>wf_admininstr.admininstr_case_73</code></td></tr></tbody></table></div>
+<p><strong>How to read the error column.</strong></p>
+<ul><li>
+&quot;Alternative … has not been provided&quot; is reported at the <code>cases … with</code> line, which for some rows is the line above the edit. It is listed in the row of the edit it belongs to.
+</li><li>
+The error for <code>TypePreservationPure</code> line 1085 appears only once line 1072 is fixed, because it sits inside that alternative.
+</li></ul>
+<p><strong>The first compile hid line 570.</strong> In that compile of the unrepaired <code>TypingLemmas</code>, the two invalid patterns of §4.1 made <code>instr_of</code> and <code>ai_principal_typing</code> fail.</p>
+<ul><li>
+That cascaded into 80 errors, including 67 <code>rfl</code> failures at line 192 (<code>instr_of_admininstr_instr</code>).
+</li><li>
+It also turned <code>ai_typing_inversion&#x27;</code>, <code>ai_val_principal_typing_inversion</code>, <code>ais_single_ref_typing_inversion</code>, <code>ais_single_val_typing_inversion</code>, <code>construct_ai_maybe</code>, <code>instr_typing_inversion</code> into <code>sorry</code> declarations, which hid the error at line 570.
+</li><li>
+So the table&#x27;s three <code>TypingLemmas</code> rows come from a second compile of that module, with only the two arms of §4.1 deleted. Their line numbers are the NEW ones.
+</li><li>
+Eleven of the other twelve rows come from compiling each unrepaired module against the repaired earlier ones. The <code>TypePreservationPure</code> line 1085 row comes from a compile with line 1072 already fixed.
+</li></ul>
+<p><strong>Nothing else needs changing.</strong> No other code line in the four modules mentions a renumbered or removed constructor. The other two <code>EXTEND</code> tokens in <code>TypeProgress</code>, at lines 3496 and 3705, are the SIMD conversion <code>vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND</code>, which still exists.</p>
+<h2 id="5-lean-level-comparison-elaborated-declarations">5. Lean-level comparison (elaborated declarations)</h2>
+<p><strong>Method.</strong> Both builds were loaded in Lean, and every declaration of the nine modules was dumped with:</p>
+<ul><li>
+a 32-bit structural hash of its type: Lean&#x27;s <code>Expr.hash</code>, which ignores binder names, binder annotations and the contents of metadata nodes;
+</li><li>
+the same hash of its value;
+</li><li>
+for theorems, its axioms.
+</li></ul>
+<p>Equal hashes are strong evidence that two terms are equal, not proof.</p>
+<ul><li>
+Changes only in binder names, binder annotations or metadata contents are invisible to the hash by design. The line accounting rules them out here.
+</li><li>
+Any other change would be missed only through a 32-bit collision.
+</li><li>
+<strong>Inductive metadata</strong> is not covered by the hashes, so it was compared separately (below).
+</li><li>
+<strong>Environment extensions</strong> were not compared directly: attributes, simp sets, instances, reducibility and docstrings.
+<ul><li>
+Those written in the source are covered by the line accounting (§1), which shows that no such line changed.
+</li><li>
+The simp-set entries Lean adds by itself for each constructor changed only by the removed constructor&#x27;s 4 lemmas (<code>admininstr.EXTEND.injEq</code>, <code>admininstr.EXTEND.sizeOf_spec</code>, <code>instr.EXTEND.injEq</code>, <code>instr.EXTEND.sizeOf_spec</code>), which are listed under Removed.
+</li></ul>
+</li></ul>
+<p>In the OLD dump, the cases <code>wf_instr.instr_case_K</code> and <code>wf_admininstr.admininstr_case_K</code> with K ≥ 20 were first renamed to K−1. So were the same cases of their auxiliary <code>.below</code> inductives, and the removed case was marked. The comparison is therefore by meaning.</p>
+<p><strong>Totals.</strong> OLD has 12,818 declarations (5,526 theorems), and NEW has 12,787 (5,505 theorems). 12,775 are common to both; 43 are only in OLD and 12 only in NEW.</p>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>declarations OLD → NEW</th><th>removed</th><th>added</th><th>type or value changed</th></tr></thead><tbody><tr><td><code>ExtendedDeriveDecEq</code></td><td>100 → 100</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>«wasm2.0»</code></td><td>10,630 → 10,608</td><td>30</td><td>8</td><td>438</td></tr><tr><td><code>HelperLemmas</code></td><td>179 → 179</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>Subtyping</code></td><td>65 → 65</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>TypingLemmas</code></td><td>415 → 411</td><td>6</td><td>2</td><td>263</td></tr><tr><td><code>TypePreservationPure</code></td><td>206 → 204</td><td>4</td><td>2</td><td>82</td></tr><tr><td><code>ExtensionLemmas</code></td><td>132 → 132</td><td>0</td><td>0</td><td>0</td></tr><tr><td><code>TypePreservation</code></td><td>166 → 166</td><td>0</td><td>0</td><td>38</td></tr><tr><td><code>TypeProgress</code></td><td>925 → 922</td><td>3</td><td>0</td><td>203</td></tr></tbody></table></div>
+<p>By kind (OLD → NEW): thm 5,526 → 5,505, def 3,925 → 3,921, ctor 2,336 → 2,330, induct 440 → 440, rec 442 → 442, axiom 83 → 83, opaque 66 → 66.</p>
+<ul><li>
+Types or values changed only for kinds <code>def</code>, <code>rec</code>, <code>thm</code>. No axiom, opaque or inductive type changed its type or value.
+</li><li>
+The four byte-identical modules have no changed declaration at this level either.
+</li><li>
+In all, 846 theorems and 168 definitions changed value. Of the theorems, 115 are user-level and 731 generated: 262 derived DecidableEq auxiliary proofs (numbered per constructor); 199 pattern-matching auxiliaries (matchers, splitters, their equations); 161 auxiliary proof terms (numbered per declaration); 104 equation lemmas of definitions by pattern matching (one per arm, numbered); 4 recursors / case eliminators / structural-recursion helpers / no-confusion of the changed inductives; 1 auxiliary simp lemmas (numbered).
+</li></ul>
+<h3 id="removed-43">Removed (43)</h3>
+<ul><li>
+<strong>The removed instruction (16):</strong>
+<ul><li>
+<code>instr.EXTEND</code> and <code>admininstr.EXTEND</code>;
+</li><li>
+the <code>EXTEND</code> cases of <code>wf_instr</code> and <code>wf_admininstr</code>, and of their <code>.below</code>;
+</li><li>
+the lemmas Lean generates for each removed constructor: <code>elim</code>, <code>inj</code>, <code>injEq</code>, <code>noConfusion</code> and <code>sizeOf_spec</code>.
+</li></ul>
+</li><li>
+<strong>Ends of numbered families that shrank (15).</strong> Lean numbers many auxiliary declarations by position: equation lemmas <code>eq_N</code> (one per match arm), <code>_proof_N</code>, and <code>DecidableEq</code> sub-proofs. When such a family loses a member, its highest numbers disappear and the members after the removed one are renumbered.
+<ul><li>
+The families, with their size OLD → NEW: <code>TLC.ai_principal_typing.eq_N</code> 56→55; <code>TLC.br_reduce_decidable._proof_N</code> 141→139; <code>TLC.instr_of.eq_N</code> 74→73; <code>TLC.return_reduce_decidable._proof_N</code> 75→74; <code>_private.TypePreservationPure.0.TLC.ai_principal_typing.match_1.eq_N</code> 56→55; <code>_private.TypingLemmas.0.TLC.instr_of.match_1.eq_N</code> 74→73; <code>_private.TypingLemmas.0.admininstr_instr.match_1.eq_N</code> 68→67; <code>admininstr.decEq._proof_N</code> 184→181; <code>admininstr_instr.eq_N</code> 68→67; <code>instr.decEq._proof_N</code> 170→167.
+</li><li>
+For example, the deleted arms of <code>admininstr_instr</code>, <code>instr_of</code> and <code>ai_principal_typing</code> take away their last equation lemmas, <code>admininstr_instr.eq_68</code>, <code>ai_principal_typing.eq_56</code>, <code>instr_of.eq_74</code>.
+</li><li>
+The lemmas from each deleted arm onward now state the next arm&#x27;s equation, so their types changed: <code>admininstr_instr</code> (48), <code>ai_principal_typing</code> (1), <code>instr_of</code> (54).
+</li></ul>
+</li><li>
+<strong>Renumbered without shrinking (12).</strong> These belong to families that kept their size but were renumbered, or are hygienic names whose counter moved. Each has a counterpart among the 12 added names.
+</li><li>
+<strong>By category:</strong> 10 auto-generated lemmas/eliminators of the removed constructor; 8 derived-instance helpers with hygienic names (counter shifted); 6 derived DecidableEq auxiliary proofs (numbered per constructor); 5 auxiliary proof terms (numbered per declaration); 4 pattern-matching auxiliaries (matchers, splitters, their equations); 4 the removed EXTEND case of wf_instr / wf_admininstr (or of its .below); 3 equation lemmas of definitions by pattern matching (one per arm, numbered); 2 the removed constructor itself; 1 auxiliary simp lemmas (numbered). The full list is in Appendix B.
+</li></ul>
+<h3 id="added-12">Added (12)</h3>
+<p>All are the renumbered counterparts just described: 8 derived-instance helpers with hygienic names (counter shifted); 2 auxiliary proof terms (numbered per declaration); 1 auxiliary simp lemmas (numbered); 1 pattern-matching auxiliaries (matchers, splitters, their equations). There is no new user-level declaration and no new axiom.</p>
+<h3 id="statements">Statements</h3>
+<p>No user-level theorem, definition, inductive type or constructor has a different type. The 724 theorems, 124 definitions and 8 recursors whose type differs are all generated by Lean:</p>
+<ul><li>
+theorems: 262 derived DecidableEq auxiliary proofs (numbered per constructor); 197 pattern-matching auxiliaries (matchers, splitters, their equations); 161 auxiliary proof terms (numbered per declaration); 103 equation lemmas of definitions by pattern matching (one per arm, numbered); 1 auxiliary simp lemmas (numbered).
+</li><li>
+definitions: 102 per-constructor eliminators X.CTOR.elim of the changed inductives; 10 recursors / case eliminators / structural-recursion helpers / no-confusion of the changed inductives; 8 pattern-matching auxiliaries (matchers, splitters, their equations); 4 derived DecidableEq helpers (match_on_same_ctor) of the changed inductives, same name in both builds.
+</li><li>
+recursors: 8 recursors / case eliminators / structural-recursion helpers / no-confusion of the changed inductives.
+</li></ul>
+<p><strong>Inductive metadata.</strong> A separate dump recorded, for every inductive, constructor and recursor, OLD mapped by meaning:</p>
+<ul><li>
+the numbers of parameters, indices, constructors, motives, minor premises and rules;
+</li><li>
+the constructor lists;
+</li><li>
+each constructor&#x27;s index and field count.
+</li></ul>
+<p>The recursor rules themselves (their right-hand sides) were not compared. Of 3,218 OLD and 3,212 NEW entries, the only differences are:</p>
+<ul><li>
+the 6 removed constructors: <code>EXTEND</code> of <code>instr</code> and <code>admininstr</code>, and case 19 of <code>wf_instr</code>, <code>wf_admininstr</code> and their <code>.below</code>;
+</li><li>
+6 inductive types with one constructor fewer: <code>admininstr</code>, <code>instr</code>, <code>wf_admininstr</code>, <code>wf_admininstr.below</code>, <code>wf_instr</code>, <code>wf_instr.below</code>;
+</li><li>
+306 constructors whose index went down by exactly 1, with everything else equal. These are the constructors after <code>EXTEND</code>: 48 of <code>instr</code>, 54 of <code>admininstr</code>, and the same numbers for <code>wf_instr</code>, <code>wf_admininstr</code> and their <code>.below</code>;
+</li><li>
+8 recursors with one minor premise fewer: <code>admininstr.rec</code>, <code>instr.rec</code>, <code>wf_admininstr.below.rec</code>, <code>wf_admininstr.rec</code>, <code>wf_instr.below.rec</code>, <code>wf_instr.rec</code> also have one rule fewer, while <code>admininstr.rec_1</code>, <code>instr.rec_1</code> (the auxiliary recursors of the nested types) keep their 2 rules.
+</li></ul>
+<p>This index shift explains the remaining generated changes: the types of the per-constructor <code>X.CTOR.elim</code>, the values of <code>ctorIdx</code>/<code>noConfusionType</code>, and the <code>DecidableEq</code> sub-proofs.</p>
+<h3 id="definitions-whose-elaborated-value-changed-168-of-which-5-user-level">Definitions whose elaborated value changed (168, of which 5 user-level)</h3>
+<ul><li>
+<code>admininstr_instr</code>, <code>instr_of</code> and <code>ai_principal_typing</code> each lost their <code>EXTEND</code> arm.
+</li><li>
+<code>br_reduce_decidable</code> and <code>return_reduce_decidable</code> (<code>TypeProgress</code>) have unchanged source. They case-split on an <code>admininstr</code> with a <code>| _ =&gt;</code> wildcard, so their terms now have one case fewer.
+</li><li>
+The rest are derived or auxiliary: 102 per-constructor eliminators X.CTOR.elim of the changed inductives; 28 recursors / case eliminators / structural-recursion helpers / no-confusion of the changed inductives; 14 derived DecidableEq / BEq; 11 pattern-matching auxiliaries (matchers, splitters, their equations); 4 derived SizeOf; 4 derived DecidableEq helpers (match_on_same_ctor) of the changed inductives, same name in both builds.
+</li></ul>
+<h3 id="proof-terms-that-changed-115-user-level-theorems">Proof terms that changed (115 user-level theorems)</h3>
+<p>Most of these theorems have unchanged source; Appendix B lists them. A probe on NEW listed, for every theorem and definition, the declarations its term refers to directly, and marked those whose type changed or that are new:</p>
+<ul><li>
+<strong>All 120 changed user-level declarations refer to such a declaration</strong> (115 theorems and 5 definitions; 120 of 120).
+<ul><li>
+The first such reference, by name: <code>TLC.ai_principal_typing.match_1</code> 66, <code>wf_instr.casesOn</code> 28, <code>wf_admininstr.casesOn</code> 13, <code>admininstr.casesOn</code> 6, <code>instr.casesOn</code> 5, <code>TLC.instr_of.match_1</code> 1, <code>admininstr_instr.match_1</code> 1.
+</li><li>
+In Wasm terms, their proofs destruct an instruction or its well-formedness, or unfold <code>ai_principal_typing</code> (or <code>instr_of</code>/<code>admininstr_instr</code>). The case analyses behind those now have one case fewer.
+</li></ul>
+</li><li>
+<strong>None of the 2,527 unchanged user-level declarations refers to one.</strong>
+</li><li>
+So, for user-level declarations, a changed term coincides exactly with a direct reference to a declaration whose type changed or that is new.
+</li><li>
+The criterion leaves out declarations whose value changed but whose type did not, such as <code>admininstr_instr</code> and <code>instr_of</code>. Using those does not change a term: <code>ai_typing_inversion&#x27;</code> uses both, and its term is unchanged.
+</li></ul>
+<p>All 17 theorems edited in §3.4 and §4.2 were pure renamings.</p>
+<ul><li>
+These 5 have the same proof term as before, once constructor numbers are mapped: <code>construct_ai_val</code>, <code>construct_ais_trap</code>, <code>iswf_admininstr_VCONST</code>, <code>iswf_load_I32_8_U</code>, <code>iswf_store_I32_8</code>. They only apply a constructor.
+</li><li>
+The other 12 each do a <code>cases</code> on <code>wf_instr</code>/<code>wf_admininstr</code>, whose eliminator lost a case.
+</li></ul>
+<p>Among generated theorems, 7 changed value but not type. Each refers directly to a changed declaration:</p>
+<ul><li>
+<code>TLC.ai_principal_typing.eq_6</code> → <code>TLC.ai_principal_typing.match_1</code>
+</li><li>
+<code>_private.TypeProgress.0.TLC.is_const.match_1.eq_6</code> → <code>TLC.is_const._sparseCasesOn_1</code>
+</li><li>
+<code>_private.TypeProgress.0.TLC.split_vals.match_1.eq_6</code> → <code>TLC.is_const._sparseCasesOn_1</code>
+</li><li>
+<code>admininstr.brecOn.eq</code> → <code>admininstr.casesOn</code>
+</li><li>
+<code>instr.brecOn.eq</code> → <code>instr.casesOn</code>
+</li><li>
+<code>wf_admininstr.brecOn</code> → <code>wf_admininstr.rec</code>
+</li><li>
+<code>wf_instr.brecOn</code> → <code>wf_instr.rec</code>
+</li></ul>
+<h3 id="axioms">Axioms</h3>
+<ul><li>
+<strong>Unchanged for user-level theorems.</strong> Every user-level theorem present in both builds has the same set of axioms.
+<ul><li>
+The only 4 theorems whose axioms differ are numbered auxiliaries: <code>TLC.br_reduce_decidable._proof_120</code> {}→{propext}, <code>TLC.br_reduce_decidable._proof_124</code> {propext}→{}, <code>TLC.br_reduce_decidable._proof_81</code> {}→{propext}, <code>TLC.br_reduce_decidable._proof_82</code> {propext}→{}.
+</li><li>
+Their numbers now point at other sub-proofs.
+</li></ul>
+</li><li>
+<strong><code>TLC.t_preservation</code></strong> uses 35 axioms: the 3 standard ones (<code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code>) and 32 of the model&#x27;s <code>*_is_wf</code> axioms.
+</li><li>
+<strong><code>TLC.t_progress</code></strong> uses 74: the 3 standard ones, 56 <code>*_is_wf</code> axioms and 15 project axioms from Rocq&#x27;s <code>axioms.v</code>.
+</li><li>
+Both lists are identical in OLD and NEW, and no theorem depends on <code>sorryAx</code> in either.
+</li></ul>
+<h3 id="inhabited-defaults"><code>Inhabited</code> defaults</h3>
+<p>This is a kernel replay of the eight project modules other than <code>ExtendedDeriveDecEq</code>. It makes opaque the 121 <code>Inhabited</code> instances defined in the modules, plus 7 external names they use: 6 instances and the structure constructor <code>Inhabited.mk</code>.</p>
+<ul><li>
+OLD: 0 of 5,517 theorems need a default value.
+</li><li>
+NEW: 0 of 5,496.
+</li><li>
+The difference of 21 is the 24 removed theorems minus the 3 added.
+</li><li>
+<strong>Positive control.</strong> The audit was run again on NEW together with a scratch module of three control theorems, two of which read a default value. It checked 5,499 theorems and reported exactly those two (<code>audit_ctl_model</code>, <code>audit_ctl_nat</code>). So the harness does detect default-dependent proofs with this toolchain and build. The control module was never among the project&#x27;s modules; a copy is kept as evidence (<code>evidence/tools/AuditCtl33.lean</code>).
+</li></ul>
+<h2 id="6-every-top-level-construct-whose-text-changed">6. Every top-level construct whose text changed</h2>
+<p>All nine files have the same top-level constructs, in the same order, in OLD and NEW: <code>ExtendedDeriveDecEq</code> 24, <code>wasm2.0</code> 897, <code>HelperLemmas</code> 118, <code>Subtyping</code> 52, <code>TypingLemmas</code> 97, <code>TypePreservationPure</code> 85, <code>ExtensionLemmas</code> 135, <code>TypePreservation</code> 143, <code>TypeProgress</code> 318, 1,869 in all.</p>
+<ul><li>
+<strong>What counts as a construct.</strong> Entries are as counted by <code>toplevel32.py</code>: every command that starts at column 0 outside comments, except <code>deriving</code> clauses.
+</li><li>
+So the 1,869 entries are 1,795 declarations, 13 <code>derive_deceq</code> commands, 58 other commands (35 <code>import</code>, 10 <code>end</code>, 8 <code>namespace</code>, 2 <code>open</code>, 2 <code>mutual</code>, 1 <code>syntax</code>), and 3 prefix entries (an attribute line, an <code>initialize</code> and a <code>set_option … in</code>).
+</li><li>
+The one-for-one match holds either way.
+</li></ul>
+<p>These 53 have changed text:</p>
+<div class="table-wrap"><table><thead><tr><th>file</th><th>construct</th><th>change</th></tr></thead><tbody><tr><td><code>wasm2.0</code></td><td><code>inductive instr</code></td><td>line mentioning <code>EXTEND</code> deleted (1); spec position in the header comment (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>inductive wf_instr</code></td><td>line mentioning <code>EXTEND</code> deleted (1); spec position in the header comment (1); case declarations renumbered (48)</td></tr><tr><td><code>wasm2.0</code></td><td><code>inductive admininstr</code></td><td>line mentioning <code>EXTEND</code> deleted (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>def admininstr_instr</code></td><td>line mentioning <code>EXTEND</code> deleted (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>inductive wf_admininstr</code></td><td>line mentioning <code>EXTEND</code> deleted (1); case declarations renumbered (54)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem iswf_admininstr_VCONST</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem iswf_admininstr_VCONST_inv</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem Step_pure_is_wf</code></td><td>case references renumbered in the proof (14)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem iswf_store_I32_8</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem iswf_load_I32_8_U</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem Step_read_is_wf</code></td><td>case references renumbered in the proof (28)</td></tr><tr><td><code>wasm2.0</code></td><td><code>theorem Step_is_wf</code></td><td>case references renumbered in the proof (10)</td></tr><tr><td><code>TypingLemmas</code></td><td><code>def instr_of</code></td><td>line mentioning <code>EXTEND</code> deleted (1)</td></tr><tr><td><code>TypingLemmas</code></td><td><code>def ai_principal_typing</code></td><td>line mentioning <code>EXTEND</code> deleted (1)</td></tr><tr><td><code>TypingLemmas</code></td><td><code>theorem instr_typing_inversion</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypingLemmas</code></td><td><code>theorem construct_ai_val</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypingLemmas</code></td><td><code>theorem construct_ais_trap</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypePreservationPure</code></td><td><code>theorem Step_pure__local_tee_preserves</code></td><td>case references renumbered in the proof (2)</td></tr><tr><td><code>TypePreservation</code></td><td><code>theorem wf_vconst_parts</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypePreservation</code></td><td><code>theorem t_read_preservation</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypeProgress</code></td><td><code>theorem wf_forall_admin_val</code></td><td>case references renumbered in the proof (5)</td></tr><tr><td><code>TypeProgress</code></td><td><code>theorem wf_config_label</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypeProgress</code></td><td><code>theorem wf_config_frame</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>TypeProgress</code></td><td><code>theorem t_progress_e_Instr_ok2_frame</code></td><td>case references renumbered in the proof (1)</td></tr><tr><td><code>wasm2.0</code></td><td>29 more constructs: <code>expr</code>, <code>elemmode</code>, <code>wf_elemmode</code>, <code>datamode</code>, <code>wf_datamode</code>, <code>type</code>, <code>«local»</code>, <code>func</code>, <code>wf_func</code>, <code>global</code>, <code>wf_global</code>, <code>table</code>, <code>wf_table</code>, <code>mem</code>, <code>wf_mem</code>, <code>elem</code>, <code>wf_elem</code>, <code>data</code>, <code>wf_data</code>, <code>start</code>, <code>wf_start</code>, <code>externidx</code>, <code>wf_externidx</code>, <code>«export»</code>, <code>wf_export</code>, <code>«import»</code>, <code>wf_import</code>, <code>module</code>, <code>wf_module</code></td><td>spec position in the header comment (1 line each)</td></tr></tbody></table></div>
+<h2 id="7-builds">7. Builds</h2>
+<p><strong>How the builds were run.</strong></p>
+<ul><li>
+Both states were compiled from scratch in the scratchpad, one Lean process at a time, under a 12 GB memory cap.
+</li><li>
+The toolchain&#x27;s <code>lean</code> v4.32.0 was called directly; the repo&#x27;s <code>.lake/build</code> was not used.
+</li><li>
+The NEW error, <code>sorry</code> and warning counts are from the fresh build of the installed repo files.
+</li></ul>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>errors OLD / NEW</th><th><code>sorry</code> warnings OLD / NEW</th><th>warnings OLD / NEW</th><th>time (s): OLD / NEW scratch / NEW repo</th></tr></thead><tbody><tr><td><code>ExtendedDeriveDecEq</code></td><td>0 / 0</td><td>0 / 0</td><td>0 / 0</td><td>2 / 2 / 5</td></tr><tr><td><code>wasm2.0</code></td><td>0 / 0</td><td>0 / 0</td><td>89 / 89</td><td>27 / 28 / 55</td></tr><tr><td><code>HelperLemmas</code></td><td>0 / 0</td><td>0 / 0</td><td>4 / 4</td><td>4 / 4 / 7</td></tr><tr><td><code>Subtyping</code></td><td>0 / 0</td><td>0 / 0</td><td>0 / 0</td><td>2 / 2 / 4</td></tr><tr><td><code>TypingLemmas</code></td><td>0 / 0</td><td>0 / 0</td><td>9 / 9</td><td>22 / 36 / 39</td></tr><tr><td><code>TypePreservationPure</code></td><td>0 / 0</td><td>0 / 0</td><td>47 / 47</td><td>5 / 9 / 9</td></tr><tr><td><code>ExtensionLemmas</code></td><td>0 / 0</td><td>0 / 0</td><td>14 / 14</td><td>3 / 5 / 5</td></tr><tr><td><code>TypePreservation</code></td><td>0 / 0</td><td>0 / 0</td><td>7 / 7</td><td>6 / 11 / 11</td></tr><tr><td><code>TypeProgress</code></td><td>0 / 0</td><td>0 / 0</td><td>1 / 1</td><td>15 / 21 / 22</td></tr></tbody></table></div>
+<p><strong>Logs.</strong> The OLD and NEW build logs are identical once line numbers and timings are stripped. Only line numbers move, where lines were deleted above them. The logs contain:</p>
+<ul><li>
+the same 171 warnings: 94 unused variable; 51 Mathlib naming-convention lint; 7 &quot;tactic does nothing&quot;; 7 &quot;Try this&quot; suggestion; 6 &quot;Used <code>tac1 &lt;;&gt; tac2</code> where <code>(tac1; tac2)</code> would suffice&quot;; 3 &quot;This simp argument is unused&quot;; 2 &quot;try &#x27;simp&#x27; instead of &#x27;simpa&#x27;&quot;; 1 &quot;this tactic is never executed&quot;;
+</li><li>
+the same info output: 118 lines printed by the <code>#check Instrs_ok2.rec</code> left inside a proof at <code>TypeProgress</code> line 8151.
+</li></ul>
+<p><strong>Times.</strong> &quot;NEW scratch&quot; is the build in which the repair was made, and &quot;NEW repo&quot; the fresh build of the installed files, which are byte-identical to it. Times vary with machine load, since the editor&#x27;s Lean servers were running throughout; they are not a property of the change.</p>
+<p><strong>Memory.</strong> The compiles peaked at 4.54 GiB (4,760,044 KiB), in OLD&#x27;s <code>TypeProgress</code>; NEW&#x27;s <code>TypeProgress</code> peaked at 4,746,004 KiB. The Lean probes of §5 peaked higher, at 5.51 GiB (5,776,760 KiB), in the <code>Inhabited</code> audit runs.</p>
+<p><strong>No Lake build of either state.</strong> The repo&#x27;s <code>.lake/build</code> matches neither state.</p>
+<ul><li>
+Its traces record warning counts that differ even from OLD&#x27;s: 93 for <code>wasm2.0</code>, against 89.
+</li><li>
+It holds oleans for modules the lakefile no longer builds (<code>custom_notation</code>, <code>sandbox_5</code>, <code>sandbox_10</code>).
+</li><li>
+Both states were therefore checked only by these scratch builds with the bare <code>lean</code> binary. The lakefile sets no Lean options, and Lake&#x27;s recorded setup for <code>wasm2.0</code> has empty options, so a Lake build should behave the same. That was not run.
+</li></ul>
+<h2 id="8-left-unchanged-and-other-notes">8. Left unchanged, and other notes</h2>
+<p><strong>Comments that count instructions.</strong> 5 comments in <code>TypingLemmas</code> still say 68, though <code>instr</code> now has 67 constructors.</p>
+<ul><li>
+Where (NEW lines): line 187, &quot;the 68-case transcription&quot;; line 1477, &quot;each of <code>instr</code>&#x27;s 68 constructors&quot;; line 1480, &quot;68×68 cases, mechanical&quot;; line 1482, &quot;the 68×68 case bash&quot;; line 1690, &quot;in the other 68&quot;.
+</li><li>
+I left them as they were: they are comments, and line 1482 records a past measurement.
+</li><li>
+Line 1688, &quot;~74 cases uniformly&quot;, describes Rocq&#x27;s tactic script, so I didn&#x27;t count it as stale. Read as a statement about Lean, it would now be 73.
+</li><li>
+Line 772, &quot;Rocq destructs both instructions (68×68)&quot;, also describes Rocq.
+</li><li>
+Line 196, &quot;all 73 cases&quot;, counts <code>Instr_ok</code> rules, which are still 73.
+</li></ul>
+<p><strong>Comments that cite model line numbers.</strong> 5 comments in the proof modules cite <code>wasm2.0.lean</code> by 6 line numbers beyond the first deleted line. All 6 citations were already wrong in OLD, and the declarations they name moved again, by 2 or 5 lines:</p>
+<div class="table-wrap"><table><thead><tr><th>comment (NEW file:line)</th><th>cites line</th><th>names</th><th>actually at OLD → NEW</th></tr></thead><tbody><tr><td><code>HelperLemmas:678</code></td><td>4203</td><td><code>nbytes_</code></td><td>4555 → 4553</td></tr><tr><td><code>HelperLemmas:726</code></td><td>2652</td><td><code>truncz</code></td><td>2701 → 2699</td></tr><tr><td><code>HelperLemmas:734</code></td><td>4644</td><td><code>lanes_</code></td><td>5003 → 5001</td></tr><tr><td><code>TypingLemmas:838</code></td><td>11261</td><td><code>val_ref</code></td><td>11945 → 11943</td></tr><tr><td><code>Subtyping:15</code></td><td>12669</td><td><code>Valtype_sub</code></td><td>13401 → 13396</td></tr><tr><td><code>Subtyping:15</code></td><td>12675</td><td><code>Resulttype_sub</code></td><td>13407 → 13402</td></tr></tbody></table></div>
+<p>The comments that cite lines 9, 12 and 20 are right in both versions. The one citing line 798 for <code>size</code> was already wrong in OLD: it is at line 718 in both. I left all of them as they are.</p>
+<p><strong>The word <code>sorry</code>.</strong> No code contains <code>sorry</code>, but the word appears on 7 comment lines of the nine NEW modules:</p>
+<ul><li>
+<code>wasm2.0</code> line 15430: commented-out generated original;
+</li><li>
+<code>wasm2.0</code> line 15563: commented-out generated original;
+</li><li>
+<code>TypePreservationPure</code> line 18: status note saying there is no <code>sorry</code>;
+</li><li>
+<code>TypePreservation</code> line 19: status note saying there is no <code>sorry</code>;
+</li><li>
+<code>TypePreservation</code> line 2024: docstring: <code>Step_read_is_wf</code> used to be <code>sorry</code>;
+</li><li>
+<code>TypeProgress</code> line 47: status note saying there is no <code>sorry</code>;
+</li><li>
+<code>TypeProgress</code> line 51: status note saying there is no <code>sorry</code>;
+</li><li>
+so a plain <code>grep sorry</code> finds these 7 lines, and none is a proof hole. <code>OLD_wasm2.0.lean</code> has the same two commented-out lines, at 15435 and 15568.
+</li></ul>
+<p><strong>Files not touched this turn:</strong> <code>wasm2.0.lean</code>, <code>OLD_wasm2.0.lean</code>, <code>ExtendedDeriveDecEq</code>, <code>HelperLemmas</code>, <code>Subtyping</code>, <code>ExtensionLemmas</code>.</p>
+<p><strong>Pre-existing, and the same in OLD and NEW: two re-stated theorems.</strong> The fresh generator output, <code>spectec/test-lean/todaywasm2.0.lean</code> (md5 <code>d480dbf1…</code>), has 89 <code>sorry</code>s.</p>
+<ul><li>
+<strong>Proved as generated:</strong> 87 of those theorems, in both OLD and NEW.
+</li><li>
+<strong>Commented out:</strong> the generated <code>Step_read_is_wf</code> and <code>Step_is_wf</code>, with their <code>--   sorry</code> at lines 15430 and 15563. The commented-out text is identical in OLD and NEW.
+</li><li>
+<strong>Re-stated:</strong> each is re-stated below <code>inductive Store_ok</code> with three changes, as in bundle29:
+<ul><li>
+it moves below <code>Store_ok</code>;
+</li><li>
+it takes the configuration as <code>(z : state) (admininstr_lst : List admininstr)</code>, with <code>config.mk_config z admininstr_lst</code> in the hypotheses;
+</li><li>
+it gets the premise <code>Store_ok (fun_store z)</code>.
+</li></ul>
+</li><li>
+<strong>The generated forms are false.</strong> Bundles 23 and 29 showed this with a Lean witness. Bundle29&#x27;s log (<code>bundle29/evidence/unedited_Step_read_is_wf_false.log</code>) shows it uses only <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>; bundle 23&#x27;s draft describes its version as using &quot;no axioms&quot;.
+<ul><li>
+The counterexample is a well-formed configuration whose store holds a table of 2^32 references. It steps by <code>table.size</code> to <code>CONST I32 2^32</code>, which is not a well-formed <code>u32</code>.
+</li><li>
+The witness source was not kept, so it was not re-run on NEW. The counterexample does not involve <code>EXTEND</code>.
+</li></ul>
+</li><li>
+<strong>What &quot;zero <code>sorry</code>&quot; covers:</strong> all generated statements except these two, which hold only in the weaker re-stated form. This port changed them only by the renamings in their proofs (§3.4).
+</li></ul>
+<p><strong>Documentation.</strong></p>
+<ul><li>
+<strong>Living docs</strong> (<code>claude-logging/README.md</code>, <code>for-claude/*.md</code>, <code>for-humans/*.md</code>): they mention <code>EXTEND</code> or numbered <code>*_case_</code> names only in <code>for-claude/digest_wasm_v.md</code> (lines 153, 156).
+<ul><li>
+Those lines describe Rocq&#x27;s <code>wasm.v</code>, which still has <code>instr_EXTEND</code> (<code>spectec/test-rocq/theories/wasm.v:3282</code>), so they are accurate as a description of Rocq.
+</li><li>
+The same digest calls <code>wasm.v</code> &quot;the Rocq analogue of <code>wasm2.0.lean</code>&quot; (line 10). Its Rocq case numbering, with <code>instr_EXTEND</code> as case 19, now differs from Lean&#x27;s from case 20 on.
+</li><li>
+A pre-existing slip: line 237 says &quot;(73 cases)&quot; for Rocq&#x27;s <code>wf_admininstr</code>, which has cases 0–73.
+</li><li>
+The living docs also cite <code>wasm2.0.lean</code> by line number in 6 places (<code>for-claude/digest_prior_lean_attempts.md:123</code>, <code>for-claude/digest_prior_lean_attempts.md:216</code>, <code>for-claude/digest_prior_lean_attempts.md:218</code>, <code>for-claude/digest_subtyping_and_extension_lemmas.md:261</code>, <code>for-claude/digest_wasm_v.md:115</code>, <code>for-claude/digest_wasm_v.md:259</code>). These were written against earlier versions of the model and predate this port.
+</li><li>
+I left all of these unchanged.
+</li></ul>
+</li><li>
+<strong>Historical logs:</strong> 41 files mention old case numbers, all under <code>verbatim_dialogue_log/</code> (bundle12 1, bundle19 1, bundle20 6, bundle21 7, bundle22 1, bundle23 2, bundle29 2, bundle31 1, bundle32 20); 0 are in <code>safety-checks/</code>. They are records of past turns, so I left them as they are.
+</li></ul>
+<p><strong>Cross-check with the trial port</strong> (<code>spectec/src/temp_port_reference/</code>). That port was made outside this log, by a patch-based procedure. I compared against it only after my own result compiled. Its records agree with mine on every check below, and one of its caveats is out of date (<code>evidence/outputs/trial_port_crosscheck.txt</code>):</p>
+<ul><li>
+<strong>Files:</strong> all nine NEW files are byte-identical to its <code>trial_port/</code>.
+</li><li>
+<strong>Edits:</strong> its <code>patches/edits_73.log</code> lists the same 73 edits: 56 + 15 renamings and 2 deleted arms. They match one for one by file, kind and text. That log truncates long lines, so the texts were matched as prefixes.
+</li><li>
+<strong>Declarations:</strong> its declaration diff <code>logs/constants_diff_v0_vs_v2.tsv</code> has the same 43 removed and 12 added declarations as §5. It compares by name, so it names the removed cases by their last numbers (<code>_case_67</code>, <code>_case_73</code>) rather than by meaning.
+</li><li>
+<strong>Warnings, axioms and the audit:</strong> it finds the same warnings, the same axiom counts for <code>t_preservation</code> (35), <code>t_progress</code> (74), <code>Step_is_wf</code> (35) and <code>Step_read_is_wf</code> (6), and the same audit result. My dumps give the same four sets in OLD and NEW.
+</li><li>
+<strong>Comments:</strong> it flags the same five stale &quot;68&quot; comments.
+</li><li>
+<strong>One point where it is out of date.</strong> Its caveat that the falsity of the generated <code>Step_*</code> forms &quot;has not been confirmed with a Lean witness&quot; overlooks the bundle 23/29 witness above.
+</li></ul>
+<p><strong><code>lake build</code>.</strong> I didn&#x27;t run it, because it writes <code>.lake/build</code>.</p>
+<ul><li>
+That directory predates these changes, so the next <code>lake build</code> or editor session rebuilds at least <code>wasm2.0</code> and the seven modules that import it, which takes a few minutes.
+</li><li>
+<code>ExtendedDeriveDecEq</code> is unchanged.
+</li><li>
+Until the rebuild, the editor may show errors.
+</li></ul>
+<h2 id="9-method-and-evidence">9. Method and evidence</h2>
+<p>Everything is in <code>claude-logging/verbatim_dialogue_log/bundle33/evidence/</code>.</p>
+<p><strong><code>tools/</code>:</strong></p>
+<ul><li>
+<code>scan33.py</code>: finds every affected code reference, by constructor meaning;
+</li><li>
+<code>apply33.py</code>: applies the 17 edits, asserting each expected line;
+</li><li>
+<code>diff33.py</code>: the line accounting;
+</li><li>
+<code>EnvDump33.lean</code>, <code>envdiff33.py</code> and <code>envcat33.py</code>: the Lean-level comparison;
+</li><li>
+<code>RunAudit33.lean</code>: the <code>Inhabited</code> audit;
+</li><li>
+<code>chain33.sh</code>, <code>lrun33.sh</code> and <code>check33.sh</code>: the serial build and the safety checks;
+</li><li>
+<code>IndMeta33.lean</code> and <code>Cause33.lean</code>, analysed by <code>meta_cause33.py</code>: the inductive-metadata comparison and the probe of why each proof term changed;
+</li><li>
+<code>AuditCtl33.lean</code> and <code>RunAuditCtl33.lean</code>: the audit&#x27;s positive control;
+</li><li>
+<code>report33.py</code>: generates this version.
+<ul><li>
+<code>report33_v1.py</code>, <code>report33_v2.py</code> and <code>report33_v3.py</code> generated the earlier versions.
+</li><li>
+<code>patch_v3*.py</code> and <code>patch_v4.py</code> record the main edits between versions; some small fixes were made directly, so diff the generator versions for the full change;
+</li></ul>
+</li><li>
+<code>necessity33.py</code>: classifies the evidence that each of the 56 renames in the model&#x27;s proofs is needed;
+</li><li>
+<code>toplevel32.py</code> and <code>ctor_map32.py</code> come from bundle32.
+</li></ul>
+<p><strong><code>outputs/</code>:</strong></p>
+<ul><li>
+the build logs;
+</li><li>
+the error logs of the unrepaired modules;
+</li><li>
+<code>diff33_all_changed_lines.tsv</code>, with all 211 lines;
+</li><li>
+the unified diffs <code>*.diff</code>;
+</li><li>
+the constructor map;
+</li><li>
+the declaration dumps <code>dump_old.tsv.gz</code> and <code>dump_new.tsv.gz</code>, and their comparison <code>envdiff33.json</code>/<code>envcat33.json</code>;
+</li><li>
+the audit outputs and logs, including the positive control (<code>audit_ctl.txt</code>) and the memory figures of §7 (<code>audit_old.log</code>, <code>audit_new.log</code>);
+</li><li>
+the compile of NEW with only the 13 inner renames reverted (<code>nec13_compile.log</code>, <code>nec13_result.json</code>) and <code>necessity33.json</code>;
+</li><li>
+the inductive-metadata dumps and their comparison (<code>indmeta_*.tsv</code>, <code>indmeta_diff33.json</code>), and the cause probe (<code>cause_new.tsv</code>, <code>cause_set.txt</code>, <code>cause33.json</code>);
+</li><li>
+<code>trial_port_crosscheck.txt</code>.
+</li></ul>
+<p><strong><code>verification/</code>:</strong> the reports of the independent, read-only verifiers.</p>
+<ul><li>
+<code>V-REPORT-1</code> checked version 1 of this report and raised 17 points.
+</li><li>
+Three more checked version 2 (<code>workflow_reverify_result.json</code>): <code>V2-FIX</code> checked whether those points were resolved, <code>V2-FRESH</code> did a fresh refutation, and <code>V2-CRITIC</code> looked for completeness. They raised 32 findings.
+</li><li>
+Two more checked version 3 (<code>workflow_verify_v3_result.json</code>): <code>V3-DELTA</code> checked every new or changed claim, and <code>V3-RESOLVE</code> checked Appendix E. They raised 28 findings.
+</li><li>
+None of the 77 points found an error in the repair or in the line accounting. Appendix E says how each was addressed.
+</li><li>
+Versions 1 and 2 of the report are kept next to the verifier reports.
+</li></ul>
+<p><strong>A known defect in the build summaries.</strong> The <code>sorry-warnings=</code> field of the <code>chain_*.txt</code> summaries was counted with the wrong quote character, so it always reads 0. The tool is fixed in <code>evidence/tools/chain33.sh</code>, and the counts in §7 are recounted from the logs.</p>
+<ul><li>
+The only log with such warnings is the first, unrepaired <code>TypingLemmas</code> compile: 7 warnings, all from error recovery.
+</li><li>
+No final log contains the word <code>sorry</code>.
+</li></ul>
+<h2 id="appendix-a-all-56-changed-lines-of-the-model-s-proofs-3-4">Appendix A. All 56 changed lines of the model&#x27;s proofs (§3.4)</h2>
+<p>The last column shows the evidence that each rename is needed.</p>
+<ul><li>
+<strong>Bundle32&#x27;s compile of the unrenamed copy</strong> (<code>bundle32/evidence/outputs/compile_verbatim_copy_72_errors.log</code>, 72 errors on 65 lines, numbered as in NEW):
+<ul><li>
+40 lines failed on the line itself (&quot;this line&quot;);
+</li><li>
+3 failed on a neighbouring line of the same term (&quot;same term, L&quot;).
+</li></ul>
+</li><li>
+<strong>The other 13</strong> sit inside a <code>cases</code> alternative whose renamed pattern line, given as &quot;inside L&quot;, failed first, so Lean never elaborated them.
+<ul><li>
+For those, NEW was compiled again with only these 13 lines reverted to their OLD text. It gave 13 errors, one on each reverted line (&quot;+ own error when reverted&quot;).
+</li></ul>
+</li></ul>
+<div class="table-wrap"><table><thead><tr><th>OLD → NEW line</th><th>construct</th><th>instruction</th><th>OLD text → NEW text</th><th>error in the unrenamed compile</th></tr></thead><tbody><tr><td>14712 → 14707</td><td><code>iswf_admininstr_VCONST</code></td><td><code>VCONST</code></td><td><code>wf_admininstr.admininstr_case_20 _ _ (by decide) h</code> → <code>wf_admininstr.admininstr_case_19 _ _ (by decide) h</code></td><td>this line</td></tr><tr><td>14716 → 14711</td><td><code>iswf_admininstr_VCONST_inv</code></td><td><code>VCONST</code></td><td><code>cases h with | admininstr_case_20 _ _ _ hw =&gt; exact hw</code> → <code>cases h with | admininstr_case_19 _ _ _ hw =&gt; exact hw</code></td><td>this line</td></tr><tr><td>14727 → 14722</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| unreachable =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| unreachable =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14753 → 14748</td><td><code>Step_pure_is_wf</code></td><td><code>LABEL_</code></td><td><code>| admininstr_case_71 _ _ _ hinstrs hbody =&gt;</code> → <code>| admininstr_case_70 _ _ _ hinstrs hbody =&gt;</code></td><td>this line</td></tr><tr><td>14760 → 14755</td><td><code>Step_pure_is_wf</code></td><td><code>LABEL_</code></td><td><code>| admininstr_case_71 _ _ _ _ hbody =&gt;</code> → <code>| admininstr_case_70 _ _ _ _ hbody =&gt;</code></td><td>this line</td></tr><tr><td>14788 → 14783</td><td><code>Step_pure_is_wf</code></td><td><code>FRAME_</code></td><td><code>| admininstr_case_72 _ _ _ _ hbody =&gt;</code> → <code>| admininstr_case_71 _ _ _ _ hbody =&gt;</code></td><td>this line</td></tr><tr><td>14793 → 14788</td><td><code>Step_pure_is_wf</code></td><td><code>LABEL_</code></td><td><code>| admininstr_case_71 _ _ _ _ hbody =&gt; exact fun x hx =&gt; hbody x (List.mem_append_left _ hx)</code> → <code>| admininstr_case_70 _ _ _ _ hbody =&gt; exact fun x hx =&gt; hbody x (List.mem_append_left _ hx)</code></td><td>this line</td></tr><tr><td>14794 → 14789</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| trap_vals =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| trap_vals =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14795 → 14790</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| trap_label =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| trap_label =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14796 → 14791</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| trap_frame =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| trap_frame =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14803 → 14798</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| unop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| unop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14809 → 14804</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| binop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| binop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14820 → 14815</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| cvtop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| cvtop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14853 → 14848</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| vunop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| vunop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14861 → 14856</td><td><code>Step_pure_is_wf</code></td><td><code>TRAP</code></td><td><code>| vbinop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_73</code> → <code>| vbinop_trap =&gt; exact iswf_Forall_singleton .admininstr_case_72</code></td><td>this line</td></tr><tr><td>14963 → 14958</td><td><code>Step_pure_is_wf</code></td><td><code>LOCAL_SET</code></td><td><code>exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_44 _ ‹wf_uN 32 x›)))</code> → <code>exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_43 _ ‹wf_uN 32 x›)))</code></td><td>this line</td></tr><tr><td>16926 → 16921</td><td><code>iswf_store_I32_8</code></td><td><code>STORE</code></td><td><code>wf_admininstr.admininstr_case_57 (some Inn.I32) _ _ _ (some 32)</code> → <code>wf_admininstr.admininstr_case_56 (some Inn.I32) _ _ _ (some 32)</code></td><td>this line</td></tr><tr><td>16938 → 16933</td><td><code>iswf_load_I32_8_U</code></td><td><code>LOAD</code></td><td><code>wf_admininstr.admininstr_case_56 _ _ _</code> → <code>wf_admininstr.admininstr_case_55 _ _ _</code></td><td>same term, 16934, 16935</td></tr><tr><td>16983 → 16978</td><td><code>Step_read_is_wf</code></td><td><code>LABEL_</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)</code></td><td>this line</td></tr><tr><td>16990 → 16985</td><td><code>Step_read_is_wf</code></td><td><code>LABEL_</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _</code></td><td>same term, 16986, 16987</td></tr><tr><td>17001 → 16996</td><td><code>Step_read_is_wf</code></td><td><code>FRAME_</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ ‹wf_frame _›</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ ‹wf_frame _›</code></td><td>this line</td></tr><tr><td>17002 → 16997</td><td><code>Step_read_is_wf</code></td><td><code>LABEL_</code></td><td><code>(iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ (iswf_Forall_nil _)</code> → <code>(iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ (iswf_Forall_nil _)</code></td><td>same term, 16996</td></tr><tr><td>17009 → 17004</td><td><code>Step_read_is_wf</code></td><td><code>LOCAL_GET</code></td><td><code>| admininstr_case_43 _ hx =&gt;</code> → <code>| admininstr_case_42 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17015 → 17010</td><td><code>Step_read_is_wf</code></td><td><code>GLOBAL_GET</code></td><td><code>| admininstr_case_46 _ hx =&gt;</code> → <code>| admininstr_case_45 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17034 → 17029</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_FILL</code></td><td><code>| admininstr_case_52 _ hx =&gt;</code> → <code>| admininstr_case_51 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17038 → 17033</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_SET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) &lt;|</code></td><td>inside 17029; + own error when reverted</td></tr><tr><td>17041 → 17036</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_FILL</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ hx) (iswf_Forall_nil _)</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_51 _ hx) (iswf_Forall_nil _)</code></td><td>inside 17029; + own error when reverted</td></tr><tr><td>17051 → 17046</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_COPY</code></td><td><code>| admininstr_case_53 _ _ hx hy =&gt;</code> → <code>| admininstr_case_52 _ _ hx hy =&gt;</code></td><td>this line</td></tr><tr><td>17056 → 17051</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_GET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) &lt;|</code></td><td>inside 17046; + own error when reverted</td></tr><tr><td>17057 → 17052</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_SET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) &lt;|</code></td><td>inside 17046; + own error when reverted</td></tr><tr><td>17060 → 17055</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_COPY</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)</code></td><td>inside 17046; + own error when reverted</td></tr><tr><td>17068 → 17063</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_COPY</code></td><td><code>| admininstr_case_53 _ _ hx hy =&gt;</code> → <code>| admininstr_case_52 _ _ hx hy =&gt;</code></td><td>this line</td></tr><tr><td>17072 → 17067</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_GET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hy) &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_47 _ hy) &lt;|</code></td><td>inside 17063; + own error when reverted</td></tr><tr><td>17073 → 17068</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_SET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) &lt;| iswf_Forall_cons hj &lt;| iswf_Forall_cons hi &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) &lt;| iswf_Forall_cons hj &lt;| iswf_Forall_cons hi &lt;|</code></td><td>inside 17063; + own error when reverted</td></tr><tr><td>17075 → 17070</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_COPY</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_52 _ _ hx hy) (iswf_Forall_nil _)</code></td><td>inside 17063; + own error when reverted</td></tr><tr><td>17084 → 17079</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_INIT</code></td><td><code>| admininstr_case_54 _ _ hx hy =&gt;</code> → <code>| admininstr_case_53 _ _ hx hy =&gt;</code></td><td>this line</td></tr><tr><td>17089 → 17084</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_SET</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_49 _ hx) &lt;|</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_48 _ hx) &lt;|</code></td><td>inside 17079; + own error when reverted</td></tr><tr><td>17092 → 17087</td><td><code>Step_read_is_wf</code></td><td><code>TABLE_INIT</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_54 _ _ hx hy) (iswf_Forall_nil _)</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_53 _ _ hx hy) (iswf_Forall_nil _)</code></td><td>inside 17079; + own error when reverted</td></tr><tr><td>17103 → 17098</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide) ‹wf_uN 128 c›) (iswf_Forall_nil _)</code></td><td>this line</td></tr><tr><td>17107 → 17102</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)</code></td><td>this line</td></tr><tr><td>17114 → 17109</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)</code></td><td>this line</td></tr><tr><td>17121 → 17116</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)</code></td><td>this line</td></tr><tr><td>17127 → 17122</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>| admininstr_case_20 _ _ _ hw1 =&gt;</code> → <code>| admininstr_case_19 _ _ _ hw1 =&gt;</code></td><td>this line</td></tr><tr><td>17132 → 17127</td><td><code>Step_read_is_wf</code></td><td><code>VCONST</code></td><td><code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)</code> → <code>exact iswf_Forall_cons (wf_admininstr.admininstr_case_19 _ _ (by decide)</code></td><td>inside 17122; + own error when reverted</td></tr><tr><td>17179 → 17174</td><td><code>Step_read_is_wf</code></td><td><code>MEMORY_INIT</code></td><td><code>| admininstr_case_66 _ hx =&gt;</code> → <code>| admininstr_case_65 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17185 → 17180</td><td><code>Step_read_is_wf</code></td><td><code>MEMORY_INIT</code></td><td><code>iswf_Forall_cons (wf_admininstr.admininstr_case_66 _ hx) (iswf_Forall_nil _)</code> → <code>iswf_Forall_cons (wf_admininstr.admininstr_case_65 _ hx) (iswf_Forall_nil _)</code></td><td>inside 17174; + own error when reverted</td></tr><tr><td>17244 → 17239</td><td><code>Step_is_wf</code></td><td><code>LABEL_</code></td><td><code>| admininstr_case_71 _ _ _ hi _ =&gt;</code> → <code>| admininstr_case_70 _ _ _ hi _ =&gt;</code></td><td>this line</td></tr><tr><td>17248 → 17243</td><td><code>Step_is_wf</code></td><td><code>LABEL_</code></td><td><code>(iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hi hais&#x27;) (iswf_Forall_nil _))</code> → <code>(iswf_Forall_cons (wf_admininstr.admininstr_case_70 _ _ _ hi hais&#x27;) (iswf_Forall_nil _))</code></td><td>inside 17239; + own error when reverted</td></tr><tr><td>17257 → 17252</td><td><code>Step_is_wf</code></td><td><code>FRAME_</code></td><td><code>(iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ hf&#x27;&#x27; hais&#x27;) (iswf_Forall_nil _))</code> → <code>(iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hf&#x27;&#x27; hais&#x27;) (iswf_Forall_nil _))</code></td><td>this line</td></tr><tr><td>17267 → 17262</td><td><code>Step_is_wf</code></td><td><code>LOCAL_SET</code></td><td><code>| admininstr_case_44 _ hx =&gt;</code> → <code>| admininstr_case_43 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17274 → 17269</td><td><code>Step_is_wf</code></td><td><code>GLOBAL_SET</code></td><td><code>| admininstr_case_47 _ hx =&gt;</code> → <code>| admininstr_case_46 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17283 → 17278</td><td><code>Step_is_wf</code></td><td><code>TABLE_SET</code></td><td><code>| admininstr_case_49 _ hx =&gt;</code> → <code>| admininstr_case_48 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17289 → 17284</td><td><code>Step_is_wf</code></td><td><code>TABLE_GROW</code></td><td><code>| admininstr_case_51 _ hx =&gt;</code> → <code>| admininstr_case_50 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17303 → 17298</td><td><code>Step_is_wf</code></td><td><code>ELEM_DROP</code></td><td><code>| admininstr_case_55 _ hx =&gt;</code> → <code>| admininstr_case_54 _ hx =&gt;</code></td><td>this line</td></tr><tr><td>17334 → 17329</td><td><code>Step_is_wf</code></td><td><code>VCONST</code></td><td><code>| admininstr_case_20 _ _ hsz hwfc =&gt;</code> → <code>| admininstr_case_19 _ _ hsz hwfc =&gt;</code></td><td>this line</td></tr><tr><td>17364 → 17359</td><td><code>Step_is_wf</code></td><td><code>DATA_DROP</code></td><td><code>| admininstr_case_67 _ hx =&gt;</code> → <code>| admininstr_case_66 _ hx =&gt;</code></td><td>this line</td></tr></tbody></table></div>
+<h2 id="appendix-b-lean-level-lists-5">Appendix B. Lean-level lists (§5)</h2>
+<p><strong>Only in OLD (43):</strong> <code>List.match_on_same_ctor._@.wasm2.0.2749490885._hygCtx._hyg.163</code>, <code>List.match_on_same_ctor._@.wasm2.0.3401859148._hygCtx._hyg.150</code>, <code>List.match_on_same_ctor.het._@.wasm2.0.2749490885._hygCtx._hyg.163</code>, <code>List.match_on_same_ctor.het._@.wasm2.0.3401859148._hygCtx._hyg.150</code>, <code>TLC.Step_pure__select_preserves_helper._simp_1_59</code>, <code>TLC.ai_principal_typing.eq_56</code>, <code>TLC.br_reduce_decidable._proof_140</code>, <code>TLC.br_reduce_decidable._proof_141</code>, <code>TLC.instr_of.eq_74</code>, <code>TLC.instr_typing_inversion._proof_1_72</code>, <code>TLC.instr_typing_inversion._proof_1_77</code>, <code>TLC.return_reduce_decidable._proof_75</code>, <code>_private.TypePreservationPure.0.TLC.ai_principal_typing.match_1.eq_56</code>, <code>_private.TypePreservationPure.0.TLC.ai_principal_typing.match_1.splitter._sparseCasesOn_60</code>, <code>_private.TypingLemmas.0.TLC.instr_of.match_1.eq_74</code>, <code>_private.TypingLemmas.0.admininstr_instr.match_1.eq_68</code>, <code>admininstr.EXTEND</code>, <code>admininstr.EXTEND.elim</code>, <code>admininstr.EXTEND.inj</code>, <code>admininstr.EXTEND.injEq</code>, <code>admininstr.EXTEND.noConfusion</code>, <code>admininstr.EXTEND.sizeOf_spec</code>, <code>admininstr.decEq._proof_182</code>, <code>admininstr.decEq._proof_183</code>, <code>admininstr.decEq._proof_184</code>, <code>admininstr.match_on_same_ctor._@.wasm2.0.1837273375._hygCtx._hyg.618</code>, <code>admininstr.match_on_same_ctor.het._@.wasm2.0.1837273375._hygCtx._hyg.618</code>, <code>admininstr_instr.eq_68</code>, <code>instr.EXTEND</code>, <code>instr.EXTEND.elim</code>, <code>instr.EXTEND.inj</code>, <code>instr.EXTEND.injEq</code>, <code>instr.EXTEND.noConfusion</code>, <code>instr.EXTEND.sizeOf_spec</code>, <code>instr.decEq._proof_168</code>, <code>instr.decEq._proof_169</code>, <code>instr.decEq._proof_170</code>, <code>instr.match_on_same_ctor._@.wasm2.0.1320104542._hygCtx._hyg.571</code>, <code>instr.match_on_same_ctor.het._@.wasm2.0.1320104542._hygCtx._hyg.571</code>, <code>wf_admininstr.admininstr_case_19_EXTEND_removed</code>, <code>wf_admininstr.below.admininstr_case_19_EXTEND_removed</code>, <code>wf_instr.below.instr_case_19_EXTEND_removed</code>, <code>wf_instr.instr_case_19_EXTEND_removed</code>.</p>
+<p><strong>Only in NEW (12):</strong> <code>List.match_on_same_ctor._@.wasm2.0.2749490885._hygCtx._hyg.161</code>, <code>List.match_on_same_ctor._@.wasm2.0.3401859148._hygCtx._hyg.148</code>, <code>List.match_on_same_ctor.het._@.wasm2.0.2749490885._hygCtx._hyg.161</code>, <code>List.match_on_same_ctor.het._@.wasm2.0.3401859148._hygCtx._hyg.148</code>, <code>TLC.Step_pure__select_preserves_helper._simp_1_57</code>, <code>TLC.instr_typing_inversion._proof_1_69</code>, <code>TLC.instr_typing_inversion._proof_1_75</code>, <code>_private.TypePreservationPure.0.TLC.ai_principal_typing.match_1.splitter._sparseCasesOn_59</code>, <code>admininstr.match_on_same_ctor._@.wasm2.0.1837273375._hygCtx._hyg.609</code>, <code>admininstr.match_on_same_ctor.het._@.wasm2.0.1837273375._hygCtx._hyg.609</code>, <code>instr.match_on_same_ctor._@.wasm2.0.1320104542._hygCtx._hyg.562</code>, <code>instr.match_on_same_ctor.het._@.wasm2.0.1320104542._hygCtx._hyg.562</code>.</p>
+<p><strong>User-level theorems whose elaborated proof term changed (115), by module</strong> (a leading <code>TLC.</code> is omitted):</p>
+<ul><li>
+<code>«wasm2.0»</code> (9): <code>Step_is_wf</code>, <code>Step_pure_is_wf</code>, <code>Step_read_is_wf</code>, <code>dataidx_instr_is_wf</code>, <code>iswf_I32_const_lt</code>, <code>iswf_I32_iadd1</code>, <code>iswf_admininstr_VCONST_inv</code>, <code>iswf_admininstr_instr</code>, <code>iswf_val_of_admininstr</code>
+</li><li>
+<code>TypingLemmas</code> (11): <code>ai_typing_inversion</code>, <code>ai_val_principal_typing_inversion</code>, <code>ais_single_ref_typing_inversion</code>, <code>ais_single_val_typing_inversion</code>, <code>construct_ai_maybe</code>, <code>injective_admininstr_instr</code>, <code>instr_of_admininstr_instr</code>, <code>instr_typing_inversion</code>, <code>principal_typing_conversion</code>, <code>wf_admininstr_instr</code>, <code>wf_instr_admininstr</code>
+</li><li>
+<code>TypePreservationPure</code> (22): <code>Step_pure__binop_val_preserves</code>, <code>Step_pure__br_if_false_preserves</code>, <code>Step_pure__br_if_true_preserves</code>, <code>Step_pure__br_succ_preserves</code>, <code>Step_pure__br_table_ge_preserves</code>, <code>Step_pure__br_table_lt_preserves</code>, <code>Step_pure__br_zero_preserves</code>, <code>Step_pure__cvtop_val_preserves</code>, <code>Step_pure__drop_preserves</code>, <code>Step_pure__frame_vals_preserves</code>, <code>Step_pure__if_preserves_helper</code>, <code>Step_pure__label_vals_preserves</code>, <code>Step_pure__local_tee_preserves</code>, <code>Step_pure__nop_preserves</code>, <code>Step_pure__ref_is_null_false_preserves</code>, <code>Step_pure__ref_is_null_helper</code>, <code>Step_pure__relop_preserves</code>, <code>Step_pure__return_frame_preserves</code>, <code>Step_pure__return_label_preserves</code>, <code>Step_pure__select_preserves_helper</code>, <code>Step_pure__testop_preserves</code>, <code>Step_pure__unop_val_preserves</code>
+</li><li>
+<code>TypePreservation</code> (38): <code>ais_elem_drop_inv</code>, <code>ais_global_set_inv</code>, <code>ais_memory_grow_inv</code>, <code>ais_store_mems_inv</code>, <code>ais_table_grow_inv</code>, <code>ais_table_set_inv</code>, <code>inv_data_drop</code>, <code>inv_elem_drop</code>, <code>inv_global_set</code>, <code>inv_local_set</code>, <code>inv_memory_grow</code>, <code>inv_store_none</code>, <code>inv_store_pack</code>, <code>inv_table_grow</code>, <code>inv_table_set</code>, <code>pt_call</code>, <code>pt_call_addr</code>, <code>pt_call_indirect</code>, <code>pt_global_get</code>, <code>pt_load_none</code>, <code>pt_load_pack</code>, <code>pt_local_get</code>, <code>pt_memory_copy</code>, <code>pt_memory_fill</code>, <code>pt_memory_init</code>, <code>pt_memory_size</code>, <code>pt_ref_func</code>, <code>pt_table_copy</code>, <code>pt_table_fill</code>, <code>pt_table_get</code>, <code>pt_table_init</code>, <code>pt_table_size</code>, <code>t_read_preservation</code>, <code>wf_const_num</code>, <code>wf_vconst_parts</code>, <code>_private.TypePreservation.0.TLC.store_extension_reduce_aux</code>, <code>_private.TypePreservation.0.TLC.t_preservation_type_aux</code>, <code>_private.TypePreservation.0.TLC.t_preservation_vs_type&#x27;_aux</code>
+</li><li>
+<code>TypeProgress</code> (35): <code>br_reduce_extract_vs</code>, <code>const_es_exists</code>, <code>return_reduce_extract_vs</code>, <code>split_vals_inverse</code>, <code>split_vals_prefix</code>, <code>t_progress_be_binop</code>, <code>t_progress_be_br_if</code>, <code>t_progress_be_br_table</code>, <code>t_progress_be_cvtop</code>, <code>t_progress_be_relop</code>, <code>t_progress_be_testop</code>, <code>t_progress_be_unop</code>, <code>t_progress_be_vbinop</code>, <code>t_progress_be_vbitmask</code>, <code>t_progress_be_vcvtop</code>, <code>t_progress_be_vextbinop</code>, <code>t_progress_be_vextract_lane</code>, <code>t_progress_be_vextunop</code>, <code>t_progress_be_vload_lane</code>, <code>t_progress_be_vload_pack</code>, <code>t_progress_be_vload_splat</code>, <code>t_progress_be_vnarrow</code>, <code>t_progress_be_vrelop</code>, <code>t_progress_be_vreplace_lane</code>, <code>t_progress_be_vshiftop</code>, <code>t_progress_be_vshuffle</code>, <code>t_progress_be_vsplat</code>, <code>t_progress_be_vstore_lane</code>, <code>t_progress_be_vswizzle</code>, <code>t_progress_be_vtestop</code>, <code>t_progress_be_vunop</code>, <code>t_progress_e_Instr_ok2_frame</code>, <code>wf_config_frame</code>, <code>wf_config_label</code>, <code>wf_forall_admin_val</code>
+</li></ul>
+<p><strong>User-level definitions whose elaborated value changed (5):</strong> <code>TLC.br_reduce_decidable</code>, <code>TLC.return_reduce_decidable</code>, <code>TLC.ai_principal_typing</code>, <code>TLC.instr_of</code>, <code>admininstr_instr</code>.</p>
+<h2 id="appendix-c-all-17-changed-lines-of-the-proof-modules-4">Appendix C. All 17 changed lines of the proof modules (§4)</h2>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>line OLD → NEW</th><th>construct</th><th>OLD text</th><th>NEW text</th></tr></thead><tbody><tr><td><code>TypingLemmas</code></td><td>131 → —</td><td><code>instr_of</code></td><td><code>| admininstr.EXTEND x0 x1 =&gt; some (instr.EXTEND x0 x1)</code></td><td>(deleted)</td></tr><tr><td><code>TypingLemmas</code></td><td>454 → —</td><td><code>ai_principal_typing</code></td><td><code>| admininstr.EXTEND _ _ =&gt; False</code></td><td>(deleted)</td></tr><tr><td><code>TypingLemmas</code></td><td>570 → 568</td><td><code>instr_typing_inversion</code></td><td><code>| instr_case_20 vt v not_none_size wf_vec =&gt;</code></td><td><code>| instr_case_19 vt v not_none_size wf_vec =&gt;</code></td></tr><tr><td><code>TypingLemmas</code></td><td>1681 → 1679</td><td><code>construct_ai_val</code></td><td><code>have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_20 vectype.V128 c_t hsize hwfuN</code></td><td><code>have hwfinstr : wf_instr (instr.VCONST vectype.V128 c_t) := wf_instr.instr_case_19 vectype.V128 c_t hsize hwfuN</code></td></tr><tr><td><code>TypingLemmas</code></td><td>1747 → 1745</td><td><code>construct_ais_trap</code></td><td><code>(Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_73)</code></td><td><code>(Instr_ok2.trap v_S v_C t1s t2s hwfS hwfC wf_admininstr.admininstr_case_72)</code></td></tr><tr><td><code>TypePreservationPure</code></td><td>1072 → 1072</td><td><code>Step_pure__local_tee_preserves</code></td><td><code>| admininstr_case_45 _ hwfl =&gt;</code></td><td><code>| admininstr_case_44 _ hwfl =&gt;</code></td></tr><tr><td><code>TypePreservationPure</code></td><td>1085 → 1085</td><td><code>Step_pure__local_tee_preserves</code></td><td><code>have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_44 v_x hwfl</code></td><td><code>have hwfinstr_set : wf_instr (instr.LOCAL_SET v_x) := wf_instr.instr_case_43 v_x hwfl</code></td></tr><tr><td><code>TypePreservation</code></td><td>1347 → 1347</td><td><code>wf_vconst_parts</code></td><td><code>cases h with | admininstr_case_20 _ _ h1 h2 =&gt; exact ⟨h1, h2⟩</code></td><td><code>cases h with | admininstr_case_19 _ _ h1 h2 =&gt; exact ⟨h1, h2⟩</code></td></tr><tr><td><code>TypePreservation</code></td><td>2164 → 2164</td><td><code>t_read_preservation</code></td><td><code>cases hwfF with | admininstr_case_72 _ _ _ _ hl =&gt; exact hl _ (List.mem_singleton_self _)</code></td><td><code>cases hwfF with | admininstr_case_71 _ _ _ _ hl =&gt; exact hl _ (List.mem_singleton_self _)</code></td></tr><tr><td><code>TypeProgress</code></td><td>800 → 800</td><td><code>wf_forall_admin_val</code></td><td><code>| val_case_1 vt c hsz hwfc =&gt; exact wf_admininstr.admininstr_case_20 vt c hsz hwfc</code></td><td><code>| val_case_1 vt c hsz hwfc =&gt; exact wf_admininstr.admininstr_case_19 vt c hsz hwfc</code></td></tr><tr><td><code>TypeProgress</code></td><td>801 → 801</td><td><code>wf_forall_admin_val</code></td><td><code>| val_case_2 rt =&gt; exact wf_admininstr.admininstr_case_40 rt</code></td><td><code>| val_case_2 rt =&gt; exact wf_admininstr.admininstr_case_39 rt</code></td></tr><tr><td><code>TypeProgress</code></td><td>802 → 802</td><td><code>wf_forall_admin_val</code></td><td><code>| val_case_3 a =&gt; exact wf_admininstr.admininstr_case_68 a</code></td><td><code>| val_case_3 a =&gt; exact wf_admininstr.admininstr_case_67 a</code></td></tr><tr><td><code>TypeProgress</code></td><td>803 → 803</td><td><code>wf_forall_admin_val</code></td><td><code>| val_case_4 a =&gt; exact wf_admininstr.admininstr_case_69 a</code></td><td><code>| val_case_4 a =&gt; exact wf_admininstr.admininstr_case_68 a</code></td></tr><tr><td><code>TypeProgress</code></td><td>814 → 814</td><td><code>wf_forall_admin_val</code></td><td><code>| admininstr_case_20 _ _ hsz hwfc =&gt; exact wf_val.val_case_1 vt c hsz hwfc</code></td><td><code>| admininstr_case_19 _ _ hsz hwfc =&gt; exact wf_val.val_case_1 vt c hsz hwfc</code></td></tr><tr><td><code>TypeProgress</code></td><td>839 → 839</td><td><code>wf_config_label</code></td><td><code>| admininstr_case_71 _ _ _ hbes hes =&gt;</code></td><td><code>| admininstr_case_70 _ _ _ hbes hes =&gt;</code></td></tr><tr><td><code>TypeProgress</code></td><td>856 → 856</td><td><code>wf_config_frame</code></td><td><code>| admininstr_case_72 _ _ _ hwff hes =&gt;</code></td><td><code>| admininstr_case_71 _ _ _ hwff hes =&gt;</code></td></tr><tr><td><code>TypeProgress</code></td><td>7784 → 7784</td><td><code>t_progress_e_Instr_ok2_frame</code></td><td><code>| admininstr_case_72 _ _ _ hf hes =&gt;</code></td><td><code>| admininstr_case_71 _ _ _ hf hes =&gt;</code></td></tr></tbody></table></div>
+<h2 id="appendix-d-byte-level-facts-1">Appendix D. Byte-level facts (§1)</h2>
+<div class="table-wrap"><table><thead><tr><th>module</th><th>OLD bytes</th><th>OLD md5</th><th>NEW bytes</th><th>NEW md5</th></tr></thead><tbody><tr><td><code>ExtendedDeriveDecEq.lean</code></td><td>36,262</td><td><code>e9b33702e9601223b5a4e1dbb8e6f2ad</code></td><td>36,262</td><td><code>e9b33702e9601223b5a4e1dbb8e6f2ad</code></td></tr><tr><td><code>wasm2.0.lean</code></td><td>1,332,852</td><td><code>4207ecaaae9d5e501ff51ef2fa6b41d5</code></td><td>1,332,500</td><td><code>fdfafb393a693292cadf089484fcfa86</code></td></tr><tr><td><code>HelperLemmas.lean</code></td><td>50,710</td><td><code>7b0db22807f0243c214a80c92271a3b3</code></td><td>50,710</td><td><code>7b0db22807f0243c214a80c92271a3b3</code></td></tr><tr><td><code>Subtyping.lean</code></td><td>35,350</td><td><code>4f5c6ca97f91976d2d46e8bf321cbeab</code></td><td>35,350</td><td><code>4f5c6ca97f91976d2d46e8bf321cbeab</code></td></tr><tr><td><code>TypingLemmas.lean</code></td><td>105,699</td><td><code>6284f02c24b04ab15c9efa95364ef7e2</code></td><td>105,607</td><td><code>21429230103ffba0fb19da7d0ddcc7f2</code></td></tr><tr><td><code>TypePreservationPure.lean</code></td><td>119,802</td><td><code>13c138409551acf96f0f848923e5a11f</code></td><td>119,802</td><td><code>ff4fd4773a8e6267f298291c5f07669e</code></td></tr><tr><td><code>ExtensionLemmas.lean</code></td><td>116,405</td><td><code>1e2a23a52276c039a8e8f0b527ecfc0f</code></td><td>116,405</td><td><code>1e2a23a52276c039a8e8f0b527ecfc0f</code></td></tr><tr><td><code>TypePreservation.lean</code></td><td>173,658</td><td><code>5241649ee2e5699b8096809b4cc03c60</code></td><td>173,658</td><td><code>4c4bb6a62a90f03f890f3e48c8b03e2d</code></td></tr><tr><td><code>TypeProgress.lean</code></td><td>449,683</td><td><code>8087d55bef5ecafc45080cb3645207d9</code></td><td>449,683</td><td><code>5e00f3b5530be76c318e126b37cc69c3</code></td></tr></tbody></table></div>
+<h2 id="appendix-e-verifier-findings-and-how-each-was-addressed">Appendix E. Verifier findings and how each was addressed</h2>
+<p>Each verifier finding (V1 = <code>V-REPORT-1</code> on version 1; FIX, FRESH and CRITIC = the three verifiers on version 2) is in <code>verification/</code>. None found an error in the repair or in the line accounting. Several found the same point independently; such points are listed once.</p>
+<div class="table-wrap"><table><thead><tr><th>finding</th><th>point</th><th>how it is addressed in version 3</th></tr></thead><tbody><tr><td>V1-1</td><td>The equation lemmas named as removed were misidentified</td><td>§5 Removed now separates the last lemmas of shrinking families (<code>eq_68</code>, <code>eq_74</code>, <code>eq_56</code>) from the renumbered lemmas from each deleted arm onward, whose types changed.</td></tr><tr><td>V1-2</td><td>§0 axiom claim unqualified</td><td>§0 and §5 say &quot;every user-level theorem&quot;, and §5 names the 4 numbered auxiliaries that differ.</td></tr><tr><td>V1-3</td><td>§0 statement claim unqualified</td><td>§0 says &quot;user-level&quot; and reports changed terms separately.</td></tr><tr><td>V1-4, FIX-2</td><td>Category list of the type changes incomplete, then 4 helpers mislabelled</td><td>The lists are generated from all categories. The 4 <code>match_on_same_ctor</code> helpers present in both builds have their own label.</td></tr><tr><td>V1-5, FIX-3, CRITIC-11</td><td>&quot;Families shrink by one&quot; imprecise</td><td>§5 Removed splits the 43 into 16 for the removed instruction, 15 ends of shrinking families (each with its size OLD → NEW) and 12 renumbered names.</td></tr><tr><td>V1-6, FIX-1, FRESH-6, CRITIC-11</td><td>&quot;Every number is computed&quot; overstated</td><td>The header now says which parts are computed and which are hand-written. §2&#x27;s match counts are read from the constructor map.</td></tr><tr><td>V1-7</td><td><code>chain33.sh</code> counted <code>sorry</code> warnings with the wrong quotes</td><td>The tool is fixed. §7 recounts from the logs, and §9 documents the defect.</td></tr><tr><td>V1-8, FRESH-8</td><td>Construct counts unlabelled, and their definition</td><td>§6 labels each file&#x27;s count, defines what is counted, and gives the declaration-only count.</td></tr><tr><td>V1-9</td><td>Line 197 should be 196</td><td>The line numbers in §8 are computed from the NEW files.</td></tr><tr><td>V1-10</td><td>&quot;~74 cases&quot; comment</td><td>Listed in §8 as describing Rocq.</td></tr><tr><td>V1-11</td><td>&quot;four kinds&quot; for three</td><td>Now &quot;three kinds&quot;.</td></tr><tr><td>V1-12</td><td>Shell output inside an error cell</td><td>The <code>/usr/bin/time</code> lines are stripped.</td></tr><tr><td>V1-13</td><td>Wrong footnote on the error column</td><td>Rewritten as &quot;How to read the error column&quot;.</td></tr><tr><td>V1-14</td><td><code>TypePreservation:2024</code> is not a status note</td><td>It is now described as a docstring about <code>Step_read_is_wf</code>&#x27;s history.</td></tr><tr><td>V1-15</td><td><code>TLC.</code> dropped from private names</td><td>Only a leading <code>TLC.</code> is omitted.</td></tr><tr><td>V1-16, CRITIC-10</td><td>Lake rebuild scope; no Lake build of either state</td><td>§8 says &quot;at least <code>wasm2.0</code> and the seven modules that import it&quot;. §7 says neither state has a Lake build, and why the bare-<code>lean</code> builds should match.</td></tr><tr><td>V1-17</td><td>Audit module set unnamed</td><td>§5 names the excluded module and the instances made opaque.</td></tr><tr><td>FIX-4</td><td>&quot;its 17 points are fixed&quot; overstated</td><td>§9 rewritten, and this appendix added.</td></tr><tr><td>FIX-5</td><td>Only the TypingLemmas rows come from the second compile</td><td>Corrected in §4.2.</td></tr><tr><td>FIX-6, FRESH-1, FRESH-3, CRITIC-7</td><td>Documentation claim false; historical logs not in <code>safety-checks/</code></td><td>§8 lists the <code>digest_wasm_v.md</code> lines, which describe Rocq&#x27;s <code>wasm.v</code>, and counts the historical files per bundle (0 in <code>safety-checks/</code>).</td></tr><tr><td>FIX-7, FRESH-5</td><td>Control module &quot;never in the repo&quot;; files in the wrong list</td><td>Reworded, and §9 lists <code>AuditCtl33.lean</code> and <code>RunAuditCtl33.lean</code> under <code>tools/</code>.</td></tr><tr><td>FIX-8, FRESH-10</td><td>&quot;67 of 67&quot; counts NEW cases</td><td>Reworded: every OLD case except case 19 matched.</td></tr><tr><td>FRESH-2</td><td>The merge&#x27;s <code>$fzero</code> hint removal is not mentioned</td><td>§0 and §2 name commit <code>5d6980fef</code> and say why it does not contribute.</td></tr><tr><td>FRESH-4, CRITIC-6</td><td>Re-stated theorems: three changes, witness not cited, file not named</td><td>§8 lists the three changes, names the generator output and its md5, cites the bundle 23/29 witness, says it was not re-run on NEW, and notes the trial port&#x27;s outdated caveat.</td></tr><tr><td>FRESH-7, CRITIC-14</td><td>Memory peak; warning kinds; info output; audit wording</td><td>§7 gives compile and probe peaks, every warning kind and the info output, and states that the logs are identical. §5 states exactly which instances the audit makes opaque.</td></tr><tr><td>FRESH-9</td><td>Cross-check matched by prefix</td><td>§8 says so.</td></tr><tr><td>CRITIC-1</td><td>The 15 proof-module lines not shown as text</td><td>Appendix C gives all 17 lines in full.</td></tr><tr><td>CRITIC-2</td><td>Statement check is name-level; inductive contents not compared</td><td>§0 explains why name-level equality is enough here, and §5 adds the inductive-metadata comparison.</td></tr><tr><td>CRITIC-3</td><td>No per-module or per-kind totals; value-change totals</td><td>Tables added in §5. §5 also gives the value-change totals (theorems and definitions, by category) and lists every generated theorem that changed value but not type (7 of them).</td></tr><tr><td>CRITIC-4</td><td>Hash method under-described; constructor-index shift not stated</td><td>§5 Method gives the hash width and what it ignores. The metadata comparison shows the index shift and what it explains.</td></tr><tr><td>CRITIC-5</td><td>Cause of the changed terms asserted, not checked</td><td>The cause probe in §5: 120 of 120 changed user-level declarations refer to a changed declaration, and none of the unchanged ones do. §5 also explains which edited theorems keep their terms.</td></tr><tr><td>CRITIC-8</td><td>No byte-level facts</td><td>§1 &quot;Bytes&quot; and Appendix D.</td></tr><tr><td>CRITIC-9</td><td>Comments citing model line numbers</td><td>Table in §8.</td></tr><tr><td>CRITIC-12</td><td>HEAD contents of the two non-module files</td><td>The header gives their lines and md5.</td></tr><tr><td>CRITIC-13</td><td>Appendix A lacks instructions and evidence of necessity</td><td>Instruction column, plus the bundle32 compile column.</td></tr></tbody></table></div>
+<p><strong>Third round, on version 3</strong> (D = <code>V3-DELTA</code>, R = <code>V3-RESOLVE</code>). The fixes are in this version 4; no fourth reader checked them.</p>
+<div class="table-wrap"><table><thead><tr><th>finding</th><th>point</th><th>how it is addressed in version 4</th></tr></thead><tbody><tr><td>D-1, R-6</td><td>Appendix E said 3 generated value-only theorems where §5 lists 7; the value-change totals were missing</td><td>Row corrected, and §5 now gives the totals.</td></tr><tr><td>D-2, R-2</td><td>Appendix A: one &quot;near&quot; cell pointed into another alternative; 13 lines never failed themselves</td><td>The column now distinguishes &quot;this line&quot;, &quot;same term&quot; and &quot;inside L&quot;. A new compile with only those 13 lines reverted gives one error on each (<code>nec13</code>).</td></tr><tr><td>D-3</td><td>§2 overreached on the <code>$fzero</code> hint</td><td>Reworded: the hint&#x27;s removal contributes nothing to OLD → NEW; with the hint, the generator emits <code>fzero_is_wf</code>.</td></tr><tr><td>D-4, R-10</td><td>The probe criterion was paraphrased too broadly</td><td>§0 and §5 state the tested criterion (type changed or new) and give the first references by name. §5 notes that value-only changes such as <code>admininstr_instr</code> were not in the set, with an example.</td></tr><tr><td>D-5, R-1</td><td>&quot;What is computed&quot; still overstated; new prose unverified</td><td>The header now says that some numbers are hand-typed, and that the version 4 fixes were not checked by a fourth reader.</td></tr><tr><td>D-6, R-7</td><td>1,866 is not a declarations-only count</td><td>§6 breaks the 1,869 entries down by kind, all computed.</td></tr><tr><td>D-7, R-5b</td><td>The metadata dump records counts, not recursor rules</td><td>Reworded in §5.</td></tr><tr><td>D-8, R-5a</td><td>Auto-generated simp entries are not written in the source</td><td>§5 names the 4 removed <code>injEq</code>/<code>sizeOf_spec</code> lemmas.</td></tr><tr><td>D-9</td><td><code>meta_cause33.py</code> could not be re-run against the v3 <code>envcat33.py</code></td><td>Fixed, and re-run: <code>cause33.json</code> is reproduced identically.</td></tr><tr><td>D-10, R-8a</td><td>The source of the probe memory figure was missing from the evidence</td><td><code>audit_old.log</code> and <code>audit_new.log</code> are now in <code>outputs/</code>.</td></tr><tr><td>D-11, R-8c</td><td>The patch scripts do not reproduce the generator</td><td>§9 says so; every generator version is kept.</td></tr><tr><td>D-12, R-3</td><td>&quot;agree everywhere&quot; contradicted by the next bullet</td><td>Reworded: the records agree on every check, and one caveat is out of date.</td></tr><tr><td>D-13, R-9</td><td><code>Inhabited.mk</code> is a constructor, not an instance</td><td>§5 says so.</td></tr><tr><td>D-14, R-11</td><td>&quot;each unrepaired module&quot; was not true of the 1085 row</td><td>Corrected in §4.2.</td></tr><tr><td>D-15</td><td>Bundle 23 described the witness as using &quot;no axioms&quot;</td><td>§8 gives both sources.</td></tr><tr><td>D-16, R-4</td><td>Hash method: changes in names and annotations are missed by design, not only through a collision</td><td>Reworded in §5 Method.</td></tr><tr><td>R-8b</td><td><code>b32_necessity.json</code> had no producing tool</td><td>Replaced by <code>necessity33.py</code> and its <code>necessity33.json</code>.</td></tr><tr><td>R-12</td><td>Two sub-points not addressed: the role of <code>TypeProgress</code> 814, and Rocq numbering in <code>digest_wasm_v.md</code></td><td>The role column is now per line, with 814 in the converse direction. §8 notes the digest&#x27;s Rocq numbering, its &quot;(73 cases)&quot; slip and its line-number citations, all unchanged.</td></tr></tbody></table></div>
+</div>
+<div class="foot">Generated from the bundle33 report by <code>md2page34.py</code> (bundle34). Every count in the header is taken from the same data files as the report.</div>
+</main>
+</div>
+</div>

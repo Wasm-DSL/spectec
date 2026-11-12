@@ -1,0 +1,16 @@
+;; Same as bug_example.spectec, but with the marker written as the lowercase
+;; metavariable `marker?` instead of the literal `MARK?`, mirroring the
+;; colleague's proposed `null?` (instead of `NULL?`) fix for Reftype_ok.
+
+syntax marker = MARK
+
+syntax thing =
+  THING marker? nat
+
+var n : nat
+
+relation Thing_ok: thing : OK
+
+rule Thing_ok:
+  THING marker? n : OK
+  -- if $(n > 0)

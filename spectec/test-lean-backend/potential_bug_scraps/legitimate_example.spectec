@@ -1,0 +1,13 @@
+;; Attempted minimal illustration of a case where the same Undep rewrite
+;; (IterE of a literal option/list with no bound variable -> forced OptE/ListE)
+;; is arguably safe: a def clause whose own pattern already fully determines
+;; the optional field's presence, so there is no sibling derivation being
+;; discarded by forcing it.
+
+syntax tag = SMALL | BIG
+
+syntax marker = X
+
+def $extra(tag) : marker?
+def $extra(SMALL) = eps
+def $extra(BIG) = X

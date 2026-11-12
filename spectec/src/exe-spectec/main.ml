@@ -15,6 +15,7 @@ type target =
  | Interpreter of string list
  | Isabelle
  | Rocq
+ | Lean
 
 type pass =
   | Sub
@@ -44,7 +45,10 @@ passers (--all-passes, some targets), we do _not_ want to use the order of
 flags on the command line.
 *)
 let _skip_passes = [ Unthe ]  (* Not clear how to extend them to indexed types *)
-let all_passes = [
+module PassSet = Set.Make(struct type t = pass let compare = compare end)
+(* This is a set purely to emphasize that the order of these should not be
+relied upon *)
+let available_passes : PassSet.t = PassSet.of_list [
   Ite;
   LetIntroMech;
   TypeFamilyRemoval;
@@ -64,6 +68,48 @@ let all_passes = [
   SinglePatternMatch;
   InductivePremisesDiet
 ]
+
+let pass_list (backend : target) : pass list =
+  match backend with
+  | Lean -> [
+      Ite;
+      LetIntroMech;
+      TypeFamilyRemoval;
+      Undep;
+      Totalize;
+      Else;
+      ElseSimp;
+      Uncaseremoval;
+      SubExpansion;
+      PatSimp;
+      Sub;
+      Sideconditions;
+      DefToRel;
+      Sideconditions;
+      AliasDemut;
+      ImproveIds;
+      DatatypeDiet;
+      SinglePatternMatch
+    ]
+  | _ -> [
+    Ite;
+    LetIntroMech;
+    TypeFamilyRemoval;
+    Undep;
+    Totalize;
+    Else;
+    ElseSimp;
+    Uncaseremoval;
+    SubExpansion;
+    PatSimp;
+    Sub;
+    Sideconditions;
+    DefToRel;
+    AliasDemut;
+    ImproveIds;
+    DatatypeDiet;
+    SinglePatternMatch
+  ]
 
 type file_kind =
   | Spec
@@ -91,6 +137,7 @@ let print_elab_il = ref false
 let print_final_il = ref false
 let print_all_il = ref false
 let print_all_il_to = ref ""
+let print_il_as_ast = ref false
 let print_al = ref false
 let print_al_o = ref ""
 let print_no_pos = ref false
@@ -102,17 +149,29 @@ let enable_pass pass = selected_passes := PS.add pass !selected_passes
 let sideconditions_on_defs = ref true
 
 let print_il il =
-  Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
+  if not !print_il_as_ast then
+    Printf.printf "%s\n%!" (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il)
+  else
+    let config = Backend_ast.Config.{width = !ast_width} in
+    Printf.printf "%s\n%!" (Backend_ast.Print.string_of_script config il)
 
 let print_il_to pass_name pass_count il =
   let pass_name = if pass_name = "" then "elab" else pass_name in
   let pass_name = Printf.sprintf "%02d-%s" pass_count pass_name in
   if !print_all_il_to <> "" then
-    let filename = Str.replace_first (Str.regexp "%s") pass_name !print_all_il_to in
-    Out_channel.with_open_text filename (fun oc ->
-      Out_channel.output_string oc (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il);
-      Out_channel.output_string oc "\n"
-    )
+    if not !print_il_as_ast then
+      let filename = Str.replace_first (Str.regexp "%s") pass_name !print_all_il_to in
+      Out_channel.with_open_text filename (fun oc ->
+        Out_channel.output_string oc (Il.Print.string_of_script ~suppress_pos:(!print_no_pos) il);
+        Out_channel.output_string oc "\n"
+      )
+    else
+      let filename = Str.replace_first (Str.regexp "%s") pass_name !print_all_il_to in
+      let config = Backend_ast.Config.{width = !ast_width} in
+      Out_channel.with_open_text filename (fun oc ->
+        Backend_ast.Print.output_script oc config il;
+        Out_channel.output_string oc "\n"
+      )
 
 
 (* Il pass metadata *)
@@ -248,6 +307,7 @@ let argspec = Arg.align (
   "--isabelle", Arg.Unit (fun () -> target := Isabelle), " Generate Isabelle Definitions";
   "--rocq", Arg.Unit (fun () -> target := Rocq), " Generate Rocq Inductive Definitions (-o main.v [wf.v]: well-formedness lemmas go to wf.v, default main_wf.v)";
   "--rocq-namespace", Arg.Set_string rocq_namespace, " Logical path used by the Rocq well-formedness lemma file to import the main file";
+  "--lean", Arg.Unit (fun () -> target := Lean), " Generate Lean definitions";
   "--debug", Arg.Unit (fun () -> Backend_interpreter.Debugger.debug := true),
     " Debug interpreter";
   "--unified-vars", Arg.Unit (fun () -> Il2al.Unify.rename := false),
@@ -260,12 +320,13 @@ let argspec = Arg.align (
   "--print-final-il", Arg.Set print_final_il, " Print final IL";
   "--print-all-il", Arg.Set print_all_il, " Print IL after each step";
   "--print-all-il-to", Arg.Set_string print_all_il_to, " Print IL after each step to file (with %s replaced by pass numer and name)";
+  "--print-il-as-ast", Arg.Set print_il_as_ast, "When printing IL (you need to use the cmd line args that print IL), print as AST";
   "--print-al", Arg.Set print_al, " Print al";
   "--print-al-o", Arg.Set_string print_al_o, " Print al with given name";
   "--print-il-notes", Arg.Set Il.Print.print_notes, " Print IL with type annotations";
   "--print-no-pos", Arg.Set print_no_pos, " Suppress position info in output";
-] @ List.map pass_argspec all_passes @ [
-  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass all_passes)," Run all passes";
+] @ List.map pass_argspec (PassSet.to_list available_passes) @ [
+  "--all-passes", Arg.Unit (fun () -> List.iter enable_pass (PassSet.to_list available_passes) )," Run all passes";
 
   "--test-version", Arg.Int (fun i -> Backend_interpreter.Construct.version := i; Il2al.Translate.version := i), " Wasm version to assume for tests (default: 3)";
   "--wf-state", Arg.String set_wf_state, " Denotes the placement of wfness relations for the remove-indexed-types pass 
@@ -321,7 +382,7 @@ let () =
       enable_pass DatatypeDiet ;
       enable_pass SinglePatternMatch;
       enable_pass InductivePremisesDiet
-    | Rocq -> 
+    | Rocq | Lean ->
       enable_pass Sideconditions;
       enable_pass Totalize;
       enable_pass Else;
@@ -357,14 +418,15 @@ let () =
           (* Il.Valid.valid il; *)
           il
         )
-      ) il all_passes
+      ) il (pass_list !target)
     in
     last_pass := "";
 
     if !print_final_il && not !print_all_il then print_il il;
 
     let al =
-      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex || !target = Isabelle || !target = Rocq) then []
+      if not !print_al && !print_al_o = "" && (!target = Check || !target = Ast || !target = Latex ||
+                                                 !target = Isabelle || !target = Rocq || !target = Lean) then []
       else (
         log "Translating to AL...";
         let interp = match !target with
@@ -509,6 +571,21 @@ let () =
         in
         write_file odst coq_code;
         write_file wf_odst wf_code
+      | _ ->
+        prerr_endline "too many output file names";
+        exit 2
+      )
+    | Lean ->
+      log "Lean Generation...";
+      let lean_ast = Backend_lean.Backend.create_script il in
+      let lean_str = Backend_lean.Render.render_script_to_string lean_ast in
+      (match !odsts with
+      | [] ->
+        print_endline lean_str
+      | [odst] ->
+        let oc = Out_channel.open_text odst in
+        Fun.protect (fun () -> Out_channel.output_string oc lean_str)
+          ~finally:(fun () -> Out_channel.close oc)
       | _ ->
         prerr_endline "too many output file names";
         exit 2

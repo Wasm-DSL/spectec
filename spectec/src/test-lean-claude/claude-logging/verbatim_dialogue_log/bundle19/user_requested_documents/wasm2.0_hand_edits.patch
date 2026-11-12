@@ -1,0 +1,2612 @@
+--- a/spectec/src/test-lean-claude/wasm2.0.lean
++++ b/spectec/src/test-lean-claude/wasm2.0.lean
+@@ -299,11 +299,102 @@
+ def fzero (v_N : N) : fN :=
+   fN.POS (fNmag.SUBNORM 0)
+ 
++/-! Hand-written helper lemmas for the `*_is_wf` proofs below (bundle19; not generated). -/
++
++theorem iswf_Forall_nil {α : Type} (P : α → Prop) : Forall P [] := by
++  intro x hx; cases hx
++
++theorem iswf_Forall_cons {α : Type} {P : α → Prop} {x : α} {l : List α} :
++    P x → Forall P l → Forall P (x :: l) := by
++  intro hx hl y hy
++  cases hy with
++  | head => exact hx
++  | tail _ h => exact hl y h
++
++theorem iswf_Forall_append {α : Type} {P : α → Prop} {l1 l2 : List α} :
++    Forall P l1 → Forall P l2 → Forall P (l1 ++ l2) := by
++  intro h1 h2 x hx
++  rcases List.mem_append.mp hx with h | h
++  · exact h1 x h
++  · exact h2 x h
++
++theorem iswf_Forall_mono {α : Type} {P Q : α → Prop} {l : List α} :
++    Forall P l → (∀ x, P x → Q x) → Forall Q l := fun h hpq x hx => hpq x (h x hx)
++
++theorem iswf_Forall_getElem! {α : Type} [Inhabited α] {P : α → Prop} {l : List α} (n : Nat) :
++    Forall P l → P default → P l[n]! := by
++  intro h hd
++  by_cases hn : n < l.length
++  · rw [getElem!_pos l n hn]; exact h _ (List.getElem_mem hn)
++  · rw [getElem!_neg l n hn]; exact hd
++
++theorem iswf_Forall_modify {α : Type} {P : α → Prop} (f : α → α) (hf : ∀ x, P x → P (f x)) :
++    ∀ (l : List α) (n : Nat), Forall P l → Forall P (l.modify n f) := by
++  intro l
++  induction l with
++  | nil => intro n _; rw [List.modify_nil]; exact iswf_Forall_nil P
++  | cons a t ih =>
++    intro n h
++    have ha : P a := h a (by simp)
++    have ht : Forall P t := fun y hy => h y (by simp [hy])
++    cases n with
++    | zero => rw [List.modify_zero_cons]; exact iswf_Forall_cons (hf a ha) ht
++    | succ k => rw [List.modify_succ_cons]; exact iswf_Forall_cons ha (ih k ht)
++
++theorem iswf_Forall_splice {α : Type} {P : α → Prop} (l u : List α) (i : Nat) :
++    Forall P l → Forall P u → Forall P (splice l u i) := by
++  intro hl hu
++  unfold splice
++  refine iswf_Forall_append (iswf_Forall_append ?_ ?_) ?_
++  · exact fun x hx => hl x (List.mem_of_mem_take hx)
++  · exact fun x hx => hu x (List.mem_of_mem_take hx)
++  · exact fun x hx => hl x (List.mem_of_mem_drop hx)
++
++theorem iswf_uN_zero (v_N : N) : wf_uN v_N (uN.mk_uN 0) :=
++  wf_uN.uN_case_0 _ _ ⟨Nat.zero_le _, Nat.zero_le _⟩
++
++theorem iswf_two_pow_cast (n : Nat) : ((2 : Int) ^ n) = ((2 ^ n : Nat) : Int) := by
++  rw [Int.natCast_pow]; rfl
++
++theorem iswf_uN_of_lt {v_N i : Nat} (h : i < 2 ^ v_N) : wf_uN v_N (uN.mk_uN i) := by
++  refine wf_uN.uN_case_0 _ _ ⟨Nat.zero_le _, ?_⟩
++  rw [iswf_two_pow_cast]
++  omega
++
++theorem iswf_uN_lt {v_N i : Nat} (h : wf_uN v_N (uN.mk_uN i)) : i < 2 ^ v_N := by
++  cases h
++  rename_i h
++  have h2 := h.2
++  rw [iswf_two_pow_cast] at h2
++  have hp := Nat.two_pow_pos v_N
++  omega
++
++theorem iswf_uN_proj_lt {v_N : Nat} {x : uN} (h : wf_uN v_N x) : proj_uN_0 x < 2 ^ v_N := by
++  cases x with | mk_uN i => exact iswf_uN_lt h
++
++theorem iswf_toNat_sub_le (a b : Nat) : Int.toNat ((a : Int) - (b : Int)) ≤ a := by omega
++
++theorem iswf_uN_toNat_emod (v_N : Nat) (x : Int) :
++    wf_uN v_N (uN.mk_uN (Int.toNat (x % ((2 : Int) ^ v_N)))) := by
++  apply iswf_uN_of_lt
++  rw [iswf_two_pow_cast]
++  have hp := Nat.two_pow_pos v_N
++  have h1 := Int.emod_nonneg x (by omega : ((2 ^ v_N : Nat) : Int) ≠ 0)
++  have h2 := Int.emod_lt_of_pos x (by omega : (0 : Int) < ((2 ^ v_N : Nat) : Int))
++  omega
++
++theorem iswf_Forall_map {α β : Type} {P : β → Prop} {Q : α → Prop} (f : α → β) (l : List α) :
++    Forall Q l → (∀ x, Q x → P (f x)) → Forall P (Map f l) := by
++  intro h hq y hy
++  obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hy
++  exact hq x (h x hx)
++
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 -/
+ theorem fzero_is_wf (v_N : N) (ret_val : fN) :
+   ret_val = (fzero v_N) →
+-  wf_fN v_N ret_val :=
+-  sorry
++  wf_fN v_N ret_val := by
++  intro h; subst h
++  exact wf_fN.fN_case_0 _ _ (wf_fNmag.fNmag_case_1 _ _ _ ⟨Nat.two_pow_pos _, rfl⟩)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.6-71.11 -/
+ inductive fun_fone : N → fN → Prop where
+@@ -883,8 +974,13 @@
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/1-syntax.spectec:274.6-274.11 -/
+ theorem zero_is_wf (v_numtype : numtype) (ret_val : num_) :
+   ret_val = (fun_zero v_numtype) →
+-  wf_num_ v_numtype ret_val :=
+-  sorry
++  wf_num_ v_numtype ret_val := by
++  intro h; subst h
++  cases v_numtype
++  · exact wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_zero _) rfl
++  · exact wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_zero _) rfl
++  · exact wf_num_.num__case_1 _ _ _ (fzero_is_wf _ _ rfl) rfl
++  · exact wf_num_.num__case_1 _ _ _ (fzero_is_wf _ _ rfl) rfl
+ 
+ /- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.1-281.42 -/
+ inductive sx : Type where
+@@ -1252,8 +1348,12 @@
+ theorem dim_is_wf (v_shape : shape) (ret_val : dim) :
+   wf_shape v_shape →
+   ret_val = (fun_dim v_shape) →
+-  wf_dim ret_val :=
+-  sorry
++  wf_dim ret_val := by
++  intro hs h; subst h
++  cases hs with
++  | shape_case_0 lt d hd _ =>
++    cases d
++    exact hd
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:336.1-336.41 -/
+ def shsize (v_shape : shape) : Nat :=
+@@ -2321,8 +2421,12 @@
+   fun_concat_bytes var_0_lst_lst var_0 →
+   Forall (fun (var_0_lst_elem : List byte) => Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst_elem) var_0_lst_lst →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  induction h with
++  | fun_concat_bytes_case_0 => exact iswf_Forall_nil _
++  | fun_concat_bytes_case_1 b_lst b'_lst_lst var_0 _ ih =>
++    exact iswf_Forall_append (hall b_lst (by simp)) (ih (fun l hl => hall l (by simp [hl])))
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 -/
+ def unpack (v_lanetype : lanetype) : numtype :=
+@@ -2377,8 +2481,16 @@
+   fun_tablesxt var_0_lst var_0 →
+   Forall (fun (var_0_elem : externtype) => wf_externtype var_0_elem) var_0_lst →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : tabletype) => wf_tabletype ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : tabletype) => wf_tabletype ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  induction h with
++  | fun_tablesxt_case_0 => exact iswf_Forall_nil _
++  | fun_tablesxt_case_1 tt xt_lst var_0 _ ih =>
++    have h1 := hall (externtype.TABLE tt) (by simp)
++    cases h1 with
++    | externtype_case_2 _ htt => exact iswf_Forall_cons htt (ih (fun x hx => hall x (by simp [hx])))
++  | fun_tablesxt_case_2 xt xt_lst var_0 _ ih =>
++    exact ih (fun x hx => hall x (by simp [hx]))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.6-54.13 -/
+ inductive fun_memsxt : List externtype → List memtype → Prop where
+@@ -2396,8 +2508,16 @@
+   fun_memsxt var_0_lst var_0 →
+   Forall (fun (var_0_elem : externtype) => wf_externtype var_0_elem) var_0_lst →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : memtype) => wf_memtype ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : memtype) => wf_memtype ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  induction h with
++  | fun_memsxt_case_0 => exact iswf_Forall_nil _
++  | fun_memsxt_case_1 mt xt_lst var_0 _ ih =>
++    have h1 := hall (externtype.MEM mt) (by simp)
++    cases h1 with
++    | externtype_case_3 _ hmt => exact iswf_Forall_cons hmt (ih (fun x hx => hall x (by simp [hx])))
++  | fun_memsxt_case_2 xt xt_lst var_0 _ ih =>
++    exact ih (fun x hx => hall x (by simp [hx]))
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 -/
+ def dataidx_instr (v_instr : instr) : List dataidx :=
+@@ -2410,8 +2530,11 @@
+ theorem dataidx_instr_is_wf (v_instr : instr) (ret_val_lst : List dataidx) :
+   wf_instr v_instr →
+   ret_val_lst = (dataidx_instr v_instr) →
+-  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst := by
++  intro hwf h; subst h
++  cases hwf <;> first
++    | exact iswf_Forall_nil _
++    | exact iswf_Forall_cons (by assumption) (iswf_Forall_nil _)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.6-85.21 -/
+ inductive fun_dataidx_instrs : List instr → List dataidx → Prop where
+@@ -2426,8 +2549,13 @@
+   fun_dataidx_instrs var_0_lst var_0 →
+   Forall (fun (var_0_elem : instr) => wf_instr var_0_elem) var_0_lst →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  induction h with
++  | fun_dataidx_instrs_case_0 => exact iswf_Forall_nil _
++  | fun_dataidx_instrs_case_1 v_instr instr'_lst var_0 _ ih =>
++    exact iswf_Forall_append (dataidx_instr_is_wf v_instr _ (hall v_instr (by simp)) rfl)
++      (ih (fun x hx => hall x (by simp [hx])))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 -/
+ inductive fun_dataidx_expr : expr → List dataidx → Prop where
+@@ -2441,8 +2569,10 @@
+   fun_dataidx_expr v_expr var_0 →
+   Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  cases h
++  exact dataidx_instrs_is_wf _ _ _ (by assumption) hall rfl
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 -/
+ inductive fun_dataidx_func : func → List dataidx → Prop where
+@@ -2456,8 +2586,11 @@
+   fun_dataidx_func v_func var_0 →
+   wf_func v_func →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst := by
++  intro h hwf heq; subst heq
++  cases h
++  cases hwf
++  exact dataidx_expr_is_wf _ _ _ (by assumption) (by assumption) rfl
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.6-95.20 -/
+ inductive fun_dataidx_funcs : List func → List dataidx → Prop where
+@@ -2473,8 +2606,13 @@
+   fun_dataidx_funcs var_0_lst var_0 →
+   Forall (fun (var_0_elem : func) => wf_func var_0_elem) var_0_lst →
+   ret_val_lst = var_0 →
+-  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : dataidx) => wf_uN 32 ret_val_elem) ret_val_lst := by
++  intro h hall heq; subst heq
++  induction h with
++  | fun_dataidx_funcs_case_0 => exact iswf_Forall_nil _
++  | fun_dataidx_funcs_case_1 v_func func'_lst var_1 var_0 _ hf ih =>
++    exact iswf_Forall_append (dataidx_func_is_wf v_func _ _ hf (hall v_func (by simp)) rfl)
++      (ih (fun x hx => hall x (by simp [hx])))
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 -/
+ def memarg0 : memarg :=
+@@ -2486,8 +2624,9 @@
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 -/
+ theorem memarg0_is_wf (ret_val : memarg) :
+   ret_val = memarg0 →
+-  wf_memarg ret_val :=
+-  sorry
++  wf_memarg ret_val := by
++  intro h; subst h
++  exact wf_memarg.memarg_case_ _ _ (iswf_uN_zero _) (iswf_uN_zero _)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.1-7.41 -/
+ opaque s33_to_u32 (v_s33 : s33) : u32 := by
+@@ -2765,8 +2904,31 @@
+   wf_num_ v_numtype v_num_ →
+   (fun_unop_ v_numtype v_unop_ v_num_) ≠ none →
+   ret_val_lst = (Option.get! (fun_unop_ v_numtype v_unop_ v_num_)) →
+-  Forall (fun (ret_val_elem : num_) => wf_num_ v_numtype ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : num_) => wf_num_ v_numtype ret_val_elem) ret_val_lst := by
++  intro _ h2 hne heq; subst heq
++  cases h2 with
++  | num__case_0 v_Inn x _ hwfx heq =>
++    subst heq
++    cases v_Inn <;> rcases v_unop_ with ⟨inn, op⟩ | ⟨fnn, op⟩ <;> (try cases inn) <;> (try cases fnn) <;>
++      (try cases op) <;> first
++      | exact absurd rfl hne
++      | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide) (iclz__is_wf _ _ _ hwfx rfl) rfl) (iswf_Forall_nil _)
++      | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide) (ictz__is_wf _ _ _ hwfx rfl) rfl) (iswf_Forall_nil _)
++      | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide) (ipopcnt__is_wf _ _ _ hwfx rfl) rfl) (iswf_Forall_nil _)
++      | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide)
++          (extend___is_wf _ _ _ _ _ (wrap___is_wf _ _ _ _ hwfx rfl) rfl) rfl) (iswf_Forall_nil _)
++  | num__case_1 v_Fnn x hwfx heq =>
++    subst heq
++    cases v_Fnn <;> rcases v_unop_ with ⟨inn, op⟩ | ⟨fnn, op⟩ <;> (try cases inn) <;> (try cases fnn) <;>
++      (try cases op) <;> first
++      | exact absurd rfl hne
++      | exact iswf_Forall_map _ _ (fabs__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (fneg__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (fsqrt__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (fceil__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (ffloor__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (ftrunc__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++      | exact iswf_Forall_map _ _ (fnearest__is_wf _ _ _ hwfx rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.1-215.37 -/
+ opaque fadd_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
+@@ -2877,13 +3039,46 @@
+ def iadd_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN :=
+   uN.mk_uN (((proj_uN_0 v_iN) + (proj_uN_0 iN_0)) % (2 ^ v_N))
+ 
++/-! Hand-written helper lemmas for the `*_is_wf` proofs below (bundle19; not generated). -/
++
++theorem iswf_uN_bool (b : Bool) : wf_uN 32 (uN.mk_uN (nat_of_bool b)) :=
++  iswf_uN_of_lt (by cases b <;> decide)
++
++theorem iswf_inv_signed {v_N : Nat} {z : Int} {m : Nat} (h : fun_inv_signed_ v_N z m) :
++    wf_uN v_N (uN.mk_uN m) := by
++  apply iswf_uN_of_lt
++  have hle : 2 ^ (Int.toNat ((v_N : Int) - 1)) ≤ 2 ^ v_N := Nat.pow_le_pow_right (by decide) (by omega)
++  have hp := Nat.two_pow_pos (Int.toNat ((v_N : Int) - 1))
++  cases h
++  · rename_i h; simp only [iswf_two_pow_cast] at h ⊢; omega
++  · rename_i h; simp only [iswf_two_pow_cast] at h ⊢; omega
++
++theorem iswf_sat_u (v_N : Nat) (z : Int) : wf_uN v_N (uN.mk_uN (sat_u_ v_N z)) := by
++  apply iswf_uN_of_lt
++  have hp := Nat.two_pow_pos v_N
++  unfold sat_u_
++  simp only [iswf_two_pow_cast]
++  split
++  · omega
++  · split <;> omega
++
++theorem iswf_list_OMap_num0 (I : Inn) (nt : numtype) (o : Option iN) (hnt : nt = numtype_Inn I)
++    (ho : Forall (fun x => wf_uN (Option.get! (size (valtype_Inn I))) x) (Option.toList o)) :
++    Forall (fun x => wf_num_ nt x) (list_ num_ (OMap (fun y => num_.mk_num__0 I y) o)) := by
++  cases o with
++  | none => exact iswf_Forall_nil _
++  | some v =>
++    exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by cases I <;> decide) (ho v (by simp)) hnt)
++      (iswf_Forall_nil _)
++
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 -/
+ theorem iadd__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = (iadd_ v_N v_iN iN_0) →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro _ _ h; subst h
++  exact iswf_uN_of_lt (Nat.mod_lt _ (Nat.two_pow_pos _))
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.1-112.36 -/
+ opaque iand_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
+@@ -2929,8 +3124,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = (imul_ v_N v_iN iN_0) →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro _ _ h; subst h
++  exact iswf_uN_of_lt (Nat.mod_lt _ (Nat.two_pow_pos _))
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.1-114.35 -/
+ opaque ior_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
+@@ -2966,8 +3162,14 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val_opt = var_0 →
+-  Forall (fun (ret_val_elem : iN) => wf_uN v_N ret_val_elem) (Option.toList ret_val_opt) :=
+-  sorry
++  Forall (fun (ret_val_elem : iN) => wf_uN v_N ret_val_elem) (Option.toList ret_val_opt) := by
++  intro h hw1 _ heq; subst heq
++  cases h
++  · exact iswf_Forall_nil _
++  · exact iswf_Forall_cons (iswf_uN_of_lt (Nat.lt_of_le_of_lt (iswf_toNat_sub_le _ _) (iswf_uN_proj_lt hw1)))
++      (iswf_Forall_nil _)
++  · exact iswf_Forall_nil _
++  · exact iswf_Forall_cons (iswf_inv_signed (by assumption)) (iswf_Forall_nil _)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 -/
+ opaque irotl_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
+@@ -3038,8 +3240,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = (isub_ v_N v_iN iN_0) →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro _ _ h; subst h
++  exact iswf_uN_toNat_emod _ _
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.1-115.36 -/
+ opaque ixor_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
+@@ -3363,8 +3566,9 @@
+ theorem ieqz__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
+   wf_uN v_N v_iN →
+   ret_val = (ieqz_ v_N v_iN) →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro _ h; subst h
++  exact iswf_uN_bool _
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.1-49.32 -/
+ def fun_testop_ (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_) : Option num_ :=
+@@ -3379,8 +3583,12 @@
+   wf_num_ v_numtype v_num_ →
+   (fun_testop_ v_numtype v_testop_ v_num_) ≠ none →
+   ret_val = (Option.get! (fun_testop_ v_numtype v_testop_ v_num_)) →
+-  wf_num_ numtype.I32 ret_val :=
+-  sorry
++  wf_num_ numtype.I32 ret_val := by
++  intro _ _ hne heq; subst heq
++  cases v_numtype <;> rcases v_testop_ with ⟨inn, t⟩ <;> cases inn <;> cases t <;>
++    rcases v_num_ with ⟨inn2, x⟩ | ⟨fnn, x⟩ <;> (try cases inn2) <;> (try cases fnn) <;> first
++    | exact absurd rfl hne
++    | exact wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_bool _) rfl
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.1-231.33 -/
+ opaque feq_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
+@@ -3481,8 +3689,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = (ieq_ v_N v_iN iN_0) →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro _ _ h; subst h
++  exact iswf_uN_bool _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 -/
+ inductive fun_ige_ : N → sx → iN → iN → u32 → Prop where
+@@ -3499,8 +3708,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro h _ _ heq; subst heq
++  cases h <;> exact iswf_uN_bool _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 -/
+ inductive fun_igt_ : N → sx → iN → iN → u32 → Prop where
+@@ -3517,8 +3727,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro h _ _ heq; subst heq
++  cases h <;> exact iswf_uN_bool _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 -/
+ inductive fun_ile_ : N → sx → iN → iN → u32 → Prop where
+@@ -3535,8 +3746,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro h _ _ heq; subst heq
++  cases h <;> exact iswf_uN_bool _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 -/
+ inductive fun_ilt_ : N → sx → iN → iN → u32 → Prop where
+@@ -3553,8 +3765,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro h _ _ heq; subst heq
++  cases h <;> exact iswf_uN_bool _
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.1-126.33 -/
+ def ine_ (v_N : N) (v_iN : iN) (iN_0 : iN) : u32 :=
+@@ -3565,8 +3778,9 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = (ine_ v_N v_iN iN_0) →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro _ _ h; subst h
++  exact iswf_uN_bool _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
+ inductive fun_relop__before_fun_relop__case_24 : numtype → relop_ → num_ → num_ → Prop where
+@@ -3651,8 +3865,18 @@
+   wf_num_ v_numtype num__0 →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_num_ numtype.I32 ret_val :=
+-  sorry
++  wf_num_ numtype.I32 ret_val := by
++  intro h hr h1 h2 hne heq; subst heq
++  cases h <;> (try exact absurd rfl hne) <;> first
++    | exact wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_bool _) rfl
++    | (rename_i hrel; cases hrel <;> exact wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_bool _) rfl)
++    | (cases h1; cases h2; first
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (feq__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (fne__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (flt__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (fgt__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (fle__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl
++      | exact wf_num_.num__case_0 _ _ _ (by decide) (fge__is_wf _ _ _ _ (by assumption) (by assumption) rfl) rfl)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.1-61.90 -/
+ opaque convert__ (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) : fN := by
+@@ -3892,8 +4116,18 @@
+   wf_num_ numtype_1 v_num_ →
+   var_0 ≠ none →
+   ret_val_lst = (Option.get! var_0) →
+-  Forall (fun (ret_val_elem : num_) => wf_num_ numtype_2 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : num_) => wf_num_ numtype_2 ret_val_elem) ret_val_lst := by
++  intro h _ h1 hne heq; subst heq
++  cases h <;> (try exact absurd rfl hne) <;> cases h1 <;> first
++    | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide) (extend___is_wf _ _ _ _ _ (by assumption) rfl) rfl) (iswf_Forall_nil _)
++    | exact iswf_Forall_cons (wf_num_.num__case_0 _ _ _ (by decide) (wrap___is_wf _ _ _ _ (by assumption) rfl) rfl) (iswf_Forall_nil _)
++    | exact iswf_Forall_cons (wf_num_.num__case_1 _ _ _ (convert___is_wf _ _ _ _ _ (by assumption) rfl) rfl) (iswf_Forall_nil _)
++    | exact iswf_Forall_cons (reinterpret___is_wf _ _ _ _ (wf_num_.num__case_0 _ _ _ (by decide) (by assumption) rfl) rfl) (iswf_Forall_nil _)
++    | exact iswf_Forall_cons (reinterpret___is_wf _ _ _ _ (wf_num_.num__case_1 _ _ _ (by assumption) rfl) rfl) (iswf_Forall_nil _)
++    | exact iswf_Forall_map _ _ (promote___is_wf _ _ _ _ (by assumption) rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++    | exact iswf_Forall_map _ _ (demote___is_wf _ _ _ _ (by assumption) rfl) (fun y hy => wf_num_.num__case_1 _ _ _ hy rfl)
++    | exact iswf_list_OMap_num0 _ _ _ rfl (trunc___is_wf _ _ _ _ _ (by assumption) rfl)
++    | exact iswf_list_OMap_num0 _ _ _ rfl (trunc_sat___is_wf _ _ _ _ _ (by assumption) rfl)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.1-62.87 -/
+ opaque narrow__ (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) : iN := by
+@@ -4130,8 +4364,9 @@
+ theorem inez__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
+   wf_uN v_N v_iN →
+   ret_val = (inez_ v_N v_iN) →
+-  wf_uN 32 ret_val :=
+-  sorry
++  wf_uN 32 ret_val := by
++  intro _ h; subst h
++  exact iswf_uN_bool _
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.1-131.49 -/
+ opaque ibitselect_ (v_N : N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) : iN := by
+@@ -4157,8 +4392,9 @@
+ theorem ineg__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
+   wf_uN v_N v_iN →
+   ret_val = (ineg_ v_N v_iN) →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro _ h; subst h
++  exact iswf_uN_toNat_emod _ _
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 -/
+ inductive fun_iabs_ : N → iN → iN → Prop where
+@@ -4177,8 +4413,12 @@
+   fun_iabs_ v_N v_iN var_0 →
+   wf_uN v_N v_iN →
+   ret_val = var_0 →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro h hw heq; subst heq
++  cases h
++  split
++  · exact hw
++  · exact ineg__is_wf _ _ _ hw rfl
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 -/
+ inductive fun_imin_ : N → sx → iN → iN → iN → Prop where
+@@ -4205,8 +4445,14 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro h hw1 hw2 heq; subst heq
++  cases h
++  · exact hw1
++  · exact hw2
++  · split
++    · exact hw1
++    · exact hw2
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 -/
+ inductive fun_imax_ : N → sx → iN → iN → iN → Prop where
+@@ -4233,8 +4479,14 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro h hw1 hw2 heq; subst heq
++  cases h
++  · exact hw1
++  · exact hw2
++  · split
++    · exact hw1
++    · exact hw2
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 -/
+ inductive fun_iadd_sat_ : N → sx → iN → iN → iN → Prop where
+@@ -4252,8 +4504,11 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro h _ _ heq; subst heq
++  cases h
++  · exact iswf_sat_u _ _
++  · exact iswf_inv_signed (by assumption)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 -/
+ inductive fun_isub_sat_ : N → sx → iN → iN → iN → Prop where
+@@ -4271,8 +4526,11 @@
+   wf_uN v_N v_iN →
+   wf_uN v_N iN_0 →
+   ret_val = var_0 →
+-  wf_uN v_N ret_val :=
+-  sorry
++  wf_uN v_N ret_val := by
++  intro h _ _ heq; subst heq
++  cases h
++  · exact iswf_sat_u _ _
++  · exact iswf_inv_signed (by assumption)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.1-138.82 -/
+ opaque iavgr_ (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) : iN := by
+@@ -4350,8 +4608,13 @@
+   wf_num_ (unpack v_lanetype) v_num_ →
+   (packnum_ v_lanetype v_num_) ≠ none →
+   ret_val = (Option.get! (packnum_ v_lanetype v_num_)) →
+-  wf_lane_ v_lanetype ret_val :=
+-  sorry
++  wf_lane_ v_lanetype ret_val := by
++  intro h hne heq; subst heq
++  cases v_lanetype <;> rcases v_num_ with ⟨inn, c⟩ | ⟨fnn, c⟩ <;> (try cases inn) <;> (try cases fnn) <;> first
++    | exact absurd rfl hne
++    | (cases h; exact wf_lane_.lane__case_0 _ _ _ (by assumption) rfl)
++    | (cases h; exact wf_lane_.lane__case_1 _ _ _ (by assumption) rfl)
++    | (cases h; exact wf_lane_.lane__case_0 _ _ _ (wrap___is_wf _ _ _ _ (by assumption) rfl) rfl)
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.1-330.29 -/
+ def unpacknum_ (v_lanetype : lanetype) (v_lane_ : lane_) : Option num_ :=
+@@ -4369,8 +4632,13 @@
+   wf_lane_ v_lanetype v_lane_ →
+   (unpacknum_ v_lanetype v_lane_) ≠ none →
+   ret_val = (Option.get! (unpacknum_ v_lanetype v_lane_)) →
+-  wf_num_ (unpack v_lanetype) ret_val :=
+-  sorry
++  wf_num_ (unpack v_lanetype) ret_val := by
++  intro h hne heq; subst heq
++  cases v_lanetype <;> rcases v_lane_ with ⟨jnn, c⟩ | ⟨fnn, c⟩ <;> (try cases jnn) <;> (try cases fnn) <;> first
++    | exact absurd rfl hne
++    | (cases h; exact wf_num_.num__case_0 _ _ _ (by decide) (by assumption) rfl)
++    | (cases h; exact wf_num_.num__case_1 _ _ _ (by assumption) rfl)
++    | (cases h; exact wf_num_.num__case_0 _ _ _ (by decide) (extend___is_wf _ _ _ _ _ (by assumption) rfl) rfl)
+ 
+ /- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.1-338.84 -/
+ opaque lanes_ (v_shape : shape) (v_vec_ : vec_) : List lane_ := by
+@@ -5080,8 +5348,10 @@
+   (size (valtype_vectype v_vectype)) ≠ none →
+   wf_uN (Option.get! (size (valtype_vectype v_vectype))) v_vec_ →
+   ret_val = (vvunop_ v_vectype v_vvunop v_vec_) →
+-  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val :=
+-  sorry
++  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val := by
++  intro _ hv heq; subst heq
++  cases v_vectype; cases v_vvunop
++  exact inot__is_wf _ _ _ hv rfl
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.1-367.31 -/
+ def vvbinop_ (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) (vec__0 : vec_) : vec_ :=
+@@ -5097,8 +5367,13 @@
+   wf_uN (Option.get! (size (valtype_vectype v_vectype))) v_vec_ →
+   wf_uN (Option.get! (size (valtype_vectype v_vectype))) vec__0 →
+   ret_val = (vvbinop_ v_vectype v_vvbinop v_vec_ vec__0) →
+-  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val :=
+-  sorry
++  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val := by
++  intro _ h1 h2 heq; subst heq
++  cases v_vectype; cases v_vvbinop
++  · exact iand__is_wf _ _ _ _ h1 h2 rfl
++  · exact iandnot__is_wf _ _ _ _ h1 h2 rfl
++  · exact ior__is_wf _ _ _ _ h1 h2 rfl
++  · exact ixor__is_wf _ _ _ _ h1 h2 rfl
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.1-369.34 -/
+ def vvternop_ (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec_) (vec__0 : vec_) (vec__1 : vec_) : vec_ :=
+@@ -5112,8 +5387,10 @@
+   wf_uN (Option.get! (size (valtype_vectype v_vectype))) vec__0 →
+   wf_uN (Option.get! (size (valtype_vectype v_vectype))) vec__1 →
+   ret_val = (vvternop_ v_vectype v_vvternop v_vec_ vec__0 vec__1) →
+-  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val :=
+-  sorry
++  wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val := by
++  intro _ h1 h2 h3 heq; subst heq
++  cases v_vectype; cases v_vvternop
++  exact ibitselect__is_wf _ _ _ _ _ h1 h2 h3 rfl
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
+ inductive fun_vunop__before_fun_vunop__case_26 : shape → vunop_ → vec_ → Prop where
+@@ -5598,6 +5875,189 @@
+     fun_vunop_ x0 x1 x2 none
+ 
+ 
++/-! Hand-written helper lemmas for the `*_is_wf` proofs below (bundle19; not generated). -/
++
++theorem iswf_Forall_Map₂ {α β γ : Type} {P : γ → Prop} (f : α → β → γ) :
++    ∀ (l1 : List α) (l2 : List β), Forall₂ (fun a b => P (f a b)) l1 l2 → Forall P (Map₂ f l1 l2) := by
++  intro l1
++  induction l1 with
++  | nil => intro l2 _; simp only [Map₂, List.ap, List.map_nil, List.zipWith_nil_left]; exact iswf_Forall_nil _
++  | cons a t ih =>
++    intro l2 h
++    cases l2 with
++    | nil => simp only [Map₂, List.ap, List.map_cons, List.zipWith_nil_right]; exact iswf_Forall_nil _
++    | cons b u =>
++      have hab : P (f a b) := h (a, b) (by simp)
++      have hrest : Forall₂ (fun a b => P (f a b)) t u := fun p hp => h p (by simp [hp])
++      have := ih u hrest
++      simp only [Map₂, List.ap, List.map_cons, List.zipWith_cons_cons] at this ⊢
++      exact iswf_Forall_cons hab this
++
++theorem iswf_setproduct2 {X : Type} {P : X → Prop} (w : X) (hw : P w) :
++    ∀ (lls : List (List X)), Forall (fun l => Forall P l) lls → Forall (fun l => Forall P l) (setproduct2_ X w lls) := by
++  intro lls
++  induction lls with
++  | nil => intro _; simp only [setproduct2_]; exact iswf_Forall_nil _
++  | cons l lls ih =>
++    intro h
++    simp only [setproduct2_]
++    exact iswf_Forall_append (iswf_Forall_cons (iswf_Forall_append (iswf_Forall_cons hw (iswf_Forall_nil _)) (h l (by simp)))
++      (iswf_Forall_nil _)) (ih (fun x hx => h x (by simp [hx])))
++
++theorem iswf_setproduct1 {X : Type} {P : X → Prop} :
++    ∀ (l : List X) (lls : List (List X)), Forall P l → Forall (fun l => Forall P l) lls →
++      Forall (fun l => Forall P l) (setproduct1_ X l lls) := by
++  intro l
++  induction l with
++  | nil => intro _ _ _; simp only [setproduct1_]; exact iswf_Forall_nil _
++  | cons w l ih =>
++    intro lls hl hlls
++    simp only [setproduct1_]
++    exact iswf_Forall_append (iswf_setproduct2 w (hl w (by simp)) lls hlls) (ih lls (fun x hx => hl x (by simp [hx])) hlls)
++
++theorem iswf_setproduct {X : Type} {P : X → Prop} :
++    ∀ (lls : List (List X)), Forall (fun l => Forall P l) lls → Forall (fun l => Forall P l) (setproduct_ X lls) := by
++  intro lls
++  induction lls with
++  | nil => intro _; simp only [setproduct_]; exact iswf_Forall_cons (iswf_Forall_nil _) (iswf_Forall_nil _)
++  | cons l lls ih =>
++    intro h
++    simp only [setproduct_]
++    exact iswf_setproduct1 l _ (h l (by simp)) (ih (fun x hx => h x (by simp [hx])))
++
++theorem iswf_inv_lanes_Map (sh : shape) (lls : List (List lane_)) :
++    wf_shape sh → Forall (fun l => Forall (fun x => wf_lane_ (fun_lanetype sh) x) l) lls →
++    Forall (fun v => wf_uN 128 v) (Map (fun l => inv_lanes_ sh l) lls) := by
++  intro hsh h
++  exact iswf_Forall_map _ _ h (fun l hl => inv_lanes__is_wf sh l _ hsh hl rfl)
++
++theorem iswf_signed_func {N k : Nat} {a b : Int} (ha : fun_signed_ N k a) (hb : fun_signed_ N k b) : a = b := by
++  cases ha <;> cases hb <;> first | rfl | omega
++
++theorem iswf_inv_signed_func {N : Nat} {z : Int} {a b : Nat} (ha : fun_inv_signed_ N z a)
++    (hb : fun_inv_signed_ N z b) : a = b := by
++  cases ha <;> cases hb <;> first | rfl | omega
++
++theorem iswf_iabs_func {N : Nat} {i a b : uN} (ha : fun_iabs_ N i a) (hb : fun_iabs_ N i b) : a = b := by
++  cases ha with
++  | fun_iabs__case_0 va hsa =>
++    cases hb with
++    | fun_iabs__case_0 vb hsb => rw [iswf_signed_func hsa hsb]
++
++theorem iswf_imin_func {N : Nat} {s : sx} {i j a b : uN} (ha : fun_imin_ N s i j a) (hb : fun_imin_ N s i j b) :
++    a = b := by
++  cases ha with
++  | fun_imin__case_0 _ _ hle =>
++    cases hb with
++    | fun_imin__case_0 _ _ _ => rfl
++    | fun_imin__case_1 _ _ hgt => omega
++  | fun_imin__case_1 _ _ hgt =>
++    cases hb with
++    | fun_imin__case_0 _ _ hle => omega
++    | fun_imin__case_1 _ _ _ => rfl
++  | fun_imin__case_2 _ _ v1 v0 h1 h0 =>
++    cases hb with
++    | fun_imin__case_2 _ _ v1' v0' h1' h0' => rw [iswf_signed_func h1 h1', iswf_signed_func h0 h0']
++
++theorem iswf_imax_func {N : Nat} {s : sx} {i j a b : uN} (ha : fun_imax_ N s i j a) (hb : fun_imax_ N s i j b) :
++    a = b := by
++  cases ha with
++  | fun_imax__case_0 _ _ hle =>
++    cases hb with
++    | fun_imax__case_0 _ _ _ => rfl
++    | fun_imax__case_1 _ _ hgt => omega
++  | fun_imax__case_1 _ _ hgt =>
++    cases hb with
++    | fun_imax__case_0 _ _ hle => omega
++    | fun_imax__case_1 _ _ _ => rfl
++  | fun_imax__case_2 _ _ v1 v0 h1 h0 =>
++    cases hb with
++    | fun_imax__case_2 _ _ v1' v0' h1' h0' => rw [iswf_signed_func h1 h1', iswf_signed_func h0 h0']
++
++theorem iswf_iadd_sat_func {N : Nat} {s : sx} {i j a b : uN} (ha : fun_iadd_sat_ N s i j a)
++    (hb : fun_iadd_sat_ N s i j b) : a = b := by
++  cases ha with
++  | fun_iadd_sat__case_0 _ _ => cases hb with | fun_iadd_sat__case_0 _ _ => rfl
++  | fun_iadd_sat__case_1 _ _ v2 v1 v0 h2 h1 h0 =>
++    cases hb with
++    | fun_iadd_sat__case_1 _ _ v2' v1' v0' h2' h1' h0' =>
++      rw [iswf_signed_func h2 h2', iswf_signed_func h1 h1'] at h0
++      rw [iswf_inv_signed_func h0 h0']
++
++theorem iswf_isub_sat_func {N : Nat} {s : sx} {i j a b : uN} (ha : fun_isub_sat_ N s i j a)
++    (hb : fun_isub_sat_ N s i j b) : a = b := by
++  cases ha with
++  | fun_isub_sat__case_0 _ _ => cases hb with | fun_isub_sat__case_0 _ _ => rfl
++  | fun_isub_sat__case_1 _ _ v2 v1 v0 h2 h1 h0 =>
++    cases hb with
++    | fun_isub_sat__case_1 _ _ v2' v1' v0' h2' h1' h0' =>
++      rw [iswf_signed_func h2 h2', iswf_signed_func h1 h1'] at h0
++      rw [iswf_inv_signed_func h0 h0']
++
++theorem iswf_Forall₂_eq_of_func {α β : Type} {R : α → β → Prop} :
++    ∀ (lb : List β) (l1 l2 : List α), l1.length = lb.length → l2.length = lb.length →
++      Forall₂ R l1 lb → Forall₂ R l2 lb → (∀ x y b, R x b → R y b → x = y) → l1 = l2 := by
++  intro lb
++  induction lb with
++  | nil => intro l1 l2 h1 h2 _ _ _; cases l1 <;> cases l2 <;> simp_all
++  | cons b lb ih =>
++    intro l1 l2 h1 h2 hF1 hF2 hR
++    cases l1 with
++    | nil => simp at h1
++    | cons x l1 =>
++      cases l2 with
++      | nil => simp at h2
++      | cons y l2 =>
++        have hx := hF1 (x, b) (by simp)
++        have hy := hF2 (y, b) (by simp)
++        rw [hR x y b hx hy, ih l1 l2 (by simpa using h1) (by simpa using h2)
++          (fun p hp => hF1 p (by simp [hp])) (fun p hp => hF2 p (by simp [hp])) hR]
++
++theorem iswf_Forall₃_eq_of_func {α β γ : Type} {R : α → β → γ → Prop} :
++    ∀ (lb : List β) (lc : List γ) (l1 l2 : List α), l1.length = lb.length → l1.length = lc.length →
++      l2.length = lb.length → l2.length = lc.length →
++      Forall₃ R l1 lb lc → Forall₃ R l2 lb lc → (∀ x y b c, R x b c → R y b c → x = y) → l1 = l2 := by
++  intro lb
++  induction lb with
++  | nil => intro lc l1 l2 h1 _ h2 _ _ _ _; cases l1 <;> cases l2 <;> simp_all
++  | cons b lb ih =>
++    intro lc l1 l2 h1b h1c h2b h2c hF1 hF2 hR
++    cases lc with
++    | nil => cases l1 <;> simp_all
++    | cons c lc =>
++      cases l1 with
++      | nil => simp at h1b
++      | cons x l1 =>
++        cases l2 with
++        | nil => simp at h2b
++        | cons y l2 =>
++          have hx := hF1 ((x, b), c) (by simp)
++          have hy := hF2 ((y, b), c) (by simp)
++          rw [hR x y b c hx hy, ih lc l1 l2 (by simpa using h1b) (by simpa using h1c) (by simpa using h2b)
++            (by simpa using h2c) (fun p hp => hF1 p (by simp [hp])) (fun p hp => hF2 p (by simp [hp])) hR]
++
++theorem iswf_list_OMap_lane0 (J : Jnn) (lt : lanetype) (o : Option iN) (hlt : lt = lanetype_Jnn J)
++    (ho : Forall (fun x => wf_uN (lsize (lanetype_Jnn J)) x) (Option.toList o)) :
++    Forall (fun x => wf_lane_ lt x) (list_ lane_ (OMap (fun y => lane_.mk_lane__0 J y) o)) := by
++  cases o with
++  | none => exact iswf_Forall_nil _
++  | some v => exact iswf_Forall_cons (wf_lane_.lane__case_0 _ _ _ (ho v (by simp)) hlt) (iswf_Forall_nil _)
++
++theorem iswf_Forall₂_left_mem {α β : Type} {R : α → β → Prop} :
++    ∀ (l1 : List α) (l2 : List β), Forall₂ R l1 l2 → l1.length = l2.length → ∀ x ∈ l1, ∃ y ∈ l2, R x y := by
++  intro l1
++  induction l1 with
++  | nil => intro l2 _ _ x hx; cases hx
++  | cons a t ih =>
++    intro l2 h hlen x hx
++    cases l2 with
++    | nil => simp at hlen
++    | cons b u =>
++      rcases List.mem_cons.mp hx with rfl | hx'
++      · exact ⟨b, by simp, h (x, b) (by simp)⟩
++      · obtain ⟨y, hy, hr⟩ := ih u (fun p hp => h p (by simp [hp])) (by simpa using hlen) x hx'
++        exact ⟨y, by simp [hy], hr⟩
++
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
+ theorem vunop__is_wf (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_) (ret_val_lst : List vec_) (var_0 : Option (List vec_)) :
+   fun_vunop_ v_shape v_vunop_ v_vec_ var_0 →
+@@ -5606,8 +6066,85 @@
+   wf_uN 128 v_vec_ →
+   var_0 ≠ none →
+   ret_val_lst = (Option.get! var_0) →
+-  Forall (fun (ret_val_elem : vec_) => wf_uN 128 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : vec_) => wf_uN 128 ret_val_elem) ret_val_lst := by
++  intro h _ _ _ hne heq; subst heq
++  cases h with
++  | fun_vunop__case_0 v_M v128_1 M_0 lane_1_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₂_eq_of_func _ _ _ h3 h0 h5 h2 (fun _ _ _ ha hb => iswf_iabs_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h8 (iswf_Forall_map _ _ h9 (fun _ h => h)) h7) (iswf_Forall_nil _)
++  | fun_vunop__case_1 v_M v128_1 M_0 lane_1_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₂_eq_of_func _ _ _ h3 h0 h5 h2 (fun _ _ _ ha hb => iswf_iabs_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h8 (iswf_Forall_map _ _ h9 (fun _ h => h)) h7) (iswf_Forall_nil _)
++  | fun_vunop__case_2 v_M v128_1 M_0 lane_1_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₂_eq_of_func _ _ _ h3 h0 h5 h2 (fun _ _ _ ha hb => iswf_iabs_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h8 (iswf_Forall_map _ _ h9 (fun _ h => h)) h7) (iswf_Forall_nil _)
++  | fun_vunop__case_3 v_M v128_1 M_0 lane_1_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₂_eq_of_func _ _ _ h3 h0 h5 h2 (fun _ _ _ ha hb => iswf_iabs_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h8 (iswf_Forall_map _ _ h9 (fun _ h => h)) h7) (iswf_Forall_nil _)
++  | fun_vunop__case_4 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_5 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_6 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_7 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_8 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_9 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_10 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_11 v_M v128_1 M_0 lane_1_lst v128 h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h3 (iswf_Forall_map _ _ h5 (fun _ h => h)) h2) (iswf_Forall_nil _)
++  | fun_vunop__case_12 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_13 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_14 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_15 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_16 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_17 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_18 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_19 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_20 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_21 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_22 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_23 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_24 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_25 v_M v128_1 M_0 lane_1_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 =>
++    subst h2; subst h1
++    exact iswf_inv_lanes_Map _ _ h3 (iswf_setproduct _ (iswf_Forall_map _ _ h4 (fun _ h => iswf_Forall_map _ _ h (fun _ h' => h'))))
++  | fun_vunop__case_26 x0 x1 x2 h0 =>
++    exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
+ inductive fun_vbinop__before_fun_vbinop__case_52 : shape → vbinop_ → vec_ → vec_ → Prop where
+@@ -7045,8 +7582,163 @@
+   wf_uN 128 vec__0 →
+   var_0 ≠ none →
+   ret_val_lst = (Option.get! var_0) →
+-  Forall (fun (ret_val_elem : vec_) => wf_uN 128 ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : vec_) => wf_uN 128 ret_val_elem) ret_val_lst := by
++  intro h _ _ _ _ hne heq; subst heq
++  cases h with
++  | fun_vbinop__case_0 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_1 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_2 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_3 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_4 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_5 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_6 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_7 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_8 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imin_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_9 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imin_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_10 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imin_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_11 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imin_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_12 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imax_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_13 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imax_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_14 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imax_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_15 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_imax_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_16 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_iadd_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_17 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_iadd_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_18 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_iadd_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_19 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_iadd_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_20 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_isub_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_21 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_isub_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_22 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_isub_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_23 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    have heqv : var_0_lst = var_1_lst := iswf_Forall₃_eq_of_func _ _ _ _ h5 h6 h0 h1 h9 h4 (fun _ _ _ _ ha hb => iswf_isub_sat_func ha hb)
++    subst heqv
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h12) (iswf_Forall_nil _)
++  | fun_vbinop__case_24 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_25 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_26 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_27 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_28 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_29 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_30 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_31 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_32 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_33 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_34 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_35 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 =>
++    exact iswf_Forall_cons (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h9) h4) (iswf_Forall_nil _)
++  | fun_vbinop__case_36 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_37 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_38 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_39 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_40 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_41 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_42 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_43 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_44 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_45 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_46 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_47 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_48 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_49 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_50 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_51 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_lst_lst v128_lst h0 h1 h2 h3 h4 h5 h6 h7 =>
++    subst h3; subst h2
++    exact iswf_inv_lanes_Map _ _ h4 (iswf_setproduct _ (iswf_Forall_Map₂ _ _ _ (fun p hp => iswf_Forall_map _ _ (h6 p hp) (fun _ h' => h'))))
++  | fun_vbinop__case_52 x0 x1 x2 x3 h0 =>
++    exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
+ inductive fun_vrelop__before_fun_vrelop__case_36 : shape → vrelop_ → vec_ → vec_ → Prop where
+@@ -8380,8 +9072,83 @@
+   wf_uN 128 vec__0 →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_uN 128 ret_val :=
+-  sorry
++  wf_uN 128 ret_val := by
++  intro h _ _ _ _ hne heq; subst heq
++  cases h with
++  | fun_vrelop__case_0 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_1 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_2 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_3 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_4 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_5 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_6 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_7 v_M v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_map _ _ h11 (fun _ h => h)) h5
++  | fun_vrelop__case_8 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_9 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_10 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_11 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_12 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_13 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_14 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_15 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_16 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_17 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_18 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_19 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_20 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_21 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_22 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_23 v_M v_sx v128_1 v128_2 M_0 lane_1_lst lane_2_lst lane_3_lst v128 var_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 h16 h17 =>
++    exact inv_lanes__is_wf _ _ _ h14 (iswf_Forall_map _ _ h16 (fun _ h => h)) h13
++  | fun_vrelop__case_24 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_25 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_26 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_27 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_28 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_29 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_30 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_31 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_32 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_33 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_34 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_35 v_M v128_1 v128_2 v_Inn M_0 lane_1_lst lane_2_lst lane_3_lst v128 h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 h15 =>
++    exact inv_lanes__is_wf _ _ _ h13 (iswf_Forall_map _ _ h14 (fun _ h => h)) h7
++  | fun_vrelop__case_36 x0 x1 x2 x3 h0 =>
++    exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
+ inductive fun_lcvtop___before_fun_lcvtop___case_36 : shape → shape → vcvtop__ → lane_ → Prop where
+@@ -8763,8 +9530,16 @@
+   wf_lane_ (fun_lanetype shape_1) v_lane_ →
+   var_0 ≠ none →
+   ret_val_lst = (Option.get! var_0) →
+-  Forall (fun (ret_val_elem : lane_) => wf_lane_ (fun_lanetype shape_2) ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : lane_) => wf_lane_ (fun_lanetype shape_2) ret_val_elem) ret_val_lst := by
++  intro h _ _ _ hl hne heq; subst heq
++  cases h <;> (try exact absurd rfl hne) <;> subst_vars <;> cases hl <;> first
++    | exact iswf_Forall_cons (wf_lane_.lane__case_0 _ _ _ (extend___is_wf _ _ _ _ _ (by assumption) rfl) rfl)
++        (iswf_Forall_nil _)
++    | exact iswf_Forall_cons (wf_lane_.lane__case_1 _ _ _ (convert___is_wf _ _ _ _ _ (by assumption) rfl) rfl)
++        (iswf_Forall_nil _)
++    | exact iswf_list_OMap_lane0 _ _ _ rfl (trunc_sat___is_wf _ _ _ _ _ (by assumption) rfl)
++    | exact iswf_Forall_map _ _ (demote___is_wf _ _ _ _ (by assumption) rfl) (fun y hy => wf_lane_.lane__case_1 _ _ _ hy rfl)
++    | exact iswf_Forall_map _ _ (promote___is_wf _ _ _ _ (by assumption) rfl) (fun y hy => wf_lane_.lane__case_1 _ _ _ hy rfl)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
+ inductive fun_vcvtop___before_fun_vcvtop___case_3 : shape → shape → vcvtop__ → vec_ → Prop where
+@@ -8878,8 +9653,61 @@
+   wf_uN 128 v_vec_ →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_uN 128 ret_val :=
+-  sorry
++  wf_uN 128 ret_val := by
++  intro h _ _ hop hv hne heq; subst heq
++  -- every candidate lane list produced by `$lcvtop__` from a well-formed input lane is well-formed
++  have hcands : ∀ (sh1 sh2 : shape) (op : vcvtop__) (cs : List lane_) (vs : List (Option (List lane_))),
++      wf_shape sh1 → wf_shape sh2 → wf_vcvtop__ sh1 sh2 op →
++      Forall (fun x => wf_lane_ (fun_lanetype sh1) x) cs → vs.length = cs.length →
++      Forall₂ (fun v c => fun_lcvtop__ sh1 sh2 op c v) vs cs → Forall (fun v => v ≠ none) vs →
++      Forall (fun l => Forall (fun x => wf_lane_ (fun_lanetype sh2) x) l) (Map (fun v => Option.get! v) vs) := by
++    intro sh1 sh2 op cs vs hs1 hs2 hop' hcs hlen hF hne'
++    intro l hl
++    obtain ⟨v, hv', rfl⟩ := List.mem_map.mp hl
++    obtain ⟨c, hc, hr⟩ := iswf_Forall₂_left_mem vs cs hF hlen v hv'
++    exact lcvtop___is_wf _ _ _ _ _ _ hr hs1 hs2 hop' (hcs c hc) (hne' v hv') rfl
++  cases h with
++  | fun_vcvtop___case_0 Lnn_1 v_M Lnn_2 vcvtop v128_1 v128 M_0 c_1_lst c_lst_lst var_2_lst var_1 var_0
++      h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 h13 h14 =>
++    subst h14
++    have hl1 : Forall (fun x => wf_lane_ (fun_lanetype (shape.X Lnn_1 (dim.mk_dim v_M))) x) c_1_lst := by
++      rw [h7]; exact lanes__is_wf _ _ _ h12 hv rfl
++    have hprod := iswf_setproduct _ (hcands _ _ _ _ _ h12 h13 hop hl1 h0 h1 h8)
++    rw [← h9] at hprod
++    have hmem : v128 ∈ Map (fun c => inv_lanes_ (shape.X Lnn_2 (dim.mk_dim v_M)) c) c_lst_lst := by
++      simpa using h11
++    exact iswf_inv_lanes_Map _ _ h13 hprod v128 hmem
++  | fun_vcvtop___case_1 Lnn_1 M_1 Lnn_2 M_2 vcvtop v128_1 v128 v_half c_1_lst c_lst_lst var_1_lst var_0
++      h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    have hl1 : Forall (fun x => wf_lane_ (fun_lanetype (shape.X Lnn_1 (dim.mk_dim M_1))) x) c_1_lst := by
++      rw [h5]
++      have hall := lanes__is_wf _ _ _ h10 hv rfl
++      exact fun x hx => hall x (List.mem_of_mem_drop (List.mem_of_mem_take hx))
++    have hprod := iswf_setproduct _ (hcands _ _ _ _ _ h10 h11 hop hl1 h0 h1 h6)
++    rw [← h7] at hprod
++    have hmem : v128 ∈ Map (fun c => inv_lanes_ (shape.X Lnn_2 (dim.mk_dim M_2)) c) c_lst_lst := by
++      simpa using h9
++    exact iswf_inv_lanes_Map _ _ h11 hprod v128 hmem
++  | fun_vcvtop___case_2 Lnn_1 M_1 Lnn_2 M_2 vcvtop v128_1 v128 c_1_lst c_lst_lst var_1_lst var_0
++      h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    have hl1 : Forall (fun x => wf_lane_ (fun_lanetype (shape.X Lnn_1 (dim.mk_dim M_1))) x) c_1_lst := by
++      rw [h5]; exact lanes__is_wf _ _ _ h11 hv rfl
++    have hzero : wf_lane_ (fun_lanetype (shape.X Lnn_2 (dim.mk_dim M_2)))
++        (Option.get! (packnum_ Lnn_2 (fun_zero (unpack Lnn_2)))) :=
++      packnum__is_wf _ _ _ (zero_is_wf _ _ rfl) h7 rfl
++    have hall : Forall (fun l => Forall (fun x => wf_lane_ (fun_lanetype (shape.X Lnn_2 (dim.mk_dim M_2))) x) l)
++        ((Map (fun v => Option.get! v) var_1_lst) ++
++          (List.replicate M_1 [Option.get! (packnum_ Lnn_2 (fun_zero (unpack Lnn_2)))])) := by
++      refine iswf_Forall_append (hcands _ _ _ _ _ h11 h12 hop hl1 h0 h1 h6) ?_
++      intro l hl
++      rw [List.eq_of_mem_replicate hl]
++      exact iswf_Forall_cons hzero (iswf_Forall_nil _)
++    have hprod := iswf_setproduct _ hall
++    rw [← h8] at hprod
++    have hmem : v128 ∈ Map (fun c => inv_lanes_ (shape.X Lnn_2 (dim.mk_dim M_2)) c) c_lst_lst := by
++      simpa using h10
++    exact iswf_inv_lanes_Map _ _ h12 hprod v128 hmem
++  | fun_vcvtop___case_3 _ _ _ _ _ => exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
+ inductive fun_vextunop___before_fun_vextunop___case_16 : ishape → ishape → vextunop__ → vec_ → Prop where
+@@ -9285,8 +10113,43 @@
+   wf_uN 128 v_vec_ →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_uN 128 ret_val :=
+-  sorry
++  wf_uN 128 ret_val := by
++  intro h _ _ _ _ hne heq; subst heq
++  cases h with
++  | fun_vextunop___case_0 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_1 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_2 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_3 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_4 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_5 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_6 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_7 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_8 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_9 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_10 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_11 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_12 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_13 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_14 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_15 M_1 M_2 v_sx c_1 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact inv_lanes__is_wf _ _ _ h5 (iswf_Forall_Map₂ _ _ _ h7) h3
++  | fun_vextunop___case_16 x0 x1 x2 x3 h0 =>
++    exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
+ inductive fun_vextbinop___before_fun_vextbinop___case_32 : ishape → ishape → vextbinop__ → vec_ → vec_ → Prop where
+@@ -10237,8 +11100,75 @@
+   wf_uN 128 vec__0 →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_uN 128 ret_val :=
+-  sorry
++  wf_uN 128 ret_val := by
++  intro h _ _ _ _ _ hne heq; subst heq
++  cases h with
++  | fun_vextbinop___case_0 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_1 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_2 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_3 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_4 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_5 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_6 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_7 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_8 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_9 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_10 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_11 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_12 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_13 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_14 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_15 M_1 M_2 v_half v_sx c_1 c_2 M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact inv_lanes__is_wf _ _ _ h6 (iswf_Forall_Map₂ _ _ _ h10) h4
++  | fun_vextbinop___case_16 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_17 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_18 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_19 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_20 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_21 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_22 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_23 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_24 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_25 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_26 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_27 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_28 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_29 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_30 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_31 M_1 M_2 c_1 c_2 cj_1_lst cj_2_lst M_1_0 M_2_0 ci_1_lst ci_2_lst c h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 =>
++    exact inv_lanes__is_wf _ _ _ h7 (iswf_Forall_Map₂ _ _ _ h9) h5
++  | fun_vextbinop___case_32 x0 x1 x2 x3 x4 h0 =>
++    exact absurd rfl hne
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
+ inductive fun_vshiftop__before_fun_vshiftop__case_8 : ishape → vshiftop_ → lane_ → u32 → Prop where
+@@ -10308,8 +11238,11 @@
+   wf_uN 32 v_u32 →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_lane_ (fun_lanetype (proj_ishape_0 v_ishape)) ret_val :=
+-  sorry
++  wf_lane_ (fun_lanetype (proj_ishape_0 v_ishape)) ret_val := by
++  intro h _ _ hl hu hne heq; subst heq
++  cases h <;> (try exact absurd rfl hne) <;> subst_vars <;> cases hl <;> first
++    | exact wf_lane_.lane__case_0 _ _ _ (ishl__is_wf _ _ _ _ (by assumption) hu rfl) rfl
++    | exact wf_lane_.lane__case_0 _ _ _ (ishr__is_wf _ _ _ _ _ (by assumption) hu rfl) rfl
+ 
+ /- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:5.1-5.39 -/
+ abbrev addr : Type := Nat
+@@ -11051,8 +11984,14 @@
+ theorem default__is_wf (v_valtype : valtype) (ret_val : val) :
+   (default_ v_valtype) ≠ none →
+   ret_val = (Option.get! (default_ v_valtype)) →
+-  wf_val ret_val :=
+-  sorry
++  wf_val ret_val := by
++  intro hne h; subst h
++  cases v_valtype <;> first
++    | exact absurd rfl hne
++    | exact wf_val.val_case_2 _
++    | exact wf_val.val_case_1 _ _ (by decide) (iswf_uN_zero _)
++    | exact wf_val.val_case_0 _ _ (wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_zero _) rfl)
++    | exact wf_val.val_case_0 _ _ (wf_num_.num__case_1 _ _ _ (fzero_is_wf _ _ rfl) rfl)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:20.6-20.14 -/
+ inductive fun_funcsxa : List externaddr → List funcaddr → Prop where
+@@ -11103,12 +12042,39 @@
+   match v_state with
+   | state.mk_state s f => s
+ 
++/-! Hand-written helper lemmas for the `*_is_wf` proofs below (bundle19; not generated). -/
++
++theorem iswf_val_default : wf_val default :=
++  wf_val.val_case_0 _ _ (wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_zero _) rfl)
++
++theorem iswf_funcinst_default : wf_funcinst default :=
++  wf_funcinst.funcinst_case_ _ _ _ (wf_moduleinst.moduleinst_case_ _ _ _ _ _ _ _ _ (iswf_Forall_nil _))
++    (wf_func.func_case_0 _ _ _ (iswf_uN_zero _) (iswf_Forall_nil _))
++
++theorem iswf_globalinst_default : wf_globalinst default :=
++  wf_globalinst.globalinst_case_ _ _ iswf_val_default
++
++theorem iswf_tableinst_default : wf_tableinst default :=
++  wf_tableinst.tableinst_case_ _ _ (wf_tabletype.tabletype_case_0 _ _
++    (wf_limits.limits_case_0 _ _ (iswf_uN_zero _) (iswf_Forall_nil _)))
++
++theorem iswf_meminst_default : wf_meminst default :=
++  wf_meminst.meminst_case_ _ _ (wf_memtype.memtype_case_0 _
++    (wf_limits.limits_case_0 _ _ (iswf_uN_zero _) (iswf_Forall_nil _))) (iswf_Forall_nil _)
++
++theorem iswf_datainst_default : wf_datainst default :=
++  wf_datainst.datainst_case_ _ (iswf_Forall_nil _)
++
++theorem iswf_admininstr_val {v : val} (h : wf_val v) : wf_admininstr (admininstr_val v) := by
++  cases h <;> constructor <;> assumption
++
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 -/
+ theorem store_is_wf (v_state : state) (ret_val : store) :
+   wf_state v_state →
+   ret_val = (fun_store v_state) →
+-  wf_store ret_val :=
+-  sorry
++  wf_store ret_val := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 -/
+ def fun_frame (v_state : state) : frame :=
+@@ -11119,8 +12085,9 @@
+ theorem frame_is_wf (v_state : state) (ret_val : frame) :
+   wf_state v_state →
+   ret_val = (fun_frame v_state) →
+-  wf_frame ret_val :=
+-  sorry
++  wf_frame ret_val := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ _ h => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 -/
+ def fun_funcaddr (v_state : state) : List funcaddr :=
+@@ -11136,8 +12103,9 @@
+ theorem funcinst_is_wf (v_state : state) (ret_val_lst : List funcinst) :
+   wf_state v_state →
+   ret_val_lst = (fun_funcinst v_state) →
+-  Forall (fun (ret_val_elem : funcinst) => wf_funcinst ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : funcinst) => wf_funcinst ret_val_elem) ret_val_lst := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ h _ _ _ _ => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 -/
+ def fun_globalinst (v_state : state) : List globalinst :=
+@@ -11148,8 +12116,9 @@
+ theorem globalinst_is_wf (v_state : state) (ret_val_lst : List globalinst) :
+   wf_state v_state →
+   ret_val_lst = (fun_globalinst v_state) →
+-  Forall (fun (ret_val_elem : globalinst) => wf_globalinst ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : globalinst) => wf_globalinst ret_val_elem) ret_val_lst := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ h _ _ _ => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 -/
+ def fun_tableinst (v_state : state) : List tableinst :=
+@@ -11160,8 +12129,9 @@
+ theorem tableinst_is_wf (v_state : state) (ret_val_lst : List tableinst) :
+   wf_state v_state →
+   ret_val_lst = (fun_tableinst v_state) →
+-  Forall (fun (ret_val_elem : tableinst) => wf_tableinst ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : tableinst) => wf_tableinst ret_val_elem) ret_val_lst := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ h _ _ => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 -/
+ def fun_meminst (v_state : state) : List meminst :=
+@@ -11172,8 +12142,9 @@
+ theorem meminst_is_wf (v_state : state) (ret_val_lst : List meminst) :
+   wf_state v_state →
+   ret_val_lst = (fun_meminst v_state) →
+-  Forall (fun (ret_val_elem : meminst) => wf_meminst ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : meminst) => wf_meminst ret_val_elem) ret_val_lst := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ _ h _ => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 -/
+ def fun_eleminst (v_state : state) : List eleminst :=
+@@ -11189,8 +12160,9 @@
+ theorem datainst_is_wf (v_state : state) (ret_val_lst : List datainst) :
+   wf_state v_state →
+   ret_val_lst = (fun_datainst v_state) →
+-  Forall (fun (ret_val_elem : datainst) => wf_datainst ret_val_elem) ret_val_lst :=
+-  sorry
++  Forall (fun (ret_val_elem : datainst) => wf_datainst ret_val_elem) ret_val_lst := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ _ _ h => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 -/
+ def fun_moduleinst (v_state : state) : moduleinst :=
+@@ -11201,8 +12173,9 @@
+ theorem moduleinst_is_wf (v_state : state) (ret_val : moduleinst) :
+   wf_state v_state →
+   ret_val = (fun_moduleinst v_state) →
+-  wf_moduleinst ret_val :=
+-  sorry
++  wf_moduleinst ret_val := by
++  intro hs h; subst h
++  cases hs with | state_case_0 _ _ _ h => cases h with | frame_case_ _ _ _ h => exact h
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.1-74.66 -/
+ def fun_type (v_state : state) (v_typeidx : typeidx) : functype :=
+@@ -11219,8 +12192,12 @@
+   wf_state v_state →
+   wf_uN 32 v_funcidx →
+   ret_val = (fun_func v_state v_funcidx) →
+-  wf_funcinst ret_val :=
+-  sorry
++  wf_funcinst ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ h _ =>
++    cases h with
++    | store_case_ _ _ _ _ _ _ h _ _ _ _ => exact iswf_Forall_getElem! _ h iswf_funcinst_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.1-76.68 -/
+ def fun_global (v_state : state) (v_globalidx : globalidx) : globalinst :=
+@@ -11232,8 +12209,12 @@
+   wf_state v_state →
+   wf_uN 32 v_globalidx →
+   ret_val = (fun_global v_state v_globalidx) →
+-  wf_globalinst ret_val :=
+-  sorry
++  wf_globalinst ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ h _ =>
++    cases h with
++    | store_case_ _ _ _ _ _ _ _ h _ _ _ => exact iswf_Forall_getElem! _ h iswf_globalinst_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.1-77.67 -/
+ def fun_table (v_state : state) (v_tableidx : tableidx) : tableinst :=
+@@ -11245,8 +12226,12 @@
+   wf_state v_state →
+   wf_uN 32 v_tableidx →
+   ret_val = (fun_table v_state v_tableidx) →
+-  wf_tableinst ret_val :=
+-  sorry
++  wf_tableinst ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ h _ =>
++    cases h with
++    | store_case_ _ _ _ _ _ _ _ _ h _ _ => exact iswf_Forall_getElem! _ h iswf_tableinst_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.1-78.65 -/
+ def fun_mem (v_state : state) (v_memidx : memidx) : meminst :=
+@@ -11258,8 +12243,12 @@
+   wf_state v_state →
+   wf_uN 32 v_memidx →
+   ret_val = (fun_mem v_state v_memidx) →
+-  wf_meminst ret_val :=
+-  sorry
++  wf_meminst ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ h _ =>
++    cases h with
++    | store_case_ _ _ _ _ _ _ _ _ _ h _ => exact iswf_Forall_getElem! _ h iswf_meminst_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.1-79.66 -/
+ def fun_elem (v_state : state) (v_tableidx : tableidx) : eleminst :=
+@@ -11276,8 +12265,12 @@
+   wf_state v_state →
+   wf_uN 32 v_dataidx →
+   ret_val = (fun_data v_state v_dataidx) →
+-  wf_datainst ret_val :=
+-  sorry
++  wf_datainst ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ h _ =>
++    cases h with
++    | store_case_ _ _ _ _ _ _ _ _ _ _ h => exact iswf_Forall_getElem! _ h iswf_datainst_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.1-81.67 -/
+ def fun_local (v_state : state) (v_localidx : localidx) : val :=
+@@ -11289,8 +12282,12 @@
+   wf_state v_state →
+   wf_uN 32 v_localidx →
+   ret_val = (fun_local v_state v_localidx) →
+-  wf_val ret_val :=
+-  sorry
++  wf_val ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 _ _ _ h =>
++    cases h with
++    | frame_case_ _ _ h _ => exact iswf_Forall_getElem! _ h iswf_val_default
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 -/
+ def with_local (v_state : state) (v_localidx : localidx) (v_val : val) : state :=
+@@ -11306,8 +12303,14 @@
+   wf_uN 32 v_localidx →
+   wf_val v_val →
+   ret_val = (with_local v_state v_localidx v_val) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hv h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hf with
++    | frame_case_ ls m hls hm =>
++      exact wf_state.state_case_0 _ _ hst
++        (wf_frame.frame_case_ _ _ (iswf_Forall_modify _ (fun _ _ => hv) ls _ hls) hm)
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.1-96.96 -/
+ def with_global (v_state : state) (v_globalidx : globalidx) (v_val : val) : state :=
+@@ -11326,8 +12329,15 @@
+   wf_uN 32 v_globalidx →
+   wf_val v_val →
+   ret_val = (with_global v_state v_globalidx v_val) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hv h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      refine wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs ?_ hts hms hds) hf
++      exact iswf_Forall_modify _ (fun g hg => by
++        cases hg with | globalinst_case_ gt0 _ _ => exact wf_globalinst.globalinst_case_ gt0 _ hv) gs _ hgs
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.1-97.97 -/
+ def with_table (v_state : state) (v_tableidx : tableidx) (nat : Nat) (v_ref : ref) : state :=
+@@ -11345,8 +12355,15 @@
+   wf_state v_state →
+   wf_uN 32 v_tableidx →
+   ret_val = (with_table v_state v_tableidx nat v_ref) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      refine wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs ?_ hms hds) hf
++      exact iswf_Forall_modify _ (fun t ht => by
++        cases ht with | tableinst_case_ tt0 _ h => exact wf_tableinst.tableinst_case_ tt0 _ h) ts _ hts
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.1-98.89 -/
+ def with_tableinst (v_state : state) (v_tableidx : tableidx) (v_tableinst : tableinst) : state :=
+@@ -11362,8 +12379,14 @@
+   wf_uN 32 v_tableidx →
+   wf_tableinst v_tableinst →
+   ret_val = (with_tableinst v_state v_tableidx v_tableinst) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hti h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs
++        (iswf_Forall_modify _ (fun _ _ => hti) ts _ hts) hms hds) hf
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.1-99.100 -/
+ def with_mem (v_state : state) (v_memidx : memidx) (nat : Nat) (nat_0 : Nat) (var_0_lst : List byte) : state :=
+@@ -11382,8 +12405,16 @@
+   wf_uN 32 v_memidx →
+   Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst →
+   ret_val = (with_mem v_state v_memidx nat nat_0 var_0_lst) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hb h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      refine wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts ?_ hds) hf
++      exact iswf_Forall_modify _ (fun m hm => by
++        cases hm with
++        | meminst_case_ mt bs hmt hbs => exact wf_meminst.meminst_case_ mt _ hmt (iswf_Forall_splice bs _ _ hbs hb)) ms _ hms
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.1-100.87 -/
+ def with_meminst (v_state : state) (v_memidx : memidx) (v_meminst : meminst) : state :=
+@@ -11399,8 +12430,14 @@
+   wf_uN 32 v_memidx →
+   wf_meminst v_meminst →
+   ret_val = (with_meminst v_state v_memidx v_meminst) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hmi h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts
++        (iswf_Forall_modify _ (fun _ _ => hmi) ms _ hms) hds) hf
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.1-101.93 -/
+ def with_elem (v_state : state) (v_elemidx : elemidx) (var_0_lst : List ref) : state :=
+@@ -11418,8 +12455,13 @@
+   wf_state v_state →
+   wf_uN 32 v_elemidx →
+   ret_val = (with_elem v_state v_elemidx var_0_lst) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts hms hds) hf
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.1-102.94 -/
+ def with_data (v_state : state) (v_dataidx : dataidx) (var_0_lst : List byte) : state :=
+@@ -11438,8 +12480,14 @@
+   wf_uN 32 v_dataidx →
+   Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst →
+   ret_val = (with_data v_state v_dataidx var_0_lst) →
+-  wf_state ret_val :=
+-  sorry
++  wf_state ret_val := by
++  intro hs _ hb h; subst h
++  cases hs with
++  | state_case_0 s f hst hf =>
++    cases hst with
++    | store_case_ fs gs ts ms es ds hfs hgs hts hms hds =>
++      exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts hms
++        (iswf_Forall_modify _ (fun _ _ => wf_datainst.datainst_case_ _ hb) ds _ hds)) hf
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
+ inductive fun_growtable_before_fun_growtable_case_1 : tableinst → Nat → ref → Prop where
+@@ -11498,8 +12546,12 @@
+   wf_tableinst v_tableinst →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_tableinst ret_val :=
+-  sorry
++  wf_tableinst ret_val := by
++  intro hg _ hne h; subst h
++  cases hg with
++  | fun_growtable_case_1 _ => exact absurd rfl hne
++  | fun_growtable_case_0 ti' i j_opt rt r'_lst i' _ _ _ hti' _ hwfnew =>
++    subst hti'; exact hwfnew
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
+ inductive fun_growmemory_before_fun_growmemory_case_1 : meminst → Nat → Prop where
+@@ -11560,8 +12612,12 @@
+   wf_meminst v_meminst →
+   var_0 ≠ none →
+   ret_val = (Option.get! var_0) →
+-  wf_meminst ret_val :=
+-  sorry
++  wf_meminst ret_val := by
++  intro hg _ hne h; subst h
++  cases hg with
++  | fun_growmemory_case_1 _ => exact absurd rfl hne
++  | fun_growmemory_case_0 mi' i j_opt b_lst i' _ _ _ _ hmi' _ hwfnew =>
++    subst hmi'; exact hwfnew
+ 
+ /- Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 -/
+ structure context where
+@@ -12939,12 +13995,317 @@
+   | local_tee (v_val : val) (x : idx) : Step_pure [admininstr_val v_val, admininstr.LOCAL_TEE x] [admininstr_val v_val, admininstr_val v_val, admininstr.LOCAL_SET x]
+ 
+ 
++/-! Hand-written helper lemmas for the `*_is_wf` proofs below (bundle19; not generated). -/
++
++theorem iswf_admininstr_instr {i : instr} (h : wf_instr i) : wf_admininstr (admininstr_instr i) := by
++  cases h <;> constructor <;> assumption
++
++theorem iswf_admininstr_ref (r : ref) : wf_admininstr (admininstr_ref r) := by
++  cases r <;> constructor
++
++theorem iswf_mem_of_contains {α : Type} [BEq α] [LawfulBEq α] {l : List α} {a : α}
++    (h : l.contains a = true) : a ∈ l := by
++  simpa using h
++
++theorem iswf_Forall_list_OMap {α β : Type} {P : β → Prop} (f : α → β) (o : Option α) :
++    Forall (fun x => P (f x)) (Option.toList o) → Forall P (list_ β (OMap f o)) := by
++  intro h
++  cases o with
++  | none => exact iswf_Forall_nil _
++  | some v => exact iswf_Forall_cons (h v (by simp)) (iswf_Forall_nil _)
++
++theorem iswf_binop {nt : numtype} {op : binop_} {a b : num_} {v : Option (List num_)}
++    (h : fun_binop_ nt op a b v) (hne : v ≠ none) : Forall (fun x => wf_num_ nt x) (Option.get! v) := by
++  cases h <;> first
++    | exact absurd rfl hne
++    | exact iswf_Forall_cons (by assumption) (iswf_Forall_nil _)
++    | exact iswf_Forall_list_OMap _ _ (by assumption)
++    | exact iswf_Forall_map _ _ (by assumption) (fun _ h => h)
++
++theorem iswf_uN_of_succ {v_N : Nat} {l : uN} (h : wf_uN v_N (uN.mk_uN (proj_uN_0 l + 1))) : wf_uN v_N l := by
++  cases l with
++  | mk_uN i =>
++    have := iswf_uN_lt h
++    exact iswf_uN_of_lt (by simp [proj_uN_0] at this; omega)
++
++theorem iswf_I32_const (n : Nat) (h : n < 2 ^ 32) :
++    wf_admininstr (admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN n))) :=
++  wf_admininstr.admininstr_case_13 _ _ (wf_num_.num__case_0 _ _ _ (by decide) (iswf_uN_of_lt h) rfl)
++
++theorem iswf_val_of_admininstr {v : val} (h : wf_admininstr (admininstr_val v)) : wf_val v := by
++  cases v <;> cases h <;> constructor <;> assumption
++
++theorem iswf_num_Inn_proj (v_Inn : Inn) (c : num_) :
++    wf_num_ (numtype_Inn v_Inn) c → proj_num__0 c ≠ none →
++    wf_uN (Option.get! (size (valtype_Inn v_Inn))) (Option.get! (proj_num__0 c)) := by
++  intro h hne
++  cases h with
++  | num__case_0 v_Inn' x _ hwf heq =>
++    have : v_Inn = v_Inn' := by
++      cases v_Inn <;> cases v_Inn' <;> first | rfl | (simp [numtype_Inn] at heq)
++    subst this
++    exact hwf
++  | num__case_1 _ _ _ _ => exact absurd rfl hne
++
++theorem iswf_rat_to_nat_floor (r : Rat) : rat_to_nat r = r.floor.toNat := by
++  unfold rat_to_nat
++  rw [Rat.floor_def, Int.tdiv_eq_ediv, Int.ofNat_eq_natCast]
++  by_cases h : 0 ≤ r.num
++  · simp [h]
++  · have hd : (0 : Int) < (r.den : Int) := by have := r.den_pos; omega
++    have h1 : r.num / (r.den : Int) < 0 := Int.ediv_neg_of_neg_of_pos (by omega) hd
++    have hs : (r.den : Int).sign = 1 := Int.sign_eq_one_of_pos hd
++    split <;> omega
++
++theorem iswf_rat_to_nat_le {r : Rat} {n : Nat} (h : r ≤ (n : Rat)) : rat_to_nat r ≤ n := by
++  rw [iswf_rat_to_nat_floor]
++  have h2 : r.floor ≤ ((n : Rat)).floor := Rat.floor_monotone h
++  rw [← Rat.intCast_natCast, Rat.floor_intCast] at h2
++  omega
++
++theorem iswf_grow_pages (len v_n : Nat) (h : (len : Rat) / ((64 * Ki) : Rat) + (v_n : Rat) ≤ ((2 ^ 16) : Rat)) :
++    rat_to_nat ((len : Rat) / ((64 * Ki) : Rat)) < 2 ^ 32 := by
++  have h1 : (len : Rat) / ((64 * Ki) : Rat) ≤ (len : Rat) / ((64 * Ki) : Rat) + (v_n : Rat) := by
++    have := (Rat.add_le_add_left (c := (len : Rat) / ((64 * Ki) : Rat))).mpr (Rat.natCast_nonneg (a := v_n))
++    rwa [Rat.add_zero] at this
++  have h2 : ((2 ^ 16) : Rat) = ((2 ^ 16 : Nat) : Rat) := by rw [Rat.natCast_pow]; rfl
++  have h3 := iswf_rat_to_nat_le (Rat.le_trans h1 (h2 ▸ h))
++  omega
++
+ /- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 -/
+ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
+   Forall (fun (var_0_elem : admininstr) => wf_admininstr var_0_elem) var_0 →
+   Step_pure var_0 var_1 →
+-  Forall (fun (var_1_elem : admininstr) => wf_admininstr var_1_elem) var_1 :=
+-  sorry
++  Forall (fun (var_1_elem : admininstr) => wf_admininstr var_1_elem) var_1 := by
++  intro hall h
++  cases h with
++  | unreachable  =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | nop  =>
++    exact iswf_Forall_nil _
++  | drop v_val =>
++    exact iswf_Forall_nil _
++  | select_true val_1 val_2 c t_lst_opt h0 h1 =>
++    exact iswf_Forall_cons (hall _ (by simp)) (iswf_Forall_nil _)
++  | select_false val_1 val_2 c t_lst_opt h0 h1 =>
++    exact iswf_Forall_cons (hall _ (by simp)) (iswf_Forall_nil _)
++  | if_true c bt instr_1_lst instr_2_lst h0 h1 =>
++    have hw := hall (admininstr.IFELSE bt instr_1_lst instr_2_lst) (by simp)
++    cases hw
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_4 _ _ ‹_› ‹_›) (iswf_Forall_nil _)
++  | if_false c bt instr_1_lst instr_2_lst h0 h1 =>
++    have hw := hall (admininstr.IFELSE bt instr_1_lst instr_2_lst) (by simp)
++    cases hw
++    rename_i hb h1 h2
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_4 _ _ hb h2) (iswf_Forall_nil _)
++  | label_vals v_n instr_lst val_lst =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    assumption
++  | br_zero v_n instr'_lst val'_lst val_lst admininstr_lst h0 =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    rename_i hi ha
++    exact iswf_Forall_append (fun x hx => ha x (by simp [hx]))
++      (iswf_Forall_map _ _ hi (fun _ h => iswf_admininstr_instr h))
++  | br_succ v_n instr'_lst val_lst l admininstr_lst =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    rename_i hi ha
++    have hbr := ha (admininstr.BR (uN.mk_uN ((proj_uN_0 l) + 1))) (by simp)
++    cases hbr
++    rename_i hl
++    exact iswf_Forall_append (fun x hx => ha x (by simp [hx]))
++      (iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ (iswf_uN_of_succ hl)) (iswf_Forall_nil _))
++  | br_if_true c l h0 h1 =>
++    have hw := hall (admininstr.BR_IF l) (by simp)
++    cases hw
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ ‹_›) (iswf_Forall_nil _)
++  | br_if_false c l h0 h1 =>
++    exact iswf_Forall_nil _
++  | br_table_lt i l_lst l' h0 h1 =>
++    have hw := hall (admininstr.BR_TABLE l_lst l') (by simp)
++    cases hw
++    rename_i hls _
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ (iswf_Forall_getElem! _ hls (iswf_uN_zero _)))
++      (iswf_Forall_nil _)
++  | br_table_ge i l_lst l' h0 h1 =>
++    have hw := hall (admininstr.BR_TABLE l_lst l') (by simp)
++    cases hw
++    rename_i _ hl
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_7 _ hl) (iswf_Forall_nil _)
++  | frame_vals v_n f val_lst h0 =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    assumption
++  | return_frame v_n f val'_lst val_lst admininstr_lst h0 =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    rename_i _ ha
++    exact fun x hx => ha x (by simp [hx])
++  | return_label v_n instr'_lst val_lst admininstr_lst =>
++    have hw := hall _ (List.mem_singleton_self _)
++    cases hw
++    rename_i _ ha
++    exact iswf_Forall_append (fun x hx => ha x (by simp [hx])) (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | trap_vals val_lst admininstr_lst h0 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | trap_label v_n instr'_lst =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | trap_frame v_n f =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | unop_val nt c_1 unop c h0 h1 h2 =>
++    have hc := hall (admininstr.CONST nt c_1) (by simp)
++    have hop := hall (admininstr.UNOP nt unop) (by simp)
++    cases hc; cases hop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _
++      (unop__is_wf _ _ _ _ ‹_› ‹_› h1 rfl c (iswf_mem_of_contains h2))) (iswf_Forall_nil _)
++  | unop_trap nt c_1 unop h0 h1 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | binop_val nt c_1 c_2 binop c var_0 h0 h1 h2 h3 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _
++      (iswf_binop h0 h2 c (iswf_mem_of_contains h3))) (iswf_Forall_nil _)
++  | binop_trap nt c_1 c_2 binop var_0 h0 h1 h2 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | testop nt c_1 testop c h0 h1 h2 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ h2) (iswf_Forall_nil _)
++  | relop nt c_1 c_2 relop c var_0 h0 h1 h2 h3 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ h3) (iswf_Forall_nil _)
++  | cvtop_val nt_1 c_1 nt_2 cvtop c var_0 h0 h1 h2 h3 =>
++    have hc := hall (admininstr.CONST nt_1 c_1) (by simp)
++    have hop := hall (admininstr.CVTOP nt_2 nt_1 cvtop) (by simp)
++    cases hc; cases hop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _
++      (cvtop___is_wf _ _ _ _ _ _ h0 ‹_› ‹_› h2 rfl c (iswf_mem_of_contains h3))) (iswf_Forall_nil _)
++  | cvtop_trap nt_1 c_1 nt_2 cvtop var_0 h0 h1 h2 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | ref_is_null_true v_ref rt h0 =>
++    exact iswf_Forall_cons (iswf_I32_const 1 (by decide)) (iswf_Forall_nil _)
++  | ref_is_null_false v_ref h0 =>
++    exact iswf_Forall_cons (iswf_I32_const 0 (by decide)) (iswf_Forall_nil _)
++  | vvunop c_1 v_vvunop c h0 =>
++    have hc := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    cases hc
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vvunop__is_wf _ _ _ _ (by decide) ‹_› h0)) (iswf_Forall_nil _)
++  | vvbinop c_1 c_2 v_vvbinop c h0 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.VCONST vectype.V128 c_2) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i _ hw2
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vvbinop__is_wf _ _ _ _ _ (by decide) hw1 hw2 h0)) (iswf_Forall_nil _)
++  | vvternop c_1 c_2 c_3 v_vvternop c h0 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.VCONST vectype.V128 c_2) (by simp)
++    have hc3 := hall (admininstr.VCONST vectype.V128 c_3) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i _ hw2; cases hc3; rename_i _ hw3
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vvternop__is_wf _ _ _ _ _ _ (by decide) hw1 hw2 hw3 h0)) (iswf_Forall_nil _)
++  | vvtestop c_1 c h0 h1 h2 h3 h4 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ h3) (iswf_Forall_nil _)
++  | vunop c_1 sh vunop c var_0 h0 h1 h2 h3 =>
++    have hc := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hop := hall (admininstr.VUNOP sh vunop) (by simp)
++    cases hc; rename_i _ hw1; cases hop; rename_i hsh hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vunop__is_wf _ _ _ _ _ h0 hsh hvop hw1 h2 rfl c (iswf_mem_of_contains h3))) (iswf_Forall_nil _)
++  | vunop_trap c_1 sh vunop var_0 h0 h1 h2 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | vbinop_val c_1 c_2 sh vbinop c var_0 h0 h1 h2 h3 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.VCONST vectype.V128 c_2) (by simp)
++    have hop := hall (admininstr.VBINOP sh vbinop) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i _ hw2; cases hop; rename_i hsh hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vbinop__is_wf _ _ _ _ _ _ h0 hsh hvop hw1 hw2 h2 rfl c (iswf_mem_of_contains h3))) (iswf_Forall_nil _)
++  | vbinop_trap c_1 c_2 sh vbinop var_0 h0 h1 h2 =>
++    exact iswf_Forall_cons (by constructor) (iswf_Forall_nil _)
++  | vtestop_true c v_Jnn v_N ci_1_lst h0 h1 h2 h3 h4 =>
++    exact iswf_Forall_cons (iswf_I32_const 1 (by decide)) (iswf_Forall_nil _)
++  | vtestop_false c v_Jnn v_N h0 =>
++    exact iswf_Forall_cons (iswf_I32_const 0 (by decide)) (iswf_Forall_nil _)
++  | vrelop c_1 c_2 sh vrelop c var_0 h0 h1 h2 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.VCONST vectype.V128 c_2) (by simp)
++    have hop := hall (admininstr.VRELOP sh vrelop) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i _ hw2; cases hop; rename_i hsh hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vrelop__is_wf _ _ _ _ _ _ h0 hsh hvop hw1 hw2 h1 h2.symm)) (iswf_Forall_nil _)
++  | vshiftop c_1 v_n v_Jnn v_N vshiftop c c'_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 =>
++    have hop := hall (admininstr.VSHIFTOP (ishape.mk_ishape (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N))) vshiftop) (by simp)
++    cases hop; rename_i hish hvop
++    have hl : Forall (fun x => wf_lane_ (fun_lanetype (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N))) x)
++        (Map (fun e => Option.get! e) var_0_lst) := by
++      intro x hx
++      obtain ⟨e, he, rfl⟩ := List.mem_map.mp hx
++      obtain ⟨c', hc', hr⟩ := iswf_Forall₂_left_mem _ _ h1 h0 e he
++      exact vshiftop__is_wf _ _ _ _ _ _ hr hish hvop (h5 c' hc') h8 (h3 e he) rfl
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h6 hl h4)) (iswf_Forall_nil _)
++  | vbitmask c v_Jnn v_N ci ci_1_lst var_0_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _
++      (wf_num_.num__case_0 _ _ _ (by decide) (irev__is_wf _ _ _ h5 rfl) rfl)) (iswf_Forall_nil _)
++  | vswizzle c_1 c_2 v_Pnn v_M c ci_lst c'_lst k h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h7 (iswf_Forall_map _ _ h9 (fun _ h => h)) h6)) (iswf_Forall_nil _)
++  | vshuffle c_1 c_2 v_Pnn v_N i_lst c c'_lst k h0 h1 h2 h3 h4 h5 h6 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h5 (iswf_Forall_map _ _ h6 (fun _ h => h)) h3)) (iswf_Forall_nil _)
++  | vsplat v_Lnn c_1 v_N c h0 h1 h2 =>
++    have hc := hall (admininstr.CONST (unpack v_Lnn) c_1) (by simp)
++    cases hc; rename_i hwc
++    have hp := packnum__is_wf _ _ _ hwc h0 rfl
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h2 (fun x hx => by rw [List.eq_of_mem_replicate hx]; exact hp) h1))
++      (iswf_Forall_nil _)
++  | vextract_lane_num c_1 nt v_N i c_2 h0 h1 h2 h3 =>
++    have hc := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    cases hc; rename_i _ hw1
++    have hls := lanes__is_wf _ _ _ h3 hw1 rfl
++    have hlane := hls ((lanes_ (shape.X (lanetype_numtype nt) (dim.mk_dim v_N)) c_1)[proj_uN_0 i]!)
++      (by rw [getElem!_pos (lanes_ (shape.X (lanetype_numtype nt) (dim.mk_dim v_N)) c_1) (proj_uN_0 i) h1]
++          exact List.getElem_mem h1)
++    have hn := unpacknum__is_wf _ _ _ hlane h0 h2
++    cases nt <;> exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ hn) (iswf_Forall_nil _)
++  | vextract_lane_pack c_1 pt v_N v_sx i c_2 h0 h1 h2 h3 h4 h5 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_13 _ _ h4) (iswf_Forall_nil _)
++  | vreplace_lane c_1 v_Lnn c_2 v_N i c h0 h1 h2 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.CONST (unpack v_Lnn) c_2) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i hwc
++    have hp := packnum__is_wf _ _ _ hwc h0 rfl
++    have hls := lanes__is_wf _ _ _ h2 hw1 rfl
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h2 (iswf_Forall_modify _ (fun _ _ => hp) _ _ hls) h1)) (iswf_Forall_nil _)
++  | vextunop c_1 sh_2 sh_1 vextunop c var_0 h0 h1 h2 =>
++    have hc := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hop := hall (admininstr.VEXTUNOP sh_2 sh_1 vextunop) (by simp)
++    cases hc; rename_i _ hw1; cases hop; rename_i hs2 hs1 hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vextunop___is_wf _ _ _ _ _ _ h0 hs1 hs2 hvop hw1 h1 h2.symm)) (iswf_Forall_nil _)
++  | vextbinop c_1 c_2 sh_2 sh_1 vextbinop c var_0 h0 h1 h2 =>
++    have hc1 := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hc2 := hall (admininstr.VCONST vectype.V128 c_2) (by simp)
++    have hop := hall (admininstr.VEXTBINOP sh_2 sh_1 vextbinop) (by simp)
++    cases hc1; rename_i _ hw1; cases hc2; rename_i _ hw2; cases hop; rename_i hs2 hs1 hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vextbinop___is_wf _ _ _ _ _ _ _ h0 hs1 hs2 hvop hw1 hw2 h1 h2.symm)) (iswf_Forall_nil _)
++  | vnarrow c_1 c_2 Jnn_2 N_2 Jnn_1 N_1 v_sx c ci_1_lst ci_2_lst cj_1_lst cj_2_lst h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11 h12 =>
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (inv_lanes__is_wf _ _ _ h10 (iswf_Forall_append (iswf_Forall_map _ _ h11 (fun _ h => h))
++        (iswf_Forall_map _ _ h12 (fun _ h => h))) h6)) (iswf_Forall_nil _)
++  | vcvtop c_1 sh_2 sh_1 vcvtop c var_0 h0 h1 h2 =>
++    have hc := hall (admininstr.VCONST vectype.V128 c_1) (by simp)
++    have hop := hall (admininstr.VCVTOP sh_2 sh_1 vcvtop) (by simp)
++    cases hc; rename_i _ hw1; cases hop; rename_i hs2 hs1 hvop
++    exact iswf_Forall_cons (wf_admininstr.admininstr_case_20 _ _ (by decide)
++      (vcvtop___is_wf _ _ _ _ _ _ h0 hs1 hs2 hvop hw1 h1 h2)) (iswf_Forall_nil _)
++  | local_tee v_val x =>
++    have hv := hall (admininstr_val v_val) (by simp)
++    have ht := hall (admininstr.LOCAL_TEE x) (by simp)
++    cases ht; rename_i hx
++    exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_cons (wf_admininstr.admininstr_case_44 _ hx)
++      (iswf_Forall_nil _)))
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.1-63.73 -/
+ def fun_blocktype (v_state : state) (v_blocktype : blocktype) : functype :=
+@@ -13334,13 +14695,6 @@
+     Step_read (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_INIT x]) [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (proj_byte_0 (((fun_data z x).BYTES)[proj_uN_0 (Option.get! (proj_num__0 i))]!)))), admininstr.STORE numtype.I32 (some (sz.mk_sz 8)) memarg0, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 j))) + 1))), admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN ((proj_uN_0 (Option.get! (proj_num__0 i))) + 1))), admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN (Int.toNat ((v_n : Int) - (1 : Int))))), admininstr.MEMORY_INIT x]
+ 
+ 
+-/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 -/
+-theorem Step_read_is_wf (var_0 : config) (var_1 : List admininstr) :
+-  wf_config var_0 →
+-  Step_read var_0 var_1 →
+-  Forall (fun (var_1_elem : admininstr) => wf_admininstr var_1_elem) var_1 :=
+-  sorry
+-
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 -/
+ inductive Step : config → config → Prop where
+   | pure (z : state) (admininstr_lst : List admininstr) (admininstr'_lst : List admininstr) :
+@@ -13443,13 +14797,6 @@
+   | data_drop (z : state) (x : idx) : Step (config.mk_config z [admininstr.DATA_DROP x]) (config.mk_config (with_data z x []) [])
+ 
+ 
+-/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:5.10-5.14 -/
+-theorem Step_is_wf (var_0 : config) (var_1 : config) :
+-  wf_config var_0 →
+-  Step var_0 var_1 →
+-  wf_config var_1 :=
+-  sorry
+-
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 -/
+ inductive Steps : config → config → Prop where
+   | refl (z : state) (admininstr_lst : List admininstr) :
+@@ -13546,8 +14893,14 @@
+   wf_moduleinst v_moduleinst →
+   wf_func v_func →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs _ _ heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:41.6-41.17 -/
+ inductive fun_allocfuncs : store → moduleinst → List func → store × List funcaddr → Prop where
+@@ -13567,8 +14920,13 @@
+   wf_moduleinst v_moduleinst →
+   Forall (fun (var_0_elem : func) => wf_func var_0_elem) var_0_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs hm hall heq; subst heq
++  induction H with
++  | fun_allocfuncs_case_0 s v_moduleinst => exact hs
++  | fun_allocfuncs_case_1 s v_moduleinst v_func func'_lst fa s_1 s_2 fa'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (allocfunc_is_wf _ _ _ _ _ p2 hs hm (hall _ (by simp)) rfl) hm (fun x hx => hall x (by simp [hx]))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 -/
+ inductive fun_allocglobal : store → globaltype → val → store × globaladdr → Prop where
+@@ -13593,8 +14951,14 @@
+   wf_store v_store →
+   wf_val v_val →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs _ heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:51.6-51.19 -/
+ inductive fun_allocglobals : store → List globaltype → List val → store × List globaladdr → Prop where
+@@ -13613,8 +14977,13 @@
+   wf_store v_store →
+   Forall (fun (var_1_elem : val) => wf_val var_1_elem) var_1_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs hall heq; subst heq
++  induction H with
++  | fun_allocglobals_case_0 s => exact hs
++  | fun_allocglobals_case_1 s v_globaltype globaltype'_lst v_val val'_lst ga s_1 s_2 ga'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (allocglobal_is_wf _ _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 -/
+ inductive fun_alloctable : store → tabletype → store × tableaddr → Prop where
+@@ -13639,8 +15008,14 @@
+   wf_store v_store →
+   wf_tabletype v_tabletype →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs _ heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:61.6-61.18 -/
+ inductive fun_alloctables : store → List tabletype → store × List tableaddr → Prop where
+@@ -13659,8 +15034,13 @@
+   wf_store v_store →
+   Forall (fun (var_0_elem : tabletype) => wf_tabletype var_0_elem) var_0_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs hall heq; subst heq
++  induction H with
++  | fun_alloctables_case_0 s => exact hs
++  | fun_alloctables_case_1 s v_tabletype tabletype'_lst ta s_1 s_2 ta'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (alloctable_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 -/
+ inductive fun_allocmem : store → memtype → store × memaddr → Prop where
+@@ -13685,8 +15065,14 @@
+   wf_store v_store →
+   wf_memtype v_memtype →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs _ heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:71.6-71.16 -/
+ inductive fun_allocmems : store → List memtype → store × List memaddr → Prop where
+@@ -13705,8 +15091,13 @@
+   wf_store v_store →
+   Forall (fun (var_0_elem : memtype) => wf_memtype var_0_elem) var_0_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs hall heq; subst heq
++  induction H with
++  | fun_allocmems_case_0 s => exact hs
++  | fun_allocmems_case_1 s v_memtype memtype'_lst ma s_1 s_2 ma'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (allocmem_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 -/
+ inductive fun_allocelem : store → reftype → List ref → store × elemaddr → Prop where
+@@ -13726,8 +15117,14 @@
+   fun_allocelem v_store v_reftype var_0_lst var_0 →
+   wf_store v_store →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:81.6-81.17 -/
+ inductive fun_allocelems : store → List reftype → List (List ref) → store × List elemaddr → Prop where
+@@ -13745,8 +15142,13 @@
+   fun_allocelems v_store var_0_lst var_1_lst_lst var_0 →
+   wf_store v_store →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs heq; subst heq
++  induction H with
++  | fun_allocelems_case_0 s => exact hs
++  | fun_allocelems_case_1 s rt rt'_lst ref_lst ref'_lst_lst ea s_1 s_2 ea'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (allocelem_is_wf _ _ _ _ _ p2 hs rfl)
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 -/
+ inductive fun_allocdata : store → List byte → store × dataaddr → Prop where
+@@ -13769,8 +15171,14 @@
+   wf_store v_store →
+   Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs _ heq; subst heq
++  cases H
++  subst_vars
++  cases hs
++  refine wf_store.store_case_ _ _ _ _ _ _ ?_ ?_ ?_ ?_ ?_ <;> first
++    | assumption
++    | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:91.6-91.17 -/
+ inductive fun_allocdatas : store → List (List byte) → store × List dataaddr → Prop where
+@@ -13789,8 +15197,13 @@
+   wf_store v_store →
+   Forall (fun (var_0_lst_elem : List byte) => Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst_elem) var_0_lst_lst →
+   ret_val = var_0 →
+-  wf_store (ret_val.1) :=
+-  sorry
++  wf_store (ret_val.1) := by
++  intro H hs hall heq; subst heq
++  induction H with
++  | fun_allocdatas_case_0 s => exact hs
++  | fun_allocdatas_case_1 s byte_lst byte'_lst_lst da s_1 s_2 da'_lst var_1 var_0 p1 p2 p3 p4 ih =>
++    subst p3 p4
++    exact ih (allocdata_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
+ 
+ /- Auxiliary Definition at: ../specification/wasm-2.0/9-module.spectec:100.1-100.83 -/
+ def instexport (var_0_lst : List funcaddr) (var_1_lst : List globaladdr) (var_2_lst : List tableaddr) (var_3_lst : List memaddr) (v_export : «export») : exportinst :=
+@@ -13816,8 +15229,11 @@
+ theorem instexport_is_wf (var_0_lst : List funcaddr) (var_1_lst : List globaladdr) (var_2_lst : List tableaddr) (var_3_lst : List memaddr) (v_export : «export») (ret_val : exportinst) :
+   wf_export v_export →
+   ret_val = (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export) →
+-  wf_exportinst ret_val :=
+-  sorry
++  wf_exportinst ret_val := by
++  intro hwf heq; subst heq
++  cases hwf with
++  | export_case_0 nm xi hn _ =>
++    cases xi <;> exact wf_exportinst.exportinst_case_ _ _ hn
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 -/
+ inductive fun_allocmodule : store → module → List externaddr → List val → List (List ref) → store × moduleinst → Prop where
+@@ -13887,8 +15303,11 @@
+   Forall (fun (var_1_elem : val) => wf_val var_1_elem) var_1_lst →
+   ret_val = var_0 →
+   wf_store (ret_val.1) →
+-  wf_moduleinst (ret_val.2) :=
+-  sorry
++  wf_moduleinst (ret_val.2) := by
++  intro H _ _ _ heq _; subst heq
++  cases H
++  subst_vars
++  assumption
+ 
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:154.6-154.14 -/
+ inductive fun_runelem : elem → idx → List instr → Prop where
+@@ -14071,8 +15490,13 @@
+   wf_store v_store →
+   Forall (fun (var_0_elem : val) => wf_val var_0_elem) var_0_lst →
+   ret_val = var_0 →
+-  wf_config ret_val :=
+-  sorry
++  wf_config ret_val := by
++  intro H _ hall heq; subst heq
++  cases H
++  subst_vars
++  exact wf_config.config_case_0 _ _ ‹_›
++    (iswf_Forall_append (iswf_Forall_map _ _ hall (fun _ hv => iswf_admininstr_val hv))
++      (iswf_Forall_cons (by constructor) (iswf_Forall_nil _)))
+ 
+ /- Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:849.1-849.43 -/
+ abbrev startopt : Type := List start
+@@ -14601,6 +16025,152 @@
+     Store_ok s
+ 
+ 
++/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 -/
++/- Hand-edited (bundle19), mirroring the hand-edited Rocq `wasm.v`: moved after `Store_ok` and given a
++   `Store_ok (fun_store z)` premise ("the store bounds are needed for table.size, memory.size and the bulk
++   rules"). `Admitted` in Rocq; left `sorry`. Even with the premise it is false in one corner case
++   (memory.fill/copy/init push `CONST I32 (i+1)` with `i = 2^32 - 1` on a 2^16-page memory), pending a
++   spec-side fix. -/
++theorem Step_read_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : List admininstr) :
++  wf_config (config.mk_config z admininstr_lst) →
++  Store_ok (fun_store z) →
++  Step_read (config.mk_config z admininstr_lst) var_1 →
++  Forall (fun (var_1_elem : admininstr) => wf_admininstr var_1_elem) var_1 :=
++  sorry
++
++/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:5.10-5.14 -/
++/- Hand-edited (bundle19), mirroring the hand-edited Rocq `wasm.v`: moved after `Store_ok` and given a
++   `Store_ok (fun_store z)` premise, which its `read` case passes on to `Step_read_is_wf`. `Qed` in Rocq;
++   proved here (bundle19). -/
++theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : config) :
++  wf_config (config.mk_config z admininstr_lst) →
++  Store_ok (fun_store z) →
++  Step (config.mk_config z admininstr_lst) var_1 →
++  wf_config var_1 := by
++  intro hcfg hsok h
++  obtain ⟨hst, hais⟩ : wf_state z ∧ Forall (fun e => wf_admininstr e) admininstr_lst := by
++    cases hcfg with | config_case_0 _ _ h1 h2 => exact ⟨h1, h2⟩
++  cases h with
++  | pure z admininstr_lst admininstr'_lst h0 =>
++    exact wf_config.config_case_0 _ _ hst (Step_pure_is_wf _ _ hais h0)
++  | read z admininstr_lst admininstr'_lst h0 =>
++    exact wf_config.config_case_0 _ _ hst (Step_read_is_wf _ _ _ hcfg hsok h0)
++  | ctxt_label z v_n instr_0_lst admininstr_lst z' admininstr'_lst h0 h1 h2 =>
++    have hl := hais _ (List.mem_singleton_self _)
++    cases hl; rename_i hi _
++    cases h2 with
++    | config_case_0 _ _ hst' hais' =>
++      exact wf_config.config_case_0 _ _ hst'
++        (iswf_Forall_cons (wf_admininstr.admininstr_case_71 _ _ _ hi hais') (iswf_Forall_nil _))
++  | ctxt_frame s f v_n f' admininstr_lst s' f'' admininstr'_lst h0 h1 h2 =>
++    cases hst with
++    | state_case_0 _ _ _ hf =>
++      cases h2 with
++      | config_case_0 _ _ hst' hais' =>
++        cases hst' with
++        | state_case_0 _ _ hs' hf'' =>
++          exact wf_config.config_case_0 _ _ (wf_state.state_case_0 _ _ hs' hf)
++            (iswf_Forall_cons (wf_admininstr.admininstr_case_72 _ _ _ hf'' hais') (iswf_Forall_nil _))
++  | ctxt_instrs z val_lst admininstr_lst admininstr_1_lst z' admininstr'_lst h0 h1 h2 h3 =>
++    cases h3 with
++    | config_case_0 _ _ hst' hais' =>
++      exact wf_config.config_case_0 _ _ hst' (iswf_Forall_append (fun x hx => hais x (by simp [hx]))
++        (iswf_Forall_append hais' (fun x hx => hais x (by simp [hx]))))
++  | local_set z v_val x =>
++    have hv := hais (admininstr_val v_val) (by simp)
++    have hx := hais (admininstr.LOCAL_SET x) (by simp)
++    cases hx
++    exact wf_config.config_case_0 _ _ (with_local_is_wf _ _ _ _ hst ‹_› (iswf_val_of_admininstr hv) rfl)
++      (iswf_Forall_nil _)
++  | global_set z v_val x =>
++    have hv := hais (admininstr_val v_val) (by simp)
++    have hx := hais (admininstr.GLOBAL_SET x) (by simp)
++    cases hx
++    exact wf_config.config_case_0 _ _ (with_global_is_wf _ _ _ _ hst ‹_› (iswf_val_of_admininstr hv) rfl)
++      (iswf_Forall_nil _)
++  | table_set_trap z i v_ref x h0 h1 =>
++    exact wf_config.config_case_0 _ _ hst (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | table_set_val z i v_ref x h0 h1 =>
++    have hx := hais (admininstr.TABLE_SET x) (by simp)
++    cases hx
++    exact wf_config.config_case_0 _ _ (with_table_is_wf _ _ _ _ _ hst ‹_› rfl) (iswf_Forall_nil _)
++  | table_grow_succeed z v_ref v_n x ti var_0 h0 h1 h2 =>
++    have hx := hais (admininstr.TABLE_GROW x) (by simp)
++    cases hx; rename_i hx
++    have htab := table_is_wf _ _ _ hst hx rfl
++    have hti := growtable_is_wf _ _ _ _ _ h0 htab h1 h2.symm
++    have hlen : (fun_table z x).REFS.length < 2 ^ 32 := by
++      cases h0 with
++      | fun_growtable_case_1 _ => exact absurd rfl h1
++      | fun_growtable_case_0 ti' i j_opt rt r'_lst i' hold hi' _ _ _ hwfnew =>
++        rw [← hold]
++        cases hwfnew with
++        | tableinst_case_ _ _ htt =>
++          cases htt with
++          | tabletype_case_0 _ _ hlim =>
++            cases hlim with
++            | limits_case_0 _ _ hu _ =>
++              have := iswf_uN_lt hu
++              simp only
++              omega
++    exact wf_config.config_case_0 _ _ (with_tableinst_is_wf _ _ _ _ hst hx hti rfl)
++      (iswf_Forall_cons (iswf_I32_const _ hlen) (iswf_Forall_nil _))
++  | table_grow_fail z v_ref v_n x var_0 h0 =>
++    exact wf_config.config_case_0 _ _ hst
++      (iswf_Forall_cons (iswf_I32_const _ (iswf_uN_lt (iswf_inv_signed h0))) (iswf_Forall_nil _))
++  | elem_drop z x =>
++    have hx := hais (admininstr.ELEM_DROP x) (by simp)
++    cases hx
++    exact wf_config.config_case_0 _ _ (with_elem_is_wf _ _ _ _ hst ‹_› rfl) (iswf_Forall_nil _)
++  | store_num_trap z i nt c ao h0 h1 h2 h3 =>
++    exact wf_config.config_case_0 _ _ hst (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | store_num_val z i nt c ao b_lst h0 h1 h2 =>
++    have hc := hais (admininstr.CONST nt c) (by simp)
++    cases hc; rename_i hc
++    exact wf_config.config_case_0 _ _
++      (with_mem_is_wf _ _ _ _ _ _ hst (iswf_uN_zero _) (nbytes__is_wf nt c b_lst hc h2) rfl) (iswf_Forall_nil _)
++  | store_pack_trap z i v_Inn c v_n ao h0 h1 h2 =>
++    exact wf_config.config_case_0 _ _ hst (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | store_pack_val z i v_Inn c v_n ao b_lst h0 h1 h2 h3 =>
++    have hc := hais (admininstr.CONST (numtype_Inn v_Inn) c) (by simp)
++    cases hc; rename_i hc
++    exact wf_config.config_case_0 _ _
++      (with_mem_is_wf _ _ _ _ _ _ hst (iswf_uN_zero _)
++        (ibytes__is_wf v_n _ b_lst (wrap___is_wf _ _ _ _ (iswf_num_Inn_proj v_Inn c hc h2) rfl) h3) rfl)
++      (iswf_Forall_nil _)
++  | vstore_oob z i c ao h0 h1 h2 h3 =>
++    exact wf_config.config_case_0 _ _ hst (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | vstore_val z i c ao b_lst h0 h1 h2 =>
++    have hc := hais (admininstr.VCONST vectype.V128 c) (by simp)
++    cases hc; rename_i hsz hwfc
++    exact wf_config.config_case_0 _ _
++      (with_mem_is_wf _ _ _ _ _ _ hst (iswf_uN_zero _) (vbytes__is_wf vectype.V128 c b_lst hsz hwfc h2) rfl)
++      (iswf_Forall_nil _)
++  | vstore_lane_oob z i c v_N ao j h0 h1 h2 =>
++    exact wf_config.config_case_0 _ _ hst (iswf_Forall_cons (by constructor) (iswf_Forall_nil _))
++  | vstore_lane_val z i c v_N ao j b_lst v_Jnn v_M h0 h1 h2 h3 h4 h5 h6 =>
++    exact wf_config.config_case_0 _ _
++      (with_mem_is_wf _ _ _ _ _ _ hst (iswf_uN_zero _) (ibytes__is_wf v_N _ b_lst h6 h5) rfl) (iswf_Forall_nil _)
++  | memory_grow_succeed z v_n mi var_0 h0 h1 h2 h3 =>
++    have hmem := mem_is_wf _ (uN.mk_uN 0) _ hst (iswf_uN_zero _) rfl
++    have hmi := growmemory_is_wf _ _ _ _ h0 hmem h1 h2.symm
++    have hlen : rat_to_nat (((List.length ((fun_mem z (uN.mk_uN 0)).BYTES)) : Rat) / ((64 * Ki) : Rat)) < 2 ^ 32 := by
++      cases h0 with
++      | fun_growmemory_case_1 _ => exact absurd rfl h1
++      | fun_growmemory_case_0 mi' i j_opt b_lst i' hold hi' _ h216 _ _ _ =>
++        rw [← hold]
++        subst hi'
++        exact iswf_grow_pages _ _ h216
++    exact wf_config.config_case_0 _ _ (with_meminst_is_wf _ _ _ _ hst (iswf_uN_zero _) hmi rfl)
++      (iswf_Forall_cons (iswf_I32_const _ hlen) (iswf_Forall_nil _))
++  | memory_grow_fail z v_n var_0 h0 =>
++    exact wf_config.config_case_0 _ _ hst
++      (iswf_Forall_cons (iswf_I32_const _ (iswf_uN_lt (iswf_inv_signed h0))) (iswf_Forall_nil _))
++  | data_drop z x =>
++    have hx := hais (admininstr.DATA_DROP x) (by simp)
++    cases hx
++    exact wf_config.config_case_0 _ _ (with_data_is_wf _ _ _ _ hst ‹_› (iswf_Forall_nil _) rfl) (iswf_Forall_nil _)
++
+ /- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:250.1-250.54 -/
+ inductive Extend_globalinst : globalinst → globalinst → Prop where
+   | mk_Extend_globalinst (v_mut : «mut») (t : valtype) (v_val : val) (val' : val) :

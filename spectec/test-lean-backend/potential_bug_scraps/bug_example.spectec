@@ -1,0 +1,21 @@
+;; Minimal, self-contained reproduction of the NULL?-forces-Some bug seen in
+;; Reftype_ok (specification/wasm-3.0/2.1-validation.types.spectec:30-32).
+;;
+;; Expectation: this ONE rule should validate `THING n` (marker absent) and
+;; `THING MARK n` (marker present) both, for any n > 0. If the Undep bug
+;; (src/middlend/undep.ml t_exp, "IterE of option ... into a OptE") is
+;; present, only the marker-present form will be derivable, because the
+;; conclusion's `MARK?` gets compiled to a forced `some`.
+
+syntax marker = MARK
+
+syntax thing =
+  THING marker? nat
+
+var n : nat
+
+relation Thing_ok: thing : OK
+
+rule Thing_ok:
+  THING MARK? n : OK
+  -- if $(n > 0)

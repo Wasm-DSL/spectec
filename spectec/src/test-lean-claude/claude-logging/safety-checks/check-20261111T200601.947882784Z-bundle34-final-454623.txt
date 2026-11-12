@@ -1,0 +1,26 @@
+=== bundle34 safety check [final] at 20261111T200601.947882784Z (pid 454623); baseline marker 2026-11-11T20:01:47.136454954Z
+Allowed to change this turn: new files under spectec/src/test-lean-claude/claude-logging/ only
+Must NOT change: any project file (all .lean modules included), anything else in the repo
+--- 1. git status (porcelain, lock-free, submodules ignored) vs bundle34 baseline (< baseline, > now)
+70a71
+> ?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261111T200147.514232512Z-bundle34-start-453486.txt
+73a75
+> ?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle34/
+--- 2. HEAD
+HEAD unchanged (afb06bf8defaedb03fff7e3983c621433f8053fa)
+--- 3. paths in the repo (outside .git) modified or created after the marker, excluding claude-logging
+(0 paths)
+--- 4. .git entries (depth <= 2) modified after the marker
+(0 paths)
+--- 5. content checksums under spectec/src/test-lean-claude (except .lake/packages and claude-logging) vs baseline
+(files at baseline: 122, now: 122)
+--- 6. claude-logging: files changed or removed since baseline (additions are allowed and not listed)
+(0 pre-existing logging files changed or removed; 6 net new)
+--- 7. .lake/packages entries (depth <= 2): mtimes vs baseline
+IDENTICAL
+--- 8. verdict
+files under spectec/src/test-lean-claude (excl. logging) with changed content: none
+wasm2.0.lean md5 now: fdfafb393a693292cadf089484fcfa86 (baseline fdfafb393a693292cadf089484fcfa86)
+OLD_wasm2.0.lean md5 now: 4207ecaaae9d5e501ff51ef2fa6b41d5 (baseline 4207ecaaae9d5e501ff51ef2fa6b41d5)
+git status lines changed outside claude-logging and the allowed modules: 0
+OK: nothing except new files under spectec/src/test-lean-claude/claude-logging changed since the baseline

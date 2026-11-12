@@ -1,0 +1,76 @@
+
+;; test-lean/family-hint-repro/toy.spectec:5.1-5.39
+syntax numtype = 
+  | I32
+  | I64
+  | F32
+  | F64
+
+;; test-lean/family-hint-repro/toy.spectec:6.1-6.22
+syntax vectype = 
+  | V128
+
+;; test-lean/family-hint-repro/toy.spectec:8.1-8.23
+syntax Inn = 
+  | I32
+  | I64
+
+def $numtype_Inn(var_0 : Inn) : numtype
+  def $numtype_Inn(I32_Inn) = I32_numtype
+  def $numtype_Inn(I64_Inn) = I64_numtype
+
+;; test-lean/family-hint-repro/toy.spectec:9.1-9.23
+syntax Fnn = 
+  | F32
+  | F64
+
+def $numtype_Fnn(var_0 : Fnn) : numtype
+  def $numtype_Fnn(F32_Fnn) = F32_numtype
+  def $numtype_Fnn(F64_Fnn) = F64_numtype
+
+;; test-lean/family-hint-repro/toy.spectec:10.1-10.18
+syntax Vnn = 
+  | V128
+
+;; test-lean/family-hint-repro/toy.spectec:12.1-12.21
+syntax num_ = 
+  | mk_num__0(v_Inn : Inn, var_x : nat)
+  | mk_num__1(v_Fnn : Fnn, var_x : nat)
+
+;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+relation wf_num_: `%%`(numtype, num_)
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  rule num__case_0{v_numtype : numtype, v_Inn : Inn, var_x : nat}:
+    `%%`(v_numtype, mk_num__0_num_(v_Inn, var_x))
+    -- if (v_numtype = $numtype_Inn(v_Inn))
+
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  rule num__case_1{v_numtype : numtype, v_Fnn : Fnn, var_x : nat}:
+    `%%`(v_numtype, mk_num__1_num_(v_Fnn, var_x))
+    -- if (v_numtype = $numtype_Fnn(v_Fnn))
+
+;; test-lean/family-hint-repro/toy.spectec:12.1-12.21
+def $proj_num__0(var_x : num_) : nat?
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  def $proj_num__0{v_Inn : Inn, var_x : nat}(mk_num__0_num_(v_Inn, var_x)) = ?(var_x)
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  def $proj_num__0{var_x : num_}(var_x) = ?()
+
+;; test-lean/family-hint-repro/toy.spectec:12.1-12.21
+def $proj_num__1(var_x : num_) : nat?
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  def $proj_num__1{v_Fnn : Fnn, var_x : nat}(mk_num__1_num_(v_Fnn, var_x)) = ?(var_x)
+  ;; test-lean/family-hint-repro/toy.spectec:12.8-12.13
+  def $proj_num__1{var_x : num_}(var_x) = ?()
+
+;; test-lean/family-hint-repro/toy.spectec:16.1-16.27
+syntax vec_ = nat
+
+;; test-lean/family-hint-repro/toy.spectec:18.1-18.55
+def $foo(v_numtype : numtype, v_num_ : num_) : nat*?
+  def $foo{x0 : numtype, x1 : num_}(x0, x1) = ?()
+    -- otherwise
+
+;; test-lean/family-hint-repro/toy.spectec:19.1-19.55
+def $bar(v_vectype : vectype, v_vec_ : vec_) : nat*
+

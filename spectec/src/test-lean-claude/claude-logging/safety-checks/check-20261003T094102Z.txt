@@ -1,0 +1,353 @@
+=== Safety check at 20261003T094102Z ===
+--- git status (porcelain) ---
+ M spectec/src/backend-lean/backend.ml
+ M spectec/src/backend-lean/lean_builder.ml
+ M spectec/src/test-lean-claude/.lake/build/ir/HelperLemmas.c
+ M spectec/src/test-lean-claude/.lake/build/ir/HelperLemmas.c.hash
+ M spectec/src/test-lean-claude/.lake/build/ir/TypePreservationPure.c
+ M spectec/src/test-lean-claude/.lake/build/ir/TypePreservationPure.c.hash
+ M spectec/src/test-lean-claude/.lake/build/ir/TypingLemmas.c
+ M spectec/src/test-lean-claude/.lake/build/ir/TypingLemmas.c.hash
+ M spectec/src/test-lean-claude/.lake/build/ir/wasm2.0.c
+ M spectec/src/test-lean-claude/.lake/build/ir/wasm2.0.c.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/ExtensionLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/HelperLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/Subtyping.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservation.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypePreservationPure.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/TypingLemmas.trace
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.ilean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.ilean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.olean
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.olean.hash
+ M spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace
+ M spectec/src/test-lean-claude/ExtensionLemmas.lean
+ M spectec/src/test-lean-claude/HelperLemmas.lean
+ M spectec/src/test-lean-claude/TypePreservation.lean
+ M spectec/src/test-lean-claude/TypePreservationPure.lean
+ M spectec/src/test-lean-claude/TypingLemmas.lean
+ M spectec/src/test-lean-claude/claude-logging/for-claude/NOTES.md
+ M spectec/src/test-lean-claude/claude-logging/for-claude/is_wf_theorems.md
+ M spectec/src/test-lean-claude/claude-logging/for-humans/SUMMARY.md
+ M spectec/src/test-lean-claude/wasm2.0.lean
+ M spectec/test-lean-backend/il_dump/wasm1.0_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_17-single-pattern-match.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm1.0_ast_17-single-pattern-match.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_17-single-pattern-match.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm2.0_ast_17-single-pattern-match.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_17-single-pattern-match.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_00-elab.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_01-handle-explicit-ignores.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_02-ite.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_03-let-intro-mech.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_04-typefamily-removal.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_05-remove-indexed-types.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_06-totalize.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_07-else.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_08-else-simplification.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_09-uncase-removal.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_10-sub-expansion.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_11-pattern-simp.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_12-sub.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_13-definition-to-relation.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_14-sideconditions.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_15-alias-demut.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_16-improve-ids.il
+ M spectec/test-lean-backend/il_dump/wasm3.0_ast_17-single-pattern-match.il
+ M spectec/test-lean/todaywasm2.0.lean
+ D spectec/test-lean/todaywasm3.0.lean
+?? .lia.cache
+?? .vscode/
+?? _opam/
+?? spectec/1---
+?? spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+?? spectec/blahblah.lean
+?? spectec/check_wasm2.0.lean
+?? spectec/check_wasm2.0.v
+?? spectec/check_wasm2.0_OLD.lean
+?? spectec/diegowasm2.0.lean
+?? spectec/diegowasm3.0.lean
+?? spectec/fixed2lean3.0.lean
+?? spectec/fixed3lean3.0.lean
+?? spectec/fixed4lean3.0.lean
+?? spectec/fixed_wasm2.0.lean
+?? spectec/fixedlean2.0.lean
+?? spectec/fixedlean3.0.lean
+?? spectec/handcopy.lean
+?? spectec/huhrocq3.0.v
+?? spectec/new.diff
+?? spectec/new_wasm1.0.lean
+?? spectec/new_wasm2.0.lean
+?? spectec/oldlean2.0.lean
+?? spectec/sandbox.lean
+?? spectec/src/temp_zy_dev/scrap.md
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T184545Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261002T191319Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261003T091646Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261003T092834Z.txt
+?? spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261003T094102Z.txt
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle17/
+?? spectec/src/test-lean-claude/claude-logging/verbatim_dialogue_log/bundle18/
+?? spectec/temp2wasm3.0.lean
+?? spectec/tempwasm3.0.lean
+?? spectec/test-lean/temp_zy_learning/with_mem_demo.wasm
+?? spectec/test-lean/temp_zy_learning/with_mem_demo.wat
+?? spectec/test-rocq/_CoqProject
+?? spectec/test-rocq/test-rocq.opam
+?? spectec/update_fixedlean2.0.lean
+?? spectec/wasm2.0.v
+?? spectec/wasm2.0_new.lean
+?? spectec/wasm3.0.v
+
+--- Any changes outside spectec/src/test-lean-claude/ ? ---
+spectec/src/backend-lean/backend.ml
+spectec/src/backend-lean/lean_builder.ml
+spectec/test-lean-backend/il_dump/wasm1.0_00-elab.il
+spectec/test-lean-backend/il_dump/wasm1.0_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm1.0_02-ite.il
+spectec/test-lean-backend/il_dump/wasm1.0_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm1.0_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm1.0_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm1.0_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm1.0_07-else.il
+spectec/test-lean-backend/il_dump/wasm1.0_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm1.0_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm1.0_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm1.0_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm1.0_12-sub.il
+spectec/test-lean-backend/il_dump/wasm1.0_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm1.0_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm1.0_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm1.0_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm1.0_17-single-pattern-match.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_00-elab.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_02-ite.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_07-else.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_12-sub.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm1.0_ast_17-single-pattern-match.il
+spectec/test-lean-backend/il_dump/wasm2.0_00-elab.il
+spectec/test-lean-backend/il_dump/wasm2.0_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm2.0_02-ite.il
+spectec/test-lean-backend/il_dump/wasm2.0_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm2.0_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm2.0_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm2.0_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm2.0_07-else.il
+spectec/test-lean-backend/il_dump/wasm2.0_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm2.0_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm2.0_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm2.0_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm2.0_12-sub.il
+spectec/test-lean-backend/il_dump/wasm2.0_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm2.0_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm2.0_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm2.0_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm2.0_17-single-pattern-match.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_00-elab.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_02-ite.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_07-else.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_12-sub.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm2.0_ast_17-single-pattern-match.il
+spectec/test-lean-backend/il_dump/wasm3.0_00-elab.il
+spectec/test-lean-backend/il_dump/wasm3.0_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm3.0_02-ite.il
+spectec/test-lean-backend/il_dump/wasm3.0_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm3.0_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm3.0_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm3.0_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm3.0_07-else.il
+spectec/test-lean-backend/il_dump/wasm3.0_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm3.0_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm3.0_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm3.0_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm3.0_12-sub.il
+spectec/test-lean-backend/il_dump/wasm3.0_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm3.0_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm3.0_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm3.0_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm3.0_17-single-pattern-match.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_00-elab.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_01-handle-explicit-ignores.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_02-ite.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_03-let-intro-mech.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_04-typefamily-removal.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_05-remove-indexed-types.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_06-totalize.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_07-else.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_08-else-simplification.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_09-uncase-removal.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_10-sub-expansion.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_11-pattern-simp.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_12-sub.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_13-definition-to-relation.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_14-sideconditions.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_15-alias-demut.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_16-improve-ids.il
+spectec/test-lean-backend/il_dump/wasm3.0_ast_17-single-pattern-match.il
+spectec/test-lean/todaywasm2.0.lean
+spectec/test-lean/todaywasm3.0.lean
+.lia.cache
+.vscode/
+_opam/
+spectec/1---
+spectec/BEQ_INHABITED_RELD_FIX_PLAN.md
+spectec/blahblah.lean
+spectec/check_wasm2.0.lean
+spectec/check_wasm2.0.v
+spectec/check_wasm2.0_OLD.lean
+spectec/diegowasm2.0.lean
+spectec/diegowasm3.0.lean
+spectec/fixed2lean3.0.lean
+spectec/fixed3lean3.0.lean
+spectec/fixed4lean3.0.lean
+spectec/fixed_wasm2.0.lean
+spectec/fixedlean2.0.lean
+spectec/fixedlean3.0.lean
+spectec/handcopy.lean
+spectec/huhrocq3.0.v
+spectec/new.diff
+spectec/new_wasm1.0.lean
+spectec/new_wasm2.0.lean
+spectec/oldlean2.0.lean
+spectec/sandbox.lean
+spectec/src/temp_zy_dev/scrap.md
+spectec/temp2wasm3.0.lean
+spectec/tempwasm3.0.lean
+spectec/test-lean/temp_zy_learning/with_mem_demo.wasm
+spectec/test-lean/temp_zy_learning/with_mem_demo.wat
+spectec/test-rocq/_CoqProject
+spectec/test-rocq/test-rocq.opam
+spectec/update_fixedlean2.0.lean
+spectec/wasm2.0.v
+spectec/wasm2.0_new.lean
+spectec/wasm3.0.v

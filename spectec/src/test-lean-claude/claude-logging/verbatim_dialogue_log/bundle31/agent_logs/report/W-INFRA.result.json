@@ -1,0 +1,93 @@
+{
+ "label": "INFRA",
+ "section_file": "/tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-INFRA/section.md",
+ "constructs_written": [
+  "lsize",
+  "fun_lsize_lsize",
+  "fun_lsize_eq",
+  "isize",
+  "fun_isize_isize",
+  "fun_isize_eq",
+  "jsize",
+  "fun_jsize_jsize",
+  "fun_jsize_eq",
+  "sizenn",
+  "fun_sizenn_sizenn",
+  "fun_sizenn_eq",
+  "sizenn1",
+  "fun_sizenn1_sizenn1",
+  "fun_sizenn1_eq",
+  "lsizenn",
+  "fun_lsizenn_lsizenn",
+  "fun_lsizenn_eq",
+  "lsizenn1",
+  "fun_lsizenn1_lsizenn1",
+  "fun_lsizenn1_eq",
+  "lsizenn2",
+  "fun_lsizenn2_lsizenn2",
+  "fun_lsizenn2_eq",
+  "fzero",
+  "fun_fzero_eq",
+  "fun_fzero_wf",
+  "wf_fzero_32",
+  "wf_fzero_64",
+  "fun_fzero_32",
+  "fun_fzero_64",
+  "default_",
+  "fun_default_default",
+  "fun_default_eq",
+  "fun_type_inv",
+  "fun_func_inv",
+  "fun_global_inv",
+  "fun_table_inv",
+  "fun_mem_inv",
+  "fun_elem_inv",
+  "fun_data_inv",
+  "fun_local_inv",
+  "Moduleinst_ok_global_addr",
+  "Moduleinst_ok_func_addr",
+  "Moduleinst_ok_mem_addr",
+  "Moduleinst_ok_table_addr",
+  "Moduleinst_ok_data_addr",
+  "Moduleinst_ok_elem_addr",
+  "fun_global_typed",
+  "fun_func_typed",
+  "fun_mem_typed",
+  "fun_table_typed",
+  "fun_data_typed",
+  "fun_elem_typed",
+  "fun_type_typed"
+ ],
+ "flags": [
+  {
+   "construct": "HelperLemmas module header (covers all 42 HelperLemmas INFRA constructs)",
+   "issue": "The module doc says the 21 axioms of axioms.v are '(at the end of the file)'. After this change the file ends with the new Lean-only sections 'Function views of total relations' and 'Inversion of the state lookups' (lines 841-1055), and the Forall\u2082 bridge (pre-existing) also sits after the axioms. The header does not mention the new infrastructure at all.",
+   "line": "HelperLemmas.lean:9 (final3 copy)",
+   "suggestion": "Change '(at the end of the file)' to '(after Section 9)'. Add a sentence such as: 'It also contains Lean-only infrastructure for the model regenerated with sideconditions_on_defs: function views of the size, fzero and default_ relations, and inversion lemmas for the state lookups.'"
+  },
+  {
+   "construct": "Section header 'Function views of total relations (Lean-only)' (lsize \u2026 default_)",
+   "issue": "The header says the section restores 'a function view of each total one' and proves 'fun_<name>_<name>'. fzero does not fit that description. fun_fzero holds only for N = 32 and 64, so there is no fun_fzero_fzero; the lemmas are fun_fzero_32 and fun_fzero_64. The fzero docstring explains this, but the header does not. A minor point: the stated trigger ('every spec function whose body uses ! or indexing') does not describe $fzero, whose body POS (SUBNORM 0) uses neither but which is a relation with a wf_fN premise. $jsize, $lsizenn* and $default_ became relations because they call relations.",
+   "line": "HelperLemmas.lean:841-849 (final3 copy)",
+   "suggestion": "Add: 'fzero is the exception: its relation holds only at the widths 32 and 64 (fun_fzero_32, fun_fzero_64).' Optionally qualify the trigger, e.g. '... uses ! or indexing, directly or through another such function (fzero: through the wf side condition of its result)'."
+  },
+  {
+   "construct": "TypeProgress section header 'Lean-only: index bounds for the state lookups' (Moduleinst_ok_*_addr, fun_*_typed)",
+   "issue": "The header lists fun_type among the lookups 'whose premises bound the index into the module instance and the address into the store'. fun_type has only the index bound, because types live in the module instance. The header also mentions only lookups, but Moduleinst_ok_*_addr(...).1 is also used for the instance-side bound of the update relations fun_with_global/table/elem/data/mem (global.set, table.set, elem.drop, data.drop, v128.store).",
+   "line": "TypeProgress.lean:2933-2941 (final3 copy)",
+   "suggestion": "For example: '... are relations whose premises bound the index into the module instance and (except for fun_type) the address into the store. The update relations fun_with_* need the first bound as well.'"
+  },
+  {
+   "construct": "fun_isize_eq, fun_jsize_eq, fun_sizenn1_sizenn1, fun_fzero_wf, fun_func_inv, fun_data_inv, fun_func_typed (and Moduleinst_ok_func_addr, whose only user is fun_func_typed)",
+   "issue": "Unused. A comment-stripping search over all 7 downstream final3 modules finds no reference outside their own definitions. They were kept for uniformity: every view has both bridging lemmas, and every lookup has its inversion and typed lemma.",
+   "line": "HelperLemmas.lean:874, 884, 902, 950, 1016, 1046; TypeProgress.lean:2953, 3007 (final3 copy)",
+   "suggestion": "Keep them for uniformity, or delete them under the user's unused-lemma policy (HelperLemmas uses 'DELETED BECAUSE NOT USED' notes). If they are kept, a one-line remark that they exist for completeness would help."
+  }
+ ],
+ "safety_checks": [
+  "START: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T021101.804603580Z-bundle31-W-INFRA-start-332712.txt. Verdict: 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. The only changed file listed is the known external Lake/IDE artifact spectec/src/test-lean-claude/.lake/build/lib/lean/wasm2.0.trace.nobuild, whose md5 is unchanged since it was noted.",
+  "END: spectec/src/test-lean-claude/claude-logging/safety-checks/check-20261103T023717.053163263Z-bundle31-W-INFRA-end-353363.txt. Verdict: 'OK: nothing outside the allowed downstream .lean files and claude-logging changed since the baseline'. The same known external artifact (wasm2.0.trace.nobuild) is listed, md5 unchanged.",
+  "Side effect outside my directory, not in the repository: running the WAT illustration with wasmtime added 3 entries to the user's existing compilation cache. They are ~/.cache/wasmtime/modules/wasmtime-46c23a87dac1465986a8ad53ba6a7ae49372857b-1790351825447/gmLwG6Vt7THUohGSO8KSkx1Z8sD0LSVpSa65HzFjGyw, its .stats file, and the 0-byte ~/.cache/wasmtime/.cleanup.wip-345268, all timestamped 2026-11-03 10:27 +0800. The cache can be regenerated, and other sessions wrote entries there today too. I left them in place so as not to write outside my directory again; they can be deleted safely."
+ ],
+ "notes": "The section is in my own directory, not where the task text asked. The task said to write .../b31/report/agents/INFRA/section.md, but the non-negotiable safety rule limits writes to .../b31/report/agents/W-INFRA/. I followed the safety rule, so the section is at /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-INFRA/section.md. Supporting files are in /tmp/claude-1002/-home-zhengyew-spectec/14eafe93-c912-45da-8e28-e9b09c1a6ef6/scratchpad/b31/report/agents/W-INFRA/work/: uses2.py (comment-stripping 'used by' scan), uses.json (its output), names.json, and tget.wat, tget_bad.wat and tget.wasm (the WAT example).\n\nHow the section is built:\n- The 55 constructs are grouped as A size views (24), B fzero/default_ (10), C lookup inversions (8) and D index bounds and typed lookups (13).\n- Each family covers: the spec definition with exact .spectec lines, the old model function next to the new relation and its premises (with code), what failed downstream, what the old proofs did instead, the current statement and proof, its Wasm 2.0 reading, and concrete uses with lemma names.\n- A 55-row table follows (name | module | statement in words | proof idea).\n\nFacts I checked:\n- Consumer counts (A 43, B 8, C 8, D 27) come from uses2.py over the 7 downstream final3 modules. They exclude each construct's own definition and other INFRA constructs.\n- The 16 'unchanged text' declarations come from MAIN.json: 13 depend on the size views, 3 on fzero/default_.\n- The WAT example really ran with wat2wasm 1.0.34 and wasmtime 49.0.1. table.get 1 is rejected by validation; is_null(0)=0, is_null(1)=1, and is_null(2) traps with 'out of bounds table access'.\n\nLine numbers refer to the final3 scratch copies and may move if comment fixes are applied before install.\n\nPoints that are interpretation rather than checked fact:\n1. Why the backend turned $fzero into a relation. I only describe what I observed: a relation with a wf_fN premise.\n2. The statement that the old fzero_is_wf held for every N only because Option.get! (signif N) defaults to 0. This follows from the old proof term (Nat.two_pow_pos plus a free exponent).\n3. Statements about which reduction rules use which lookups come from 8-reduction.spectec (e.g. no rule uses $func(z, x); the grow-fail rules have no lookup premise)."
+}

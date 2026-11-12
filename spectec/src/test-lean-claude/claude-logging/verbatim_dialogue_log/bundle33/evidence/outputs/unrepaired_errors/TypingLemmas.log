@@ -1,0 +1,39 @@
+TypingLemmas.lean:568:4: error: Too many variable names provided at alternative `instr_case_20`: 4 provided, but 2 expected
+TypingLemmas.lean:568:4: error: Alternative `instr_case_20` is not needed
+TypingLemmas.lean:567:4: error: Alternative `instr_case_19` has not been provided
+TypingLemmas.lean:632:48: warning: This simp argument is unused:
+  Option.get
+
+Hint: Omit it from the simp argument list.
+  simp [size, valtype_numtype, Option.bind,̵ ̵O̵p̵t̵i̵o̵n̵.̵g̵e̵t̵] at size_constraint ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+TypingLemmas.lean:892:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:993:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1065:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1117:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1236:9: warning: 'intros' tactic does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+TypingLemmas.lean:1679:102: error: Application type mismatch: The argument
+  c_t
+has type
+  vec_
+but is expected to have type
+  vvunop
+in the application
+  wf_instr.instr_case_20 vectype.V128 c_t
+TypingLemmas.lean:1745:46: error(lean.unknownIdentifier): Unknown constant `wf_admininstr.admininstr_case_73`
+TypingLemmas.lean:1781:33: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Command exited with non-zero status 1
+WALL 33.62 s  MAXRSS 4476664 KB

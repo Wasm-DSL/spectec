@@ -1,0 +1,2 @@
+mode old=true; inductive/constructor/recursor entries: 3218
+WALL 71.69 s  MAXRSS 3785240 KB

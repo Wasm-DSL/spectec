@@ -37,6 +37,8 @@ let warn msg = print_endline ("warning: " ^ msg)
 
 (* Hints *)
 
+let builtin_hint_id = "builtin"
+
 (* Try to find a hint `hintid` on a spectec function definition `fname`. *)
 let find_hint fname hintid =
   let open Il.Ast in
@@ -813,7 +815,7 @@ and call_func (name: string) (args: value list) : value option =
    if name = "store" then Some (Store.get ()) else
 
    let builtin_name, is_builtin =
-     match find_hint name "builtin" with
+     match find_hint name builtin_hint_id with
      | None -> name, false
      | Some hint ->
        match hint.hintexp.it with
