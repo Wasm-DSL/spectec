@@ -360,7 +360,7 @@ let rec create_exp (e : Il.Ast.exp) : term
             NonEmptyList.from_list_unsafe
               (List.map (fun arg -> Term arg) mixop_args)
           )
-    | UncaseE (exp, mixop) -> error exp.at "Uncase should have been eliminated by uncase-removal pass!"
+    | UncaseE (exp, _mixop) -> error exp.at "Uncase should have been eliminated by uncase-removal pass!"
     | OptE (Some exp) -> FunApp (Ident "some", NonEmptyList.from_list_unsafe [Term (create_exp exp)])
     | OptE (None) -> Ident "none"
     | TheE exp -> FunApp (DotProj (Ident "Option", Ident "get!"), NonEmptyList.from_list_unsafe [Term (create_exp exp)])
@@ -1200,7 +1200,7 @@ let rec create_prem (p : Il.Ast.prem) : term = match p.it with
   | RulePr (
     (id : Il.Ast.id),
     (rel_args : Il.Ast.arg list),
-    (mixop : Il.Ast.mixop),
+    (_mixop : Il.Ast.mixop),
     (exp : Il.Ast.exp)
   ) ->
     (* `rel_args` carries the relation's own TypP/DefP/GramP quantifiers (e.g. the
@@ -1467,8 +1467,8 @@ let create_typcase
     mixop,                  (* mk_vec *)
     (
       typ,                  (* (X_lst : List X) *)
-      quants,               (* (v_n : n) *)
-      prems                 (* X_lst.length < v_n *)
+      _quants,               (* (v_n : n) *)
+      _prems                 (* X_lst.length < v_n *)
     ),
     _                       (* hints are ignored *)
   ) = typcase
@@ -1667,7 +1667,7 @@ let create_comment (def : Il.Ast.def) : doc_comment option =
 
 let create_abbrev_construct (def : Il.Ast.def) : command list =
   match def.it with
-    | TypD (id, params, [{it = (InstD (quants, args, {it = AliasT t; _})); _}])
+    | TypD (id, _params, [{it = (InstD (_quants, _args, {it = AliasT t; _})); _}])
       ->
       [
         Abbrev (AbbrevAsgn {
@@ -1681,7 +1681,7 @@ let create_abbrev_construct (def : Il.Ast.def) : command list =
 
 let create_inductive_type_construct (def : Il.Ast.def) : command list =
   match def.it with
-    | TypD (id, params, [{it = (InstD (quants, args, {it = VariantT ts; _})); _}])
+    | TypD (id, params, [{it = (InstD (_quants, _args, {it = VariantT ts; _})); _}])
       ->
         (* (X : Type) *)
         let create_typ_binder (quant : Il.Ast.quant) : _params
@@ -1711,11 +1711,11 @@ let create_inductive_type_construct (def : Il.Ast.def) : command list =
 
 let create_structure_construct (def : Il.Ast.def) : command list =
   match def.it with
-    | TypD (id, params, [{it = (InstD (quants, args, {it = StructT ts; _})); _}])
+    | TypD (id, _params, [{it = (InstD (_quants, _args, {it = StructT ts; _})); _}])
       ->
       let create_struct_field (typfield : Il.Ast.typfield) : struct_field
         =
-        let (atom, (typ, quants, prems), hints) = typfield in
+        let (atom, (typ, _quants, _prems), _hints) = typfield in
         StructSimpleBinder {
           modifier = empty_modifier;
           id = Xl.Atom.to_string atom;
@@ -1782,7 +1782,7 @@ let create_structure_construct (def : Il.Ast.def) : command list =
             let arg2 : string = "arg2" in
 
             let create_appended_field (typfield : typfield) : struct_inst_field =
-              let (atom, (typ, quants, prems), hints) = typfield in
+              let (atom, (typ, _quants, _prems), _hints) = typfield in
               let field_name = Xl.Atom.to_string atom in
 
               let append_term_for (typ : Il.Ast.typ) (a : term) (b : term) : term =
@@ -1874,9 +1874,9 @@ let create_wf_lemma_theorem_construct (def : Il.Ast.def) : command list =
   match def.it with
     | RelD (
         id,     (* fun_sum *)
-        quants,     (* undep should get rid of params, so this should be empty *)
-        mixop,
-        typ,    (* (TupT (typbind "_" (IterT nat List)) (typbind "_" nat)) *)
+        _quants,     (* undep should get rid of params, so this should be empty *)
+        _mixop,
+        _typ,    (* (TupT (typbind "_" (IterT nat List)) (typbind "_" nat)) *)
         rules   (* (RuleD "fun_sum_case_0" (Seq Arg Arg) (TupE (ListE) (NumE (Nat 0)))) *)
       )
       ->
@@ -1911,13 +1911,13 @@ let create_wf_lemma_theorem_construct (def : Il.Ast.def) : command list =
         in
 
         let RuleD (
-          rule_id,      (* fzero_is_wf_0 *)
+                _rule_id,      (* fzero_is_wf_0 *)
           rule_quants,  (*
                           (ExpP "v_N" (VarT "N"))
                           (ExpP "ret_val" (VarT "fN"))
                         *)
-          rule_mixop,   (* (Seq Arg Arg) *)
-          rule_exp,     (* (TupE (VarE "v_N") (VarE "ret_val")) *)
+          _rule_mixop,   (* (Seq Arg Arg) *)
+          _rule_exp,     (* (TupE (VarE "v_N") (VarE "ret_val")) *)
           rule_prems    (*
                           (IfPr (CmpE EqOp bool (VarE "ret_val") (CallE "fzero" (ExpA (VarE "v_N")))))
                           (RulePr "wf_fN" (Seq Arg Arg) (TupE (VarE "v_N") (VarE "ret_val")))
@@ -1985,7 +1985,7 @@ let create_inductive_relation_construct (def : Il.Ast.def) : command list =
     | RelD (
         id,     (* fun_sum *)
         quants,     (* undep should get rid of params, so this should be empty *)
-        mixop,
+        _mixop,
         typ,    (* (TupT (typbind "_" (IterT nat List)) (typbind "_" nat)) *)
         rules   (* (RuleD "fun_sum_case_0" (Seq Arg Arg) (TupE (ListE) (NumE (Nat 0)))) *)
       )
@@ -2080,7 +2080,7 @@ let create_inductive_relation_construct (def : Il.Ast.def) : command list =
                         (ExpP "v_n" nat)
                         ...
                       *)
-              mixop,
+              _mixop,
               exp,    (*
                         (TupE
                           (CatE (ListE (VarE "v_n")) (VarE "n'_lst"))
@@ -2453,7 +2453,7 @@ let create_def_construct (def : Il.Ast.def) : command list =
         : term list * term =
 
           let DefD (
-            quants,   (*
+                  _quants,   (*
                         (ExpP "s" (VarT "store"))
                         (ExpP "f" (VarT "frame"))
                         (ExpP "x" nat)
@@ -2482,7 +2482,7 @@ let create_def_construct (def : Il.Ast.def) : command list =
             : term
             = if is_passthrough then Hole Hole
               else match arg.it with
-              | TypA ({it = VarT (x, []); _} as t) -> create_typ t
+              | TypA ({it = VarT (_x, []); _} as t) -> create_typ t
               | TypA _ -> failwith "only VarT should be here"
               | ExpA exp -> (
                 match exp.it with
@@ -2729,7 +2729,7 @@ let create_opaque_construct (def : Il.Ast.def) : command list =
                 (ExpP "v_localidx" (VarT "localidx"))
               *)
       typ,    (* (VarT "val") *)
-      clauses (*
+      _clauses (*
                 (DecD
                   "local"
                   (ExpP "v_state" (VarT "state"))
