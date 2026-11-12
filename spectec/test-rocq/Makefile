@@ -1,4 +1,5 @@
 default:
+	opam install rocq-runtime
 	opam install .
 
 clean:

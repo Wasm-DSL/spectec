@@ -1,4 +1,4 @@
-(coq.theory
+(rocq.theory
   (name WasmSpectec)
   (theories Stdlib mathcomp HB RecordUpdate elpi elpi_elpi Ltac2)
   (package test-rocq)
