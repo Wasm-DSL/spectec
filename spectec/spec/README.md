@@ -1,1 +1,0 @@
-**This directory has moved. The files are now found in [`../../specification/`](https://github.com/Wasm-DSL/spectec/tree/main/specification)**
