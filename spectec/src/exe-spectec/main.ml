@@ -69,10 +69,30 @@ let available_passes : PassSet.t = PassSet.of_list [
   InductivePremisesDiet
 ]
 
-let pass_list (backend : target) : pass list =
-  match backend with
-  | Lean -> [
-      Ite;
+let all_passes = [
+  Ite;
+  LetIntroMech;
+  TypeFamilyRemoval;
+  Undep;
+  Totalize;
+  Else;
+  ElseSimp;
+  Uncaseremoval;
+  SubExpansion;
+  PatSimp;
+  Sub;
+  Sideconditions;
+  DefToRel;
+  AliasDemut;
+  ImproveIds;
+  DatatypeDiet;
+  SinglePatternMatch;
+  InductivePremisesDiet
+]
+
+
+let lean_passes : pass list = (* Run Sideconditions twice for the Lean backend *)
+[      Ite;
       LetIntroMech;
       TypeFamilyRemoval;
       Undep;
@@ -91,25 +111,6 @@ let pass_list (backend : target) : pass list =
       DatatypeDiet;
       SinglePatternMatch
     ]
-  | _ -> [
-    Ite;
-    LetIntroMech;
-    TypeFamilyRemoval;
-    Undep;
-    Totalize;
-    Else;
-    ElseSimp;
-    Uncaseremoval;
-    SubExpansion;
-    PatSimp;
-    Sub;
-    Sideconditions;
-    DefToRel;
-    AliasDemut;
-    ImproveIds;
-    DatatypeDiet;
-    SinglePatternMatch
-  ]
 
 type file_kind =
   | Spec
@@ -418,7 +419,7 @@ let () =
           (* Il.Valid.valid il; *)
           il
         )
-      ) il (pass_list !target)
+      ) il (if !target = Lean then lean_passes else all_passes)
     in
     last_pass := "";
 
