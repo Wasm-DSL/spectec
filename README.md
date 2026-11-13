@@ -87,7 +87,7 @@ make
 in the `proofs/rocq/` repository.
 
 The Isabelle proofs can be built and inspected by opening jEdit. Information on how to install
-jEdit is availabel online. Files `proofs/isabelle/type-soundness/Progress.thy`
+jEdit is available online. Files `proofs/isabelle/type-soundness/Progress.thy`
 and `proofs/isabelle/correspondence/backreduction.thy` are the endpoints, running them will
 run all other files.
 
