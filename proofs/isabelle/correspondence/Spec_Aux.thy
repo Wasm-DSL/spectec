@@ -11,7 +11,7 @@
    [numtype_Inn] and [size]: proving it again would give two facts named
    [size.simps] etc. that clash when theories are merged. *)
 theory Spec_Aux
-  imports Translation "../isabelle/Type_Inversion"
+  imports Translation "../type-soundness/Type_Inversion"
 begin
 
 (* Type_Inversion's subtyping notation for SpecTec result types; WasmCert uses the

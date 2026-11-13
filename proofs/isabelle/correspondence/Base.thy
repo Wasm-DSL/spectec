@@ -8,7 +8,7 @@
    i32, i64, f32, f64, byte, sx, mut, eleminst, datainst. *)
 theory Base
   imports
-    "../isabelle/isabelle_reference_output_wasm2"
+    "../type-soundness/isabelle_reference_output_wasm2"
     "../wasmcert-Isabelle/WebAssembly/Wasm"
     "../wasmcert-Isabelle/WebAssembly/Wasm_Properties_Aux"
     "../wasmcert-Isabelle/WebAssembly/Wasm_Properties"
