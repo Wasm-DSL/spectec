@@ -53,8 +53,10 @@ Ltac strip_rel H :=
     match type of H with ?v = _ => subst v end
   | progress F.inv_size_rels ].
 
-(* [T] is the type of a relational premise. *)
-Ltac is_rel T := assert_succeeds (let H := fresh in assert (H : T) by admit; strip_rel H).
+(* [T] is the type of a relational premise: [strip_rel] takes apart a
+   hypothesis of type [T] (tried on [T -> True], then backtracked). *)
+Ltac is_rel T :=
+  assert_succeeds (let H := fresh in assert (T -> True) by (intro H; strip_rel H; exact I)).
 
 (* Some relational premise occurs among the premises [G]. *)
 Ltac rel_later G :=
@@ -3944,5 +3946,4 @@ Proof.
   by case: Hd; exact: Step_exc_named.
 Qed.
 
-Print Assumptions Step_sim_eventually.
 End Eventually.
