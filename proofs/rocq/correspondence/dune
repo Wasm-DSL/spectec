@@ -1,6 +1,5 @@
 ; Bridge between the SpecTec-generated Wasm 2.0 semantics (WasmSpectec) and
-; WasmCert-Coq (theory Wasm). Kept out of the rocq-proof package so that
-; `opam install .` does not require WasmCert; build with `dune build ./wasmcert`.
+; WasmCert-Coq (theory Wasm). 
 (rocq.theory
   (name WasmCertBridge)
   (theories Stdlib mathcomp HB RecordUpdate elpi elpi_elpi Ltac2 Flocq
