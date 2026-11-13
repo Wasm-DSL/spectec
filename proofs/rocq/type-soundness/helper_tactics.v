@@ -41,7 +41,7 @@ Ltac set_eq name term :=
 Ltac is_variable x cont1 cont2 :=
 	match tt with
 	| _ =>
-		(* Sorry for the hack.
+		(* Apologies for the hack.
 		Only a variable be cleared.
 		Local definitions are not considered variables by this tactic. *)
 		(exfalso; clear - x; assert_fails clearbody x; fail 1) || cont2

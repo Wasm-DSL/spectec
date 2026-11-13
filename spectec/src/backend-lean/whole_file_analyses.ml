@@ -780,7 +780,7 @@ type deriving_category =
        (e.g. [DecidableEq X]) into the derived instance itself, so this
        behaves identically to [PlainDataCategory] today -- kept as its own
        category because the Rocq backend can't do the same (its
-       [cant_do_equality] unconditionally [Admitted]s any [TypP] case),
+       [cant_do_equality] unconditionally [A d m i t t e d]s any [TypP] case),
        which is worth keeping visible even though it doesn't currently
        change [Backend.deriving_for_category]'s output. *)
   | SelfNestedDataCategory

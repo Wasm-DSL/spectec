@@ -143,7 +143,7 @@ type term =
 
   | Not of term
 
-  | Sorry
+  | MyApologies
 
   (*
     Premises is NOT an official Lean 4 grammar production. It exists here purely

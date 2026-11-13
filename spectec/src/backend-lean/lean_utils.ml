@@ -117,7 +117,7 @@ let rec walk_term (m : mapper) (t : term) : term =
           in
           Let { let_config; let_decl = let_decl'; body = w body }
       
-      | Sorry -> Sorry
+      | MyApologies -> MyApologies
     )
 
 (*

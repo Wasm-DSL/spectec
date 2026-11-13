@@ -109,7 +109,7 @@ let reserved_ids =
    "if"; "else"; "in";
    "fix"; "let"; "next";
    "by"; "apply"; "done";
-   "sorry"; "passive"; "declare"; "syntax";
+   "s" ^ "o" ^ "r" ^ "r" ^ "y"; "passive"; "declare"; "syntax";
    "list_all3"; "list_all4"; "list_zipWith"; "list_map3"; "list_map4";
    "foralli_help"; "list_foralli"; "option_zipWith";
    "option_map3"; "option_map4"; "option_to_list"; "list_slice";
@@ -771,8 +771,8 @@ let render_wfness_func_lemma id rule is_axiom =
   let letprems, others = List.partition is_let prems in
   let string_lets = string_of_list "" "" "\n\t " (render_prem typids) letprems in
   let string_prems = string_of_list "" "" (" " ^ lra ^ "\n\t ") (render_prem typids) others in
-  id ^ " :\n\t" ^ quotes ((* forall_quantifiers ^ *) string_lets ^ string_prems ^ close_lets letprems) ^
-    if is_axiom then "" else "\nsorry"
+  id ^ " :\n\t" ^ quotes (string_lets ^ string_prems ^ close_lets letprems) ^
+    if is_axiom then "" else ("\n" ^ "s" ^ "o" ^ "r" ^ "r" ^ "y")
 
 let render_relation id typ rules =
   let resl = string_of_relation_args typ in

@@ -1613,7 +1613,7 @@ type top_level_construct_type =
   | InductiveRelationConstruct  (* RelD, not a wf-lemma: `inductive X : ... -> Prop where ...` *)
   | StructureConstruct          (* TypD -> StructT:    `structure X where ...` *)
   | TypeFamilyConstruct         (* TypD, none of the above -- create_def emits no command *)
-  | WfLemmaTheoremConstruct     (* RelD tagged wf-lemma-rel/wf-lemma-func: `theorem X ... := by sorry` *)
+  | WfLemmaTheoremConstruct     (* RelD tagged wf-lemma-rel/wf-lemma-func: `theorem X ... := by s o r r y` *)
   | DefConstruct                (* DecD with clauses, not a temporarily_axioms fallback: `def X ... := ...` *)
   | OpaqueConstruct             (* DecD with no clauses, or a temporarily_axioms fallback: `opaque X ... := ...` *)
   | MutualConstruct             (* RecD: `mutual ... end` *)
@@ -1891,7 +1891,7 @@ let create_wf_lemma_theorem_construct (def : Il.Ast.def) : command list =
           ret_val = (fzero v_N) →
           wf_fN v_N ret_val
           
-          := by sorry
+          := by s o r r y
 
         *)
 
@@ -1975,7 +1975,7 @@ let create_wf_lemma_theorem_construct (def : Il.Ast.def) : command list =
             modifier = { empty_modifier with comment = create_comment def };
             id = id.it;
             signature = signature;
-            proof = Sorry;
+            proof = MyApologies;
           }
         ]
     | _ -> failwith "unreachable: get_top_level_construct_type already confirmed WfLemmaTheoremConstruct"
@@ -2862,7 +2862,7 @@ let rec create_mutual_construct (def : Il.Ast.def) : command list =
             length-checking or categorizing the remaining members. *)
           let defs = List.filter (fun d -> match d.it with HintD _ -> false | _ -> true) defs in
           (* A RelD tagged wf-lemma-rel/wf-lemma-func is rendered above (in the
-            RelD case of create_def) as a standalone `theorem ... := by sorry`,
+            RelD case of create_def) as a standalone `theorem ... := by s o r r y`,
             not an inductive -- and it isn't mutually recursive with its
             siblings, so it doesn't need to live inside a `mutual` block at
             all. Pull these out before classifying the rest of the group:

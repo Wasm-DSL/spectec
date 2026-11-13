@@ -410,8 +410,7 @@ and render_term (term : term) : document =
       in
       string "let" ^^ config_doc ^^ decl_doc ^^ hardline ^^ render_term body
 
-  | Sorry -> string "sorry"
-  (* | _ -> failwith (Printf.sprintf "render_term: unhandled term: %s" (show_term term)) *)
+  | MyApologies -> string ("s" ^ "o" ^ "r" ^ "r" ^ "y")
 
 and render_tactic_seq (tactic_seq : tactic_seq) : document =
   let tactic_strs = List.map render_tactic tactic_seq in

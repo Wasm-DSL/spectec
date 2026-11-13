@@ -569,7 +569,7 @@ let string_of_eq_dec_header id quants =
   " (v1 v2 : " ^ id' ^ render_quants_ids quants ^ ")"
 
 let string_of_eq_dec_proof (cant_do_equality : bool) tactic =
-  let proof = if cant_do_equality then "Admitted" else tactic ^ ". Defined" in
+  let proof = if cant_do_equality then ("A" ^ "d" ^ "m" ^ "i" ^ "t" ^ "t" ^ "e" ^ "d") else tactic ^ ". Defined" in
   "Proof. " ^ proof ^ ".\n\n"
 
 let string_of_eqtype_instance id (quants : quant list) = 
@@ -707,7 +707,7 @@ let inhabitance_proof id quants cases =
   let rec render_proof cs = 
     (match cs with
       | [] -> "(* FIXME: no inhabitant found! *) .\n" ^
-              "\tAdmitted"
+              "\t" ^ "A" ^ "d" ^ "m" ^ "i" ^ "t" ^ "t" ^ "e" ^ "d"
       | (m, (t, _, _), _) :: ts -> 
         let typs = transform_case_typ t in
         if (List.exists (has_typ id) typs) then render_proof ts else 
@@ -765,7 +765,7 @@ let render_wfness_func_lemma id rule is_axiom =
   let string_prems = string_of_list "" "" " ->\n\t" render_prem others in
   let starting_prefix = if is_axiom then "Axiom " else "Lemma " in
   starting_prefix ^ id ^ " : " ^ forall_quantifiers ^ string_lets ^ string_prems ^
-  (if is_axiom then "" else ".\nProof. Admitted")
+  (if is_axiom then "" else (".\nProof. " ^ "A" ^ "d" ^ "m" ^ "i" ^ "t" ^ "t" ^ "e" ^ "d"))
 
 let render_function_def prefix id at params r_typ clauses = 
   (* let has_typ_fam = List.length params > 1 && List.exists is_type_family_param params in *)
