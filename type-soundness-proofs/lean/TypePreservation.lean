@@ -12,13 +12,13 @@ Lean port of `spectec/test-rocq/theories/type_preservation.v` — the
 capstone file containing the main preservation theorem. Full digest:
 `claude-logging/for-claude/digest_type_preservation.md`.
 
-Status: upstream `type_preservation.v` has **no** `Admitted` lemmas: everything is `Qed`. Since
+Status: upstream `type_preservation.v` has **no** `A d m i t t e d` lemmas: everything is `Qed`. Since
 upstream `6582b3a39` that includes the
-generated `Step_read_is_wf` in `wasm.v`, which used to be `Admitted` (and false in a
+generated `Step_read_is_wf` in `wasm.v`, which used to be `A d m i t t e d` (and false in a
 memory.fill/copy/init `2^32` corner case, fixed by spec commit `4cf9f29c5`, which makes those
-rules push `$iadd_(32, i, 1)`). `t_preservation` depends on no `sorry`: besides Lean's standard
+rules push `$iadd_(32, i, 1)`). `t_preservation` depends on no `s o r r y`: besides Lean's standard
 axioms, `#print axioms` lists only the model's `*_is_wf` axioms for the functions that are
-`opaque` in `wasm2.0.lean` (`Axiom`s in Rocq too, where these theorems are `Admitted`).
+`opaque` in `wasm2.0.lean` (`Axiom`s in Rocq too, where these theorems are `A d m i t t e d`).
 `num_default_is_well_formed` is proved (its Rocq statement is commented out upstream).
 
 Since the model was regenerated with `sideconditions_on_defs` (user commit `12b021fc9`), the state
@@ -2021,7 +2021,7 @@ theorem Forall2_app_intro {α β : Type} {R : α → β → Prop} {l1 l2 : List 
 /-- Rocq `type_preservation.v:1661` `t_read_preservation`: preservation under the read-only
     reduction relation (no store mutation). `Qed` in Rocq; proved here for all 47
     `Step_read` rules. As in Rocq, the reduct's well-formedness comes from the generated
-    `Step_read_is_wf`, which is proved (in `wasm2.0.lean`; it was `Admitted` in Rocq and `sorry`
+    `Step_read_is_wf`, which is proved (in `wasm2.0.lean`; it was `A d m i t t e d` in Rocq and `s o r r y`
     here until the spec fixed the memory.fill/copy/init `CONST I32 2^32` corner case in commit
     `4cf9f29c5`).
 

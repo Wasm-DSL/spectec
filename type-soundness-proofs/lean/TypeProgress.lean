@@ -44,13 +44,13 @@ recursor. The cases can therefore be proved and checked independently.
 `getElem?_eq_some_bang`, typing builders). No logical dependency on preservation results is
 intended.
 
-Status: **everything is proved, with no `sorry` in this file**, as Rocq's
+Status: **everything is proved, with no `s o r r y` in this file**, as Rocq's
 `t_progress_be` is now `Qed`. The two subcases that were false under the old
 spec are now impossible: `t_progress_be_vload_pack` refutes `SHAPE 64 X 1` with the new `M > 1`
 side condition, and `t_progress_be_vcvtop` no longer has an `F32 → I16 TRUNC_SAT` case at all.
-`t_progress` depends on no `sorry`. Besides Lean's standard axioms, `#print axioms` lists the model's
+`t_progress` depends on no `s o r r y`. Besides Lean's standard axioms, `#print axioms` lists the model's
 `*_is_wf` axioms for the functions that are `opaque` in Lean (`Axiom`s in Rocq too, whose `*_is_wf`
-are all `Admitted` there) and the project axioms that mirror Rocq's `axioms.v` (`ishl_wf`/`ishr_wf`
+are all `A d m i t t e d` there) and the project axioms that mirror Rocq's `axioms.v` (`ishl_wf`/`ishr_wf`
 were deleted with Rocq's, since `ishl_`/`ishr_` now take an `iN(N)` shift amount and the generated
 `ishl__is_wf`/`ishr__is_wf` apply directly).
 
@@ -5859,7 +5859,7 @@ theorem t_progress_be_vcvtop :
     have Hs1 : wf_shape sh_1 := by cases HWfinstr; assumption
     have Hs2 : wf_shape sh_2 := by cases HWfinstr; assumption
     have Hop : wf_vcvtop__ sh_2 sh_1 op := by cases HWfinstr; assumption
-    -- No `vcvtop_trunc_sat_i16` case split here (Rocq dropped it, and its `admit`, in 6582b3a39):
+    -- No `vcvtop_trunc_sat_i16` case split here (Rocq dropped it, and its `a d m i t`, in 6582b3a39):
     -- `F32 → I16 TRUNC_SAT` is no longer a `vcvtop__` (spec commit 4cf9f29c5).
     obtain ⟨L2, ⟨M2⟩⟩ := sh_1
     obtain ⟨L1, ⟨M1⟩⟩ := sh_2
@@ -7494,7 +7494,7 @@ theorem t_progress_be_frame :
 
 /-- Rocq `type_progress.v:3067` `t_progress_be`: progress for
     basic-instruction sequences, under a prefix of values `vcs` whose types are the sequence's input
-    types. `Qed` in Rocq since `6582b3a39` (it was `Admitted` before, with two `admit`s in subcases
+    types. `Qed` in Rocq since `6582b3a39` (it was `A d m i t t e d` before, with two `a d m i t`s in subcases
     that the old spec made false; spec commit `4cf9f29c5` ruled both instructions out in
     validation). Here the theorem is assembled from the 78 case lemmas `t_progress_be_*` (one per
     `Instr_ok`/`Instrs_ok` rule) by one

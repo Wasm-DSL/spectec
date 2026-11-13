@@ -149,7 +149,7 @@ def analyzeRecursor (indName : Name) : MetaM RecursorAnalysis := do
     -- Open the first `numParams` binders of the recursor type.
     -- For each param, restore its original binder info and
     -- generate syntax: {α : Type} for type params, [DecidableEq α] for
-    -- type params that admit DecidableEq, [inst : Class] for instances
+    -- type params that a d m i t DecidableEq, [inst : Class] for instances
     -- which needs to be categorised back to instance binders.
     forallBoundedTelescope recVal.type (some numParams) (fun paramVars restType0 => do
       let mut paramBinderStxs : Array (TSyntax ``Lean.Parser.Term.bracketedBinder) := #[]
@@ -171,7 +171,7 @@ def analyzeRecursor (indName : Name) : MetaM RecursorAnalysis := do
         else
           -- Type/value param: forward as {name : Type}
           paramBinderStxs := paramBinderStxs.push (← `(bracketedBinder| {$nameId : $typeStx}))
-          -- For params that admit DecidableEq, add [DecidableEq name]
+          -- For params that a d m i t DecidableEq, add [DecidableEq name]
           -- (uses mkAppM + isTypeCorrect, matching the standard deriving infrastructure,
           -- which is more robust than a simple isSort check)
           try

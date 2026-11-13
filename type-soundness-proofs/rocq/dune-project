@@ -13,7 +13,7 @@
   (synopsis "Spectec Wasm formalisation in Rocq")
   (description "Proof of Type Soundness for the SpecTec-Generated Wasm 2.0 Rocq Definitions")
   (depends
-   (rocq-core (>= 9.3.0))
+   (rocq-core (>= 9.2.0))
    (rocq-mathcomp-ssreflect (>= 2.6.0))
    (rocq-stdlib (>= 9.2.0))
    (coq-record-update (>= 0.3.6))

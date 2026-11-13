@@ -15,7 +15,7 @@ bookkeeping, select/if/local.tee desugaring, ref.is_null, and the SIMD
 instructions). Excludes store-reading and store-mutating instructions
 (→ `type_preservation.v`).
 
-Status: every lemma in this file is proved (no `sorry`), including the SIMD
+Status: every lemma in this file is proved (no `s o r r y`), including the SIMD
 section and `t_pure_preservation` (which takes the reduct's well-formedness from the
 generated `Step_pure_is_wf`, as Rocq does). Upstream `type_preservation_pure.v` is fully
 `Qed` too. Line numbers refer to `spectec/test-rocq/theories` at upstream

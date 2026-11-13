@@ -1,5 +1,0 @@
-# idx_in_src.py: list indexing xs[i]! inside iteration sources
-## wasm2.0.lean
-xs[i]! in inductive relations: 138; inside an iteration source: 0
-## OLD_wasm2.0.lean
-xs[i]! in inductive relations: 107; inside an iteration source: 0

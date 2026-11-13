@@ -1,4 +1,0 @@
-The binding can be removed (if unused) or named `_` (if used implicitly).
-
-WALL 22.05 s  MAXRSS 2984916 KB
-warnings: 89 (all 'Variable name ... is not explicitly referenced' in generated defs/inductives); errors: 0
