@@ -432,7 +432,7 @@ inductive_cases wf_instr_DATA_DROP_E: "wf_instr (instr_sc7 (DATA_DROP x))"
 
 (* ===== BEGIN copy of generated well-formedness lemmas ===== *)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 lemma zero_is_wf :
 	"(fun_zero v_numtype var_0) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
@@ -442,14 +442,14 @@ lemma zero_is_wf :
 
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 lemma dim_is_wf :
 	"(wf_shape v_shape) \<Longrightarrow>
 	 (ret_val = (fun_dim v_shape)) \<Longrightarrow>
 	 (wf_dim ret_val)"
   by (auto elim!: wf_shape.cases wf_dim.cases simp: fun_dim.psimps fun_dim.domintros wf_dim.simps)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
 lemma concat_bytes_is_wf :
 	"(fun_concat_bytes var_0_lst_lst var_0) \<Longrightarrow>
 	 list_all (\<lambda> (var_0_lst :: (byte list)). list_all (\<lambda> (var_0 :: byte). (wf_byte var_0)) var_0_lst) var_0_lst_lst \<Longrightarrow>
@@ -457,7 +457,7 @@ lemma concat_bytes_is_wf :
 	 list_all (\<lambda> (ret_val :: byte). (wf_byte ret_val)) ret_val_lst"
   by (induction var_0_lst_lst var_0 arbitrary: ret_val_lst rule: fun_concat_bytes.induct) auto
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
 lemma tablesxt_is_wf :
 	"(fun_tablesxt var_0_lst var_0) \<Longrightarrow>
 	 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
@@ -466,7 +466,7 @@ lemma tablesxt_is_wf :
   by (induction var_0_lst var_0 arbitrary: ret_val_lst rule: fun_tablesxt.induct)
      (auto simp: wf_externtype.simps)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
 lemma memsxt_is_wf :
 	"(fun_memsxt var_0_lst var_0) \<Longrightarrow>
 	 list_all (\<lambda> (var_0 :: externtype). (wf_externtype var_0)) var_0_lst \<Longrightarrow>
@@ -475,7 +475,7 @@ lemma memsxt_is_wf :
   by (induction var_0_lst var_0 arbitrary: ret_val_lst rule: fun_memsxt.induct)
      (auto simp: wf_externtype.simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
 lemma dataidx_instr_is_wf :
 	"(wf_instr v_instr) \<Longrightarrow>
 	 (ret_val_lst = (dataidx_instr v_instr)) \<Longrightarrow>
@@ -483,7 +483,7 @@ lemma dataidx_instr_is_wf :
   by (auto simp: list_all_iff dest!: dataidx_instr_set elim: wf_instr_MEMORY_INIT_E wf_instr_DATA_DROP_E)
 
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
 lemma dataidx_instrs_is_wf :
 	"(fun_dataidx_instrs var_0_lst var_0) \<Longrightarrow>
 	 list_all (\<lambda> (var_0 :: instr). (wf_instr var_0)) var_0_lst \<Longrightarrow>
@@ -493,7 +493,7 @@ lemma dataidx_instrs_is_wf :
      (auto simp: dataidx_instr_is_wf[OF _ HOL.refl])
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
 lemma dataidx_expr_is_wf :
 	"(fun_dataidx_expr v_expr var_0) \<Longrightarrow>
 	 list_all (\<lambda> (v_expr :: instr). (wf_instr v_expr)) v_expr \<Longrightarrow>
@@ -501,7 +501,7 @@ lemma dataidx_expr_is_wf :
 	 list_all (\<lambda> (ret_val :: dataidx). (wf_uN (32 :: nat) ret_val)) ret_val_lst"
   by (auto elim!: fun_dataidx_expr.cases intro!: dataidx_instrs_is_wf[OF _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
 lemma dataidx_func_is_wf :
 	"(fun_dataidx_func v_func var_0) \<Longrightarrow>
 	 (wf_func v_func) \<Longrightarrow>
@@ -510,7 +510,7 @@ lemma dataidx_func_is_wf :
   by (auto elim!: fun_dataidx_func.cases wf_func.cases intro!: dataidx_expr_is_wf[OF _ _ HOL.refl])
 
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
 lemma dataidx_funcs_is_wf :
 	"(fun_dataidx_funcs var_0_lst var_0) \<Longrightarrow>
 	 list_all (\<lambda> (var_0 :: func). (wf_func var_0)) var_0_lst \<Longrightarrow>
@@ -521,13 +521,13 @@ lemma dataidx_funcs_is_wf :
 
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
 lemma memarg0_is_wf :
 	"(ret_val = (memarg0 )) \<Longrightarrow>
 	 (wf_memarg ret_val)"
   unfolding memarg0_def by (auto intro!: wf_memarg.intros simp: wf_uN_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
 lemma unop__is_wf :
 	"(fun_unop_underscore v_numtype v_unop_underscore v_num_underscore var_0) \<Longrightarrow>
 	 (wf_unop_underscore v_numtype v_unop_underscore) \<Longrightarrow>
@@ -537,7 +537,7 @@ lemma unop__is_wf :
 	 list_all (\<lambda> (ret_val :: num_underscore). (wf_num_underscore v_numtype ret_val)) ret_val_lst"
   using unop_wf by (cases var_0) auto
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
 lemma iadd__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
@@ -546,7 +546,7 @@ lemma iadd__is_wf :
   by (simp add: iadd_underscore.psimps iadd_underscore.domintros wf_uN_mod wf_proj_simps)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
 lemma imul__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
@@ -555,7 +555,7 @@ lemma imul__is_wf :
   by (simp add: imul_underscore.psimps imul_underscore.domintros wf_uN_mod wf_proj_simps)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
 lemma irem__is_wf :
 	"(fun_irem_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -565,7 +565,7 @@ lemma irem__is_wf :
   by (auto elim!: fun_irem_underscore.cases intro!: wf_uN_nat_sub wf_uN_proj_self
       intro: inv_signed_bound simp: wf_proj_simps zero_le_mult_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
 lemma isub__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
@@ -574,14 +574,14 @@ lemma isub__is_wf :
   by (simp add: isub_underscore.psimps isub_underscore.domintros wf_uN_nat_mod)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
 lemma ieqz__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (ieqz_underscore v_N v_iN)) \<Longrightarrow>
 	 (wf_uN (32 :: nat) ret_val)"
   by (simp add: ieqz_underscore.psimps ieqz_underscore.domintros wf_uN_res_bool)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
 lemma testop__is_wf :
 	"(fun_testop_underscore v_numtype v_testop_underscore v_num_underscore var_0) \<Longrightarrow>
 	 (wf_testop_underscore v_numtype v_testop_underscore) \<Longrightarrow>
@@ -591,7 +591,7 @@ lemma testop__is_wf :
 	 (wf_num_underscore I32 ret_val)"
   using testop_wf_I32 by (cases var_0) auto
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
 lemma ieq__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
@@ -600,7 +600,7 @@ lemma ieq__is_wf :
   by (simp add: ieq_underscore.psimps ieq_underscore.domintros wf_uN_res_bool)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
 lemma ige__is_wf :
 	"(fun_ige_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -610,7 +610,7 @@ lemma ige__is_wf :
   by (auto elim!: fun_ige_underscore.cases simp: wf_uN_res_bool)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
 lemma igt__is_wf :
 	"(fun_igt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -619,7 +619,7 @@ lemma igt__is_wf :
 	 (wf_uN (32 :: nat) ret_val)"
   by (auto elim!: fun_igt_underscore.cases simp: wf_uN_res_bool)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
 lemma ile__is_wf :
 	"(fun_ile_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -628,7 +628,7 @@ lemma ile__is_wf :
 	 (wf_uN (32 :: nat) ret_val)"
   by (auto elim!: fun_ile_underscore.cases simp: wf_uN_res_bool)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
 lemma ilt__is_wf :
 	"(fun_ilt_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -637,7 +637,7 @@ lemma ilt__is_wf :
 	 (wf_uN (32 :: nat) ret_val)"
   by (auto elim!: fun_ilt_underscore.cases simp: wf_uN_res_bool)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
 lemma ine__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (wf_uN v_N iN_0) \<Longrightarrow>
@@ -645,7 +645,7 @@ lemma ine__is_wf :
 	 (wf_uN (32 :: nat) ret_val)"
   by (simp add: ine_underscore.psimps ine_underscore.domintros wf_uN_res_bool)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 lemma relop__is_wf :
 	"(fun_relop_underscore v_numtype v_relop_underscore v_num_underscore num__0 var_0) \<Longrightarrow>
 	 (wf_relop_underscore v_numtype v_relop_underscore) \<Longrightarrow>
@@ -663,7 +663,7 @@ lemma relop__is_wf :
       simp: ieq_underscore.psimps ieq_underscore.domintros ine_underscore.psimps
         ine_underscore.domintros wf_proj_simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 lemma cvtop___is_wf :
 	"(fun_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore v_num_underscore var_0) \<Longrightarrow>
 	 (wf_cvtop__underscore numtype_1 numtype_2 v_cvtop__underscore) \<Longrightarrow>
@@ -679,7 +679,7 @@ lemma cvtop___is_wf :
         trunc_sat___is_wf[OF _ HOL.refl] reinterpret___is_wf[OF _ HOL.refl])
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
 lemma inez__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (inez_underscore v_N v_iN)) \<Longrightarrow>
@@ -687,7 +687,7 @@ lemma inez__is_wf :
   by (simp add: inez_underscore.psimps inez_underscore.domintros wf_uN_res_bool)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
 lemma ineg__is_wf :
 	"(wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = (ineg_underscore v_N v_iN)) \<Longrightarrow>
@@ -695,14 +695,14 @@ lemma ineg__is_wf :
   by (simp add: ineg_underscore.psimps ineg_underscore.domintros wf_uN_nat_mod)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
 lemma iabs__is_wf :
 	"(fun_iabs_underscore v_N v_iN var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
   by (auto elim!: fun_iabs_underscore.cases intro: ineg__is_wf)
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 lemma imin__is_wf :
 	"(fun_imin_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -711,7 +711,7 @@ lemma imin__is_wf :
 	 (wf_uN v_N ret_val)"
   by (auto elim!: fun_imin_underscore.cases simp: wf_proj_simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
 lemma imax__is_wf :
 	"(fun_imax_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -720,7 +720,7 @@ lemma imax__is_wf :
 	 (wf_uN v_N ret_val)"
   by (auto elim!: fun_imax_underscore.cases simp: wf_proj_simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
 lemma iadd_sat__is_wf :
 	"(fun_iadd_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -728,7 +728,7 @@ lemma iadd_sat__is_wf :
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
   by (auto elim!: fun_iadd_sat_underscore.cases intro: inv_signed_bound wf_uN_lt sat_u_lt)
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 lemma isub_sat__is_wf :
 	"(fun_isub_sat_underscore v_N v_sx v_iN iN_0 var_0) \<Longrightarrow>
 	 (wf_uN v_N v_iN) \<Longrightarrow>
@@ -736,7 +736,7 @@ lemma isub_sat__is_wf :
 	 (ret_val = var_0) \<Longrightarrow>
 	 (wf_uN v_N ret_val)"
   by (auto elim!: fun_isub_sat_underscore.cases intro: inv_signed_bound wf_uN_lt sat_u_lt)
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 lemma packnum__is_wf :
 	"(wf_num_underscore (unpack v_lanetype) v_num_underscore) \<Longrightarrow>
 	 ((packnum_underscore v_lanetype v_num_underscore) \<noteq> None) \<Longrightarrow>
@@ -746,7 +746,7 @@ lemma packnum__is_wf :
      (auto simp: packnum_underscore.psimps packnum_underscore.domintros wf_num_ctor_simps
        wf_lane_ctor_simps wf_proj_simps type_fun_simps intro: wrap___is_wf[OF _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
 lemma unpacknum__is_wf :
 	"(wf_lane_underscore v_lanetype v_lane_underscore) \<Longrightarrow>
 	 ((unpacknum_underscore v_lanetype v_lane_underscore) \<noteq> None) \<Longrightarrow>
@@ -756,7 +756,7 @@ lemma unpacknum__is_wf :
      (auto simp: unpacknum_underscore.psimps unpacknum_underscore.domintros wf_num_ctor_simps
        wf_lane_ctor_simps wf_proj_simps type_fun_simps intro: extend___is_wf[OF _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
 lemma vvunop__is_wf :
 	"(fun_vvunop_underscore v_vectype v_vvunop v_vec_underscore var_0) \<Longrightarrow>
 	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
@@ -765,7 +765,7 @@ lemma vvunop__is_wf :
 	 (wf_uN (the ((size (valtype_vectype v_vectype)))) ret_val)"
   by (auto elim!: fun_vvunop_underscore.cases simp: wf_proj_simps intro: inot__is_wf[OF _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
 lemma vvbinop__is_wf :
 	"(fun_vvbinop_underscore v_vectype v_vvbinop v_vec_underscore vec__0 var_0) \<Longrightarrow>
 	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
@@ -778,7 +778,7 @@ lemma vvbinop__is_wf :
         ior__is_wf[OF _ _ HOL.refl] ixor__is_wf[OF _ _ HOL.refl])
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
 lemma vvternop__is_wf :
 	"(fun_vvternop_underscore v_vectype v_vvternop v_vec_underscore vec__0 vec__1 var_0) \<Longrightarrow>
 	 ((size (valtype_vectype v_vectype)) \<noteq> None) \<Longrightarrow>
@@ -791,7 +791,7 @@ lemma vvternop__is_wf :
       intro: ibitselect__is_wf[OF _ _ _ HOL.refl])
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
 lemma vunop__is_wf :
 	"(fun_vunop_underscore v_shape v_vunop_underscore v_vec_underscore var_0) \<Longrightarrow>
 	 (wf_shape v_shape) \<Longrightarrow>
@@ -806,7 +806,7 @@ lemma vunop__is_wf :
   apply (blast intro: iabs_wf_transfer)+
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 lemma vbinop__is_wf :
 	"(fun_vbinop_underscore v_shape v_vbinop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
 	 (wf_shape v_shape) \<Longrightarrow>
@@ -822,7 +822,7 @@ lemma vbinop__is_wf :
   apply (blast intro: list_all3_transfer imin_det imax_det iadd_sat_det isub_sat_det ilt_det igt_det ile_det ige_det)+
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
 lemma vrelop__is_wf :
 	"(fun_vrelop_underscore v_shape v_vrelop_underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
 	 (wf_shape v_shape) \<Longrightarrow>
@@ -839,7 +839,7 @@ lemma vrelop__is_wf :
 
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
 lemma lcvtop___is_wf :
 	"(fun_lcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_lane_underscore var_0) \<Longrightarrow>
 	 (wf_shape shape_1) \<Longrightarrow>
@@ -874,7 +874,7 @@ qed simp
 (* ===== END non-generated helpers ===== *)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 lemma vcvtop___is_wf :
 	"(fun_vcvtop__underscore shape_1 shape_2 v_vcvtop__underscore v_vec_underscore var_0) \<Longrightarrow>
 	 (wf_shape shape_1) \<Longrightarrow>
@@ -894,7 +894,7 @@ lemma vcvtop___is_wf :
        (simp, metis option.distinct(1) option.sel packnum__is_wf zero_is_wf)
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
 lemma vextunop___is_wf :
 	"(fun_vextunop__underscore ishape_1 ishape_2 v_vextunop__underscore v_vec_underscore var_0) \<Longrightarrow>
 	 (wf_ishape ishape_1) \<Longrightarrow>
@@ -909,7 +909,7 @@ lemma vextunop___is_wf :
       intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_zipWith)
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
 lemma vextbinop___is_wf :
 	"(fun_vextbinop__underscore ishape_1 ishape_2 v_vextbinop__underscore v_vec_underscore vec__0 var_0) \<Longrightarrow>
 	 (wf_ishape ishape_1) \<Longrightarrow>
@@ -925,7 +925,7 @@ lemma vextbinop___is_wf :
       intro!: inv_lanes__is_wf[OF _ _ HOL.refl] list_all_zipWith)
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
 lemma vshiftop__is_wf :
 	"(fun_vshiftop_underscore v_ishape v_vshiftop_underscore v_lane_underscore v_u32 var_0) \<Longrightarrow>
 	 (wf_ishape v_ishape) \<Longrightarrow>
@@ -938,7 +938,7 @@ lemma vshiftop__is_wf :
   by (auto elim!: fun_vshiftop_underscore.cases simp: wf_lane_ctor_simps type_fun_simps
       intro!: ishl__is_wf[OF _ _ HOL.refl] ishr__is_wf[OF _ _ HOL.refl] wf_uN_mod_lt)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
 lemma default__is_wf :
 	"(fun_default_underscore v_valtype var_0) \<Longrightarrow>
 	 (var_0 \<noteq> None) \<Longrightarrow>
@@ -948,28 +948,28 @@ lemma default__is_wf :
       wf_num_underscore.simps wf_uN_iff wf_proj_simps type_fun_simps)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
 lemma store_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val = (fun_store v_state)) \<Longrightarrow>
 	 (wf_store ret_val)"
   by (cases v_state) (simp add: fun_store.psimps fun_store.domintros wf_state.simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
 lemma frame_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val = (fun_frame v_state)) \<Longrightarrow>
 	 (wf_frame ret_val)"
   by (cases v_state) (simp add: fun_frame.psimps fun_frame.domintros wf_state.simps)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
 lemma funcinst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val_lst = (fun_funcinst v_state)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: funcinst). (wf_funcinst ret_val)) ret_val_lst"
   by (cases v_state) (simp add: fun_funcinst.psimps fun_funcinst.domintros wf_state.simps wf_store_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
 lemma globalinst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val_lst = (fun_globalinst v_state)) \<Longrightarrow>
@@ -977,35 +977,35 @@ lemma globalinst_is_wf :
   by (cases v_state) (simp add: fun_globalinst.psimps fun_globalinst.domintros wf_state.simps wf_store_iff)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
 lemma tableinst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val_lst = (fun_tableinst v_state)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: tableinst). (wf_tableinst ret_val)) ret_val_lst"
   by (cases v_state) (simp add: fun_tableinst.psimps fun_tableinst.domintros wf_state.simps wf_store_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
 lemma meminst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val_lst = (fun_meminst v_state)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: meminst). (wf_meminst ret_val)) ret_val_lst"
   by (cases v_state) (simp add: fun_meminst.psimps fun_meminst.domintros wf_state.simps wf_store_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
 lemma datainst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val_lst = (fun_datainst v_state)) \<Longrightarrow>
 	 list_all (\<lambda> (ret_val :: datainst). (wf_datainst ret_val)) ret_val_lst"
   by (cases v_state) (simp add: fun_datainst.psimps fun_datainst.domintros wf_state.simps wf_store_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
 lemma moduleinst_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (ret_val = (fun_moduleinst v_state)) \<Longrightarrow>
 	 (wf_moduleinst ret_val)"
   by (cases v_state) (simp add: fun_moduleinst.psimps fun_moduleinst.domintros wf_state.simps wf_frame_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
 lemma func_is_wf :
 	"(fun_func v_state v_funcidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1014,7 +1014,7 @@ lemma func_is_wf :
 	 (wf_funcinst ret_val)"
   by (auto elim!: fun_func.cases simp: wf_state.simps wf_store_iff list_all_length)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
 lemma global_is_wf :
 	"(fun_global v_state v_globalidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1024,7 +1024,7 @@ lemma global_is_wf :
   by (auto elim!: fun_global.cases simp: wf_state.simps wf_store_iff list_all_length)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
 lemma table_is_wf :
 	"(fun_table v_state v_tableidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1033,7 +1033,7 @@ lemma table_is_wf :
 	 (wf_tableinst ret_val)"
   by (auto elim!: fun_table.cases simp: wf_state.simps wf_store_iff list_all_length)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
 lemma mem_is_wf :
 	"(fun_mem v_state v_memidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1042,7 +1042,7 @@ lemma mem_is_wf :
 	 (wf_meminst ret_val)"
   by (auto elim!: fun_mem.cases simp: wf_state.simps wf_store_iff list_all_length)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
 lemma data_is_wf :
 	"(fun_data v_state v_dataidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1051,7 +1051,7 @@ lemma data_is_wf :
 	 (wf_datainst ret_val)"
   by (auto elim!: fun_data.cases simp: wf_state.simps wf_store_iff list_all_length)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
 lemma local_is_wf :
 	"(fun_local v_state v_localidx var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1060,7 +1060,7 @@ lemma local_is_wf :
 	 (wf_val ret_val)"
   by (auto elim!: fun_local.cases wf_state.cases wf_frame.cases simp: list_all_length)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
 lemma with_local_is_wf :
 	"(wf_state v_state) \<Longrightarrow>
 	 (wf_uN (32 :: nat) v_localidx) \<Longrightarrow>
@@ -1071,7 +1071,7 @@ lemma with_local_is_wf :
      (auto simp: with_local.psimps with_local.domintros wf_state.simps wf_frame_iff
         intro!: list_all_list_update_func_pres)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
 lemma with_global_is_wf :
 	"(fun_with_global v_state v_globalidx v_val var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1082,7 +1082,7 @@ lemma with_global_is_wf :
   by (auto elim!: fun_with_global.cases simp: wf_state.simps wf_store_iff wf_inst_iffs
       intro!: list_all_list_update_func_pres)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
 lemma with_table_is_wf :
 	"(fun_with_table v_state v_tableidx res_nat v_ref var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1092,7 +1092,7 @@ lemma with_table_is_wf :
   by (auto elim!: fun_with_table.cases simp: wf_state.simps wf_store_iff wf_inst_iffs
       intro!: list_all_list_update_func_pres)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
 lemma with_tableinst_is_wf :
 	"(fun_with_tableinst v_state v_tableidx v_tableinst var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1103,7 +1103,7 @@ lemma with_tableinst_is_wf :
   by (auto elim!: fun_with_tableinst.cases simp: wf_state.simps wf_store_iff wf_inst_iffs
       intro!: list_all_list_update_func_pres)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
 lemma with_mem_is_wf :
 	"(fun_with_mem v_state v_memidx res_nat nat_0 var_0_lst var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1115,7 +1115,7 @@ lemma with_mem_is_wf :
       intro!: list_all_list_update_func_pres)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
 lemma with_meminst_is_wf :
 	"(fun_with_meminst v_state v_memidx v_meminst var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1127,7 +1127,7 @@ lemma with_meminst_is_wf :
       intro!: list_all_list_update_func_pres)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
 lemma with_elem_is_wf :
 	"(fun_with_elem v_state v_elemidx var_0_lst var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1136,7 +1136,7 @@ lemma with_elem_is_wf :
 	 (wf_state ret_val)"
   by (auto elim!: fun_with_elem.cases simp: wf_state.simps wf_store_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
 lemma with_data_is_wf :
 	"(fun_with_data v_state v_dataidx var_0_lst var_0) \<Longrightarrow>
 	 (wf_state v_state) \<Longrightarrow>
@@ -1147,7 +1147,7 @@ lemma with_data_is_wf :
   by (auto elim!: fun_with_data.cases simp: wf_state.simps wf_store_iff wf_inst_iffs
       intro!: list_all_list_update_func_pres)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
 lemma growtable_is_wf :
 	"(fun_growtable v_tableinst res_nat v_ref var_0) \<Longrightarrow>
 	 (wf_tableinst v_tableinst) \<Longrightarrow>
@@ -1156,7 +1156,7 @@ lemma growtable_is_wf :
 	 (wf_tableinst ret_val)"
   by (auto elim!: fun_growtable.cases)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
 lemma growmemory_is_wf :
 	"(fun_growmemory v_meminst res_nat var_0) \<Longrightarrow>
 	 (wf_meminst v_meminst) \<Longrightarrow>
@@ -1429,14 +1429,14 @@ lemma Step_pure_is_wf_aux:
 (* ===== END non-generated helpers ===== *)
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
 lemma Step_pure_is_wf :
 	"list_all (\<lambda> (var_0 :: admininstr). (wf_admininstr var_0)) var_0 \<Longrightarrow>
 	 (Step_pure var_0 var_1) \<Longrightarrow>
 	 list_all (\<lambda> (var_1 :: admininstr). (wf_admininstr var_1)) var_1"
   using Step_pure_is_wf_aux by blast
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 (* MANUALLY MODIFIED: Store_ok premise added (the generated statement is false without store typing,
    since wf_store does not bound the lengths of table and memory instances) *)
 lemma Step_read_is_wf :
@@ -1456,7 +1456,7 @@ lemma Step_read_is_wf :
       wf_load_extend wf_bytes_nth_u32 simp: list.pred_map o_def wf_lane_simps)
   done
 
-(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 (* MANUALLY MODIFIED: Store_ok premise added (needed for the Step_read cases) *)
 lemma Step_is_wf :
 	"(wf_config (mk_config (mk_state s f) es)) \<Longrightarrow>
@@ -1479,7 +1479,7 @@ lemma Step_is_wf :
   apply (auto dest!: fun_mem_lenD intro!: mem_pages_le)
   done
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:36.6-36.16 *)
 lemma allocfunc_is_wf :
 	"(fun_allocfunc v_store v_moduleinst v_func var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1489,7 +1489,7 @@ lemma allocfunc_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_allocfunc.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:41.1-41.63 *)
 lemma allocfuncs_is_wf :
 	"(fun_allocfuncs v_store v_moduleinst var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1501,7 +1501,7 @@ lemma allocfuncs_is_wf :
      (auto dest!: allocfunc_is_wf[OF _ _ _ _ HOL.refl])
 
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:47.6-47.18 *)
 lemma allocglobal_is_wf :
 	"(fun_allocglobal v_store v_globaltype v_val var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1510,7 +1510,7 @@ lemma allocglobal_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_allocglobal.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:51.1-51.67 *)
 lemma allocglobals_is_wf :
 	"(fun_allocglobals v_store var_0_lst var_1_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1520,7 +1520,7 @@ lemma allocglobals_is_wf :
   by (induction v_store var_0_lst var_1_lst var_0 arbitrary: ret_val rule: fun_allocglobals.induct)
      (auto dest!: allocglobal_is_wf[OF _ _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:57.6-57.17 *)
 lemma alloctable_is_wf :
 	"(fun_alloctable v_store v_tabletype var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1529,7 +1529,7 @@ lemma alloctable_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_alloctable.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:61.1-61.58 *)
 lemma alloctables_is_wf :
 	"(fun_alloctables v_store var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1539,7 +1539,7 @@ lemma alloctables_is_wf :
   by (induction v_store var_0_lst var_0 arbitrary: ret_val rule: fun_alloctables.induct)
      (auto dest!: alloctable_is_wf[OF _ _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:67.6-67.15 *)
 lemma allocmem_is_wf :
 	"(fun_allocmem v_store v_memtype var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1548,7 +1548,7 @@ lemma allocmem_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_allocmem.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:71.1-71.52 *)
 lemma allocmems_is_wf :
 	"(fun_allocmems v_store var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1558,7 +1558,7 @@ lemma allocmems_is_wf :
   by (induction v_store var_0_lst var_0 arbitrary: ret_val rule: fun_allocmems.induct)
      (auto dest!: allocmem_is_wf[OF _ _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:77.6-77.16 *)
 lemma allocelem_is_wf :
 	"(fun_allocelem v_store v_reftype var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1566,7 +1566,7 @@ lemma allocelem_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_allocelem.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:81.1-81.63 *)
 lemma allocelems_is_wf :
 	"(fun_allocelems v_store var_0_lst var_1_lst_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1575,7 +1575,7 @@ lemma allocelems_is_wf :
   by (induction v_store var_0_lst var_1_lst_lst var_0 arbitrary: ret_val rule: fun_allocelems.induct)
      (auto dest!: allocelem_is_wf[OF _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:87.6-87.16 *)
 lemma allocdata_is_wf :
 	"(fun_allocdata v_store var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1584,7 +1584,7 @@ lemma allocdata_is_wf :
 	 (wf_store (fst ret_val))"
   by (auto elim!: fun_allocdata.cases simp: wf_store_iff)
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:91.1-91.54 *)
 lemma allocdatas_is_wf :
 	"(fun_allocdatas v_store var_0_lst_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1594,7 +1594,7 @@ lemma allocdatas_is_wf :
   by (induction v_store var_0_lst_lst var_0 arbitrary: ret_val rule: fun_allocdatas.induct)
      (auto dest!: allocdata_is_wf[OF _ _ _ HOL.refl])
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:100.6-100.17 *)
 lemma instexport_is_wf :
 	"(fun_instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export var_0) \<Longrightarrow>
 	 (wf_export v_export) \<Longrightarrow>
@@ -1602,7 +1602,7 @@ lemma instexport_is_wf :
 	 (wf_exportinst ret_val)"
   by (auto elim!: fun_instexport.cases wf_export.cases simp: wf_exportinst_iff)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:107.6-107.18 *)
 lemma allocmodule_is_wf :
 	"(fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>
@@ -1613,7 +1613,7 @@ lemma allocmodule_is_wf :
 	 (wf_moduleinst (snd ret_val))"
   by (auto elim!: fun_allocmodule.cases)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:196.6-196.13 *)
 lemma invoke_is_wf :
 	"(fun_invoke v_store v_funcaddr var_0_lst var_0) \<Longrightarrow>
 	 (wf_store v_store) \<Longrightarrow>

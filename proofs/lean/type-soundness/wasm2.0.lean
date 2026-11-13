@@ -35,28 +35,28 @@ def Map₃ {α₁ α₂ α₃ β : Type} (f : α₁ → α₂ → α₃ → β) 
 def OMap {α₁ β : Type} (f : α₁ → β) (xs₁ : Option α₁) : Option β :=
   xs₁ |>.map f
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:162.14-162.17 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:162.14-162.17 -/
 inductive r_MUT : Type where
   | MUT : r_MUT
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Type Alias Definition at: ../specification/wasm-2.0/0-aux.spectec:7.1-7.15 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:7.1-7.15 -/
 abbrev N : Type := Nat
 
-/- Type Alias Definition at: ../specification/wasm-2.0/0-aux.spectec:8.1-8.15 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:8.1-8.15 -/
 abbrev M : Type := Nat
 
-/- Type Alias Definition at: ../specification/wasm-2.0/0-aux.spectec:9.1-9.15 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:9.1-9.15 -/
 abbrev n : Type := Nat
 
-/- Type Alias Definition at: ../specification/wasm-2.0/0-aux.spectec:10.1-10.15 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:10.1-10.15 -/
 abbrev m : Type := Nat
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:15.1-15.14 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:15.1-15.14 -/
 def Ki : Nat :=
   1024
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:21.1-21.25 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:21.1-21.25 -/
 def min (nat : Nat) (nat_0 : Nat) : Nat :=
   if
     nat ≤ nat_0
@@ -65,7 +65,7 @@ def min (nat : Nat) (nat_0 : Nat) : Nat :=
   else
     nat_0
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/0-aux.spectec:25.6-25.10 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:25.6-25.10 -/
 inductive fun_sum : List Nat → Nat → Prop where
   | fun_sum_case_0 : fun_sum [] 0
   | fun_sum_case_1 (v_n : Nat) (n'_lst : List n) (var_0 : Nat) :
@@ -73,191 +73,191 @@ inductive fun_sum : List Nat → Nat → Prop where
     fun_sum ([v_n] ++ n'_lst) (v_n + var_0)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:32.1-32.58 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:32.1-32.58 -/
 def opt_ (X : Type) (var_0_lst : List X) : Option (Option X) :=
   match var_0_lst with
   | [] => some none
   | [w] => some (some w)
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:36.1-36.45 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:36.1-36.45 -/
 def list_ (X : Type) (var_0_opt : Option X) : List X :=
   match var_0_opt with
   | none => []
   | some w => [w]
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:40.1-40.86 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:40.1-40.86 -/
 def concat_ (X : Type) (var_0_lst_lst : List (List X)) : List X :=
   match var_0_lst_lst with
   | [] => []
   | w_lst :: w'_lst_lst => w_lst ++ (concat_ X w'_lst_lst)
 
-/- Axiom Definition at: ../specification/wasm-2.0/0-aux.spectec:44.1-44.39 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:44.1-44.39 -/
 opaque inv_concat_ (X : Type) (var_0_lst : List X) : List (List X) := by
   first
      | exact Inhabited.default
      | intros ; assumption
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:51.1-51.46 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:51.1-51.46 -/
 def setproduct2_ (X : Type) (X_0 : X) (var_0_lst_lst : List (List X)) : List (List X) :=
   match var_0_lst_lst with
   | [] => []
   | w'_lst :: w_lst_lst => [[X_0] ++ w'_lst] ++ (setproduct2_ X X_0 w_lst_lst)
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:50.1-50.47 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:50.1-50.47 -/
 def setproduct1_ (X : Type) (var_0_lst : List X) (var_1_lst_lst : List (List X)) : List (List X) :=
   match var_0_lst with
   | [] => []
   | w_1 :: w'_lst => (setproduct2_ X w_1 var_1_lst_lst) ++ (setproduct1_ X w'_lst var_1_lst_lst)
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:49.1-49.84 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:49.1-49.84 -/
 def setproduct_ (X : Type) (var_0_lst_lst : List (List X)) : List (List X) :=
   match var_0_lst_lst with
   | [] => [[]]
   | w_1_lst :: w_lst_lst => setproduct1_ X w_1_lst (setproduct_ X w_lst_lst)
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/0-aux.spectec:60.1-60.78 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/0-aux.spectec:60.1-60.78 -/
 def disjoint_ (X : Type) [BEq X] (var_0_lst : List X) : Bool :=
   match var_0_lst with
   | [] => true
   | w :: w'_lst => (List.length w'_lst) > 0 → (! (List.contains w'_lst w)) && (disjoint_ X w'_lst)
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:6.1-6.49 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:6.1-6.49 -/
 inductive list (X : Type) : Type where
   | mk_list (X_lst : List X) : list X
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:6.1-6.49 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:6.1-6.49 -/
 def proj_list_0 (X : Type) (x : list X) : List X :=
   match x with
   | list.mk_list v_X_list_0 => (v_X_list_0)
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:15.1-15.36 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:15.1-15.36 -/
 inductive bit : Type where
   | mk_bit (i : Nat) : bit
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:15.8-15.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:15.8-15.11 -/
 inductive wf_bit : bit → Prop where
   | bit_case_0 (i : Nat) :
     (i = 0) ∨ (i = 1) →
     wf_bit (bit.mk_bit i)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:16.1-16.50 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:16.1-16.50 -/
 inductive byte : Type where
   | mk_byte (i : Nat) : byte
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:16.1-16.50 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:16.1-16.50 -/
 def proj_byte_0 (x : byte) : Nat :=
   match x with
   | byte.mk_byte v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:16.8-16.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:16.8-16.12 -/
 inductive wf_byte : byte → Prop where
   | byte_case_0 (i : Nat) :
     (i ≥ 0) ∧ (i ≤ 255) →
     wf_byte (byte.mk_byte i)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:18.1-19.25 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:18.1-19.25 -/
 inductive uN : Type where
   | mk_uN (i : Nat) : uN
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:18.1-19.25 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:18.1-19.25 -/
 def proj_uN_0 (x : uN) : Nat :=
   match x with
   | uN.mk_uN v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:18.8-18.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:18.8-18.11 -/
 inductive wf_uN : N → uN → Prop where
   | uN_case_0 (v_N : N) (i : Nat) :
     (i ≥ 0) ∧ (i ≤ (Int.toNat (((2 ^ v_N) : Int) - (1 : Int)))) →
     wf_uN v_N (uN.mk_uN i)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:20.1-21.49 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:20.1-21.49 -/
 inductive sN : Type where
   | mk_sN (i : Int) : sN
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:20.1-21.49 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:20.1-21.49 -/
 def proj_sN_0 (x : sN) : Int :=
   match x with
   | sN.mk_sN v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:20.8-20.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:20.8-20.11 -/
 inductive wf_sN : N → sN → Prop where
   | sN_case_0 (v_N : N) (i : Int) :
     (((i ≥ (- ((2 ^ (Int.toNat ((v_N : Int) - (1 : Int)))) : Int))) ∧ (i ≤ (- (1 : Int)))) ∨ (i = (0 : Int))) ∨ ((i ≥ (1 : Int)) ∧ (i ≤ (((2 ^ (Int.toNat ((v_N : Int) - (1 : Int)))) : Int) - (1 : Int)))) →
     wf_sN v_N (sN.mk_sN i)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:22.1-23.8 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:22.1-23.8 -/
 abbrev iN : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:25.1-25.18 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:25.1-25.18 -/
 abbrev u8 : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:26.1-26.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:26.1-26.20 -/
 abbrev u16 : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:27.1-27.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:27.1-27.20 -/
 abbrev u31 : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:28.1-28.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:28.1-28.20 -/
 abbrev u32 : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:29.1-29.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:29.1-29.20 -/
 abbrev u64 : Type := uN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:30.1-30.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:30.1-30.20 -/
 abbrev s33 : Type := sN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:31.1-31.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:31.1-31.20 -/
 abbrev i32 : Type := iN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:32.1-32.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:32.1-32.20 -/
 abbrev i64 : Type := iN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:33.1-33.22 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:33.1-33.22 -/
 abbrev i128 : Type := iN
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:40.1-40.35 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:40.1-40.35 -/
 def signif (v_N : N) : Option Nat :=
   match v_N with
   | 32 => some 23
   | 64 => some 52
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:44.1-44.34 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:44.1-44.34 -/
 def expon (v_N : N) : Option Nat :=
   match v_N with
   | 32 => some 8
   | 64 => some 11
   | _ => none
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:48.6-48.8 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:48.6-48.8 -/
 inductive fun_M : N → Nat → Prop where
   | fun_M_case_0 (v_N : Nat) :
     (signif v_N) ≠ none →
     fun_M v_N (Option.get! (signif v_N))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:51.6-51.8 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:51.6-51.8 -/
 inductive fun_E : N → Nat → Prop where
   | fun_E_case_0 (v_N : Nat) :
     (expon v_N) ≠ none →
     fun_E v_N (Option.get! (expon v_N))
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:58.1-58.30 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:58.1-58.30 -/
 abbrev exp : Type := Int
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:59.1-63.84 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:59.1-63.84 -/
 inductive fNmag : Type where
   | NORM (v_m : m) (v_exp : exp) : fNmag
   | SUBNORM (v_m : m) : fNmag
@@ -265,7 +265,7 @@ inductive fNmag : Type where
   | NAN (v_m : m) : fNmag
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:59.8-59.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:59.8-59.14 -/
 inductive wf_fNmag : N → fNmag → Prop where
   | fNmag_case_0 (v_N : N) (v_m : m) (v_exp : exp) (var_1 : Nat) (var_0 : Nat) :
     fun_E v_N var_1 →
@@ -284,13 +284,13 @@ inductive wf_fNmag : N → fNmag → Prop where
     wf_fNmag v_N (fNmag.NAN v_m)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:54.1-56.35 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:54.1-56.35 -/
 inductive fN : Type where
   | POS (_ : fNmag) : fN
   | NEG (_ : fNmag) : fN
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:54.8-54.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:54.8-54.11 -/
 inductive wf_fN : N → fN → Prop where
   | fN_case_0 (v_N : N) (var_0 : fNmag) :
     wf_fNmag v_N var_0 →
@@ -300,54 +300,54 @@ inductive wf_fN : N → fN → Prop where
     wf_fN v_N (fN.NEG var_0)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:65.1-65.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:65.1-65.20 -/
 abbrev f32 : Type := fN
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:66.1-66.20 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:66.1-66.20 -/
 abbrev f64 : Type := fN
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:68.6-68.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:68.6-68.12 -/
 inductive fun_fzero : N → fN → Prop where
   | fun_fzero_case_0 (v_N : Nat) :
     wf_fN v_N (fN.POS (fNmag.SUBNORM 0)) →
     fun_fzero v_N (fN.POS (fNmag.SUBNORM 0))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:71.6-71.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:71.6-71.11 -/
 inductive fun_fone : N → fN → Prop where
   | fun_fone_case_0 (v_N : Nat) :
     wf_fN v_N (fN.POS (fNmag.NORM 1 (0 : Int))) →
     fun_fone v_N (fN.POS (fNmag.NORM 1 (0 : Int)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:74.6-74.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:74.6-74.13 -/
 inductive fun_canon_ : N → Nat → Prop where
   | fun_canon__case_0 (v_N : Nat) :
     (signif v_N) ≠ none →
     fun_canon_ v_N (2 ^ (Int.toNat (((Option.get! (signif v_N)) : Int) - (1 : Int))))
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:80.1-81.8 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:80.1-81.8 -/
 abbrev vN : Type := iN
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:88.1-88.85 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:88.1-88.85 -/
 inductive char : Type where
   | mk_char (i : Nat) : char
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:88.1-88.85 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:88.1-88.85 -/
 def proj_char_0 (x : char) : Nat :=
   match x with
   | char.mk_char v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:88.8-88.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:88.8-88.12 -/
 inductive wf_char : char → Prop where
   | char_case_0 (i : Nat) :
     ((i ≥ 0) ∧ (i ≤ 55295)) ∨ ((i ≥ 57344) ∧ (i ≤ 1114111)) →
     wf_char (char.mk_char i)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:90.6-90.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:90.6-90.11 -/
 inductive fun_utf8 : List char → List byte → Prop where
   | fun_utf8_case_0 (ch : char) (b : byte) :
     ((proj_char_0 ch) < 128) ∧ ((byte.mk_byte (proj_char_0 ch)) = b) →
@@ -384,17 +384,17 @@ inductive fun_utf8 : List char → List byte → Prop where
     fun_utf8 ch_lst (concat_ byte var_0_lst)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:92.1-92.70 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:92.1-92.70 -/
 inductive name : Type where
   | mk_name (char_lst : List char) : name
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:92.1-92.70 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:92.1-92.70 -/
 def proj_name_0 (x : name) : List char :=
   match x with
   | name.mk_name v_char_list_0 => (v_char_list_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:92.8-92.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:92.8-92.12 -/
 inductive wf_name : name → Prop where
   | name_case_0 (char_lst : List char) (var_0 : List byte) :
     fun_utf8 char_lst var_0 →
@@ -403,40 +403,40 @@ inductive wf_name : name → Prop where
     wf_name (name.mk_name char_lst)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:101.1-101.36 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:101.1-101.36 -/
 abbrev idx : Type := u32
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:102.1-102.44 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:102.1-102.44 -/
 abbrev laneidx : Type := u8
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:104.1-104.45 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:104.1-104.45 -/
 abbrev typeidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:105.1-105.49 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:105.1-105.49 -/
 abbrev funcidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:106.1-106.49 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:106.1-106.49 -/
 abbrev globalidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:107.1-107.47 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:107.1-107.47 -/
 abbrev tableidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:108.1-108.46 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:108.1-108.46 -/
 abbrev memidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:109.1-109.45 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:109.1-109.45 -/
 abbrev elemidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:110.1-110.45 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:110.1-110.45 -/
 abbrev dataidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:111.1-111.47 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:111.1-111.47 -/
 abbrev labelidx : Type := idx
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:112.1-112.47 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:112.1-112.47 -/
 abbrev localidx : Type := idx
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:126.1-127.26 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:126.1-127.26 -/
 inductive numtype : Type where
   | I32 : numtype
   | I64 : numtype
@@ -444,12 +444,12 @@ inductive numtype : Type where
   | F64 : numtype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:129.1-130.9 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:129.1-130.9 -/
 inductive vectype : Type where
   | V128 : vectype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:132.1-133.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:132.1-133.22 -/
 inductive consttype : Type where
   | I32 : consttype
   | I64 : consttype
@@ -458,13 +458,13 @@ inductive consttype : Type where
   | V128 : consttype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:135.1-136.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:135.1-136.24 -/
 inductive reftype : Type where
   | FUNCREF : reftype
   | EXTERNREF : reftype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:138.1-139.38 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:138.1-139.38 -/
 inductive valtype : Type where
   | I32 : valtype
   | I64 : valtype
@@ -495,7 +495,7 @@ def valtype_vectype (var_0 : vectype) : valtype :=
   match var_0 with
   | vectype.V128 => valtype.V128
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:141.1-141.38 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:141.1-141.38 -/
 inductive Inn : Type where
   | I32 : Inn
   | I64 : Inn
@@ -513,7 +513,7 @@ def valtype_Inn (var_0 : Inn) : valtype :=
   | Inn.I32 => valtype.I32
   | Inn.I64 => valtype.I64
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:142.1-142.38 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:142.1-142.38 -/
 inductive Fnn : Type where
   | F32 : Fnn
   | F64 : Fnn
@@ -531,19 +531,19 @@ def valtype_Fnn (var_0 : Fnn) : valtype :=
   | Fnn.F32 => valtype.F32
   | Fnn.F64 => valtype.F64
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:143.1-143.36 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:143.1-143.36 -/
 abbrev Vnn : Type := vectype
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:146.1-147.16 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:146.1-147.16 -/
 abbrev resulttype : Type := list valtype
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:152.1-152.52 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:152.1-152.52 -/
 inductive packtype : Type where
   | I8 : packtype
   | I16 : packtype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:153.1-153.60 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:153.1-153.60 -/
 inductive lanetype : Type where
   | I32 : lanetype
   | I64 : lanetype
@@ -579,10 +579,10 @@ def lanetype_packtype (var_0 : packtype) : lanetype :=
   | packtype.I8 => lanetype.I8
   | packtype.I16 => lanetype.I16
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:155.1-155.37 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:155.1-155.37 -/
 abbrev Pnn : Type := packtype
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:156.1-156.38 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:156.1-156.38 -/
 inductive Jnn : Type where
   | I32 : Jnn
   | I64 : Jnn
@@ -610,18 +610,18 @@ def Jnn_packtype (var_0 : packtype) : Jnn :=
   | packtype.I8 => Jnn.I8
   | packtype.I16 => Jnn.I16
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:157.1-157.37 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:157.1-157.37 -/
 abbrev Lnn : Type := lanetype
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:162.1-162.18 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:162.1-162.18 -/
 abbrev «mut» : Type := Option r_MUT
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:164.1-165.17 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:164.1-165.17 -/
 inductive limits : Type where
   | mk_limits (v_u32 : u32) (u32_opt : Option u32) : limits
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:164.8-164.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:164.8-164.14 -/
 inductive wf_limits : limits → Prop where
   | limits_case_0 (v_u32 : u32) (u32_opt : Option u32) :
     wf_uN 32 v_u32 →
@@ -629,49 +629,49 @@ inductive wf_limits : limits → Prop where
     wf_limits (limits.mk_limits v_u32 u32_opt)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:167.1-168.14 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:167.1-168.14 -/
 inductive globaltype : Type where
   | mk_globaltype (v_mut : «mut») (v_valtype : valtype) : globaltype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:169.1-170.27 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:169.1-170.27 -/
 inductive functype : Type where
   | mk_functype (v_resulttype_0 : resulttype) (v_resulttype_1 : resulttype) : functype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:171.1-172.17 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:171.1-172.17 -/
 inductive tabletype : Type where
   | mk_tabletype (v_limits : limits) (v_reftype : reftype) : tabletype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:171.8-171.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:171.8-171.17 -/
 inductive wf_tabletype : tabletype → Prop where
   | tabletype_case_0 (v_limits : limits) (v_reftype : reftype) :
     wf_limits v_limits →
     wf_tabletype (tabletype.mk_tabletype v_limits v_reftype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:173.1-174.14 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:173.1-174.14 -/
 inductive memtype : Type where
   | PAGE (v_limits : limits) : memtype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:173.8-173.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:173.8-173.15 -/
 inductive wf_memtype : memtype → Prop where
   | memtype_case_0 (v_limits : limits) :
     wf_limits v_limits →
     wf_memtype (memtype.PAGE v_limits)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:175.1-176.10 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:175.1-176.10 -/
 abbrev elemtype : Type := reftype
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:177.1-178.5 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:177.1-178.5 -/
 inductive datatype : Type where
   | OK : datatype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:179.1-180.70 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:179.1-180.70 -/
 inductive externtype : Type where
   | FUNC (v_functype : functype) : externtype
   | GLOBAL (v_globaltype : globaltype) : externtype
@@ -679,7 +679,7 @@ inductive externtype : Type where
   | MEM (v_memtype : memtype) : externtype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:179.8-179.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:179.8-179.18 -/
 inductive wf_externtype : externtype → Prop where
   | externtype_case_0 (v_functype : functype) : wf_externtype (externtype.FUNC v_functype)
   | externtype_case_1 (v_globaltype : globaltype) : wf_externtype (externtype.GLOBAL v_globaltype)
@@ -691,30 +691,30 @@ inductive wf_externtype : externtype → Prop where
     wf_externtype (externtype.MEM v_memtype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.60 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:332.1-332.60 -/
 inductive dim : Type where
   | mk_dim (i : Nat) : dim
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.1-332.60 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:332.1-332.60 -/
 def proj_dim_0 (x : dim) : Nat :=
   match x with
   | dim.mk_dim v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:332.8-332.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:332.8-332.11 -/
 inductive wf_dim : dim → Prop where
   | dim_case_0 (i : Nat) :
     ((((i = 1) ∨ (i = 2)) ∨ (i = 4)) ∨ (i = 8)) ∨ (i = 16) →
     wf_dim (dim.mk_dim i)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:210.1-210.45 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:210.1-210.45 -/
 def psize (v_packtype : packtype) : Nat :=
   match v_packtype with
   | packtype.I8 => 8
   | packtype.I16 => 16
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:208.1-208.59 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:208.1-208.59 -/
 def size (v_valtype : valtype) : Option Nat :=
   match v_valtype with
   | valtype.I32 => some 32
@@ -724,7 +724,7 @@ def size (v_valtype : valtype) : Option Nat :=
   | valtype.V128 => some 128
   | _ => none
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:211.6-211.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:211.6-211.12 -/
 inductive fun_lsize : lanetype → Nat → Prop where
   | fun_lsize_case_0 :
     (size (valtype_numtype numtype.I32)) ≠ none →
@@ -742,12 +742,12 @@ inductive fun_lsize : lanetype → Nat → Prop where
   | fun_lsize_case_5 : fun_lsize lanetype.I16 (psize packtype.I16)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.1-334.40 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:333.1-334.40 -/
 inductive shape : Type where
   | X (v_lanetype : lanetype) (v_dim : dim) : shape
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:333.8-333.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:333.8-333.13 -/
 inductive wf_shape : shape → Prop where
   | shape_case_0 (v_lanetype : lanetype) (v_dim : dim) (var_0 : Nat) :
     fun_lsize v_lanetype var_0 →
@@ -756,87 +756,87 @@ inductive wf_shape : shape → Prop where
     wf_shape (shape.X v_lanetype v_dim)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:206.1-206.32 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:206.1-206.32 -/
 def fun_lanetype (v_shape : shape) : lanetype :=
   match v_shape with
   | shape.X v_Lnn (dim.mk_dim v_N) => v_Lnn
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:209.1-209.46 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:209.1-209.46 -/
 def vsize (v_vectype : vectype) : Nat :=
   match v_vectype with
   | vectype.V128 => 128
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:212.6-212.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:212.6-212.12 -/
 inductive fun_isize : Inn → Nat → Prop where
   | fun_isize_case_0 (v_Inn : Inn) :
     (size (valtype_Inn v_Inn)) ≠ none →
     fun_isize v_Inn (Option.get! (size (valtype_Inn v_Inn)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:213.6-213.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:213.6-213.12 -/
 inductive fun_jsize : Jnn → Nat → Prop where
   | fun_jsize_case_0 (v_Jnn : Jnn) (var_0 : Nat) :
     fun_lsize (lanetype_Jnn v_Jnn) var_0 →
     fun_jsize v_Jnn var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:214.6-214.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:214.6-214.12 -/
 inductive fun_fsize : Fnn → Nat → Prop where
   | fun_fsize_case_0 (v_Fnn : Fnn) :
     (size (valtype_Fnn v_Fnn)) ≠ none →
     fun_fsize v_Fnn (Option.get! (size (valtype_Fnn v_Fnn)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:234.6-234.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:234.6-234.13 -/
 inductive fun_sizenn : numtype → Nat → Prop where
   | fun_sizenn_case_0 (nt : numtype) :
     (size (valtype_numtype nt)) ≠ none →
     fun_sizenn nt (Option.get! (size (valtype_numtype nt)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:235.6-235.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:235.6-235.14 -/
 inductive fun_sizenn1 : numtype → Nat → Prop where
   | fun_sizenn1_case_0 (nt : numtype) :
     (size (valtype_numtype nt)) ≠ none →
     fun_sizenn1 nt (Option.get! (size (valtype_numtype nt)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:236.6-236.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:236.6-236.14 -/
 inductive fun_sizenn2 : numtype → Nat → Prop where
   | fun_sizenn2_case_0 (nt : numtype) :
     (size (valtype_numtype nt)) ≠ none →
     fun_sizenn2 nt (Option.get! (size (valtype_numtype nt)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:241.6-241.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:241.6-241.14 -/
 inductive fun_lsizenn : lanetype → Nat → Prop where
   | fun_lsizenn_case_0 (lt : lanetype) (var_0 : Nat) :
     fun_lsize lt var_0 →
     fun_lsizenn lt var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:242.6-242.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:242.6-242.15 -/
 inductive fun_lsizenn1 : lanetype → Nat → Prop where
   | fun_lsizenn1_case_0 (lt : lanetype) (var_0 : Nat) :
     fun_lsize lt var_0 →
     fun_lsizenn1 lt var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:243.6-243.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:243.6-243.15 -/
 inductive fun_lsizenn2 : lanetype → Nat → Prop where
   | fun_lsizenn2_case_0 (lt : lanetype) (var_0 : Nat) :
     fun_lsize lt var_0 →
     fun_lsizenn2 lt var_0
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:248.1-248.40 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:248.1-248.40 -/
 def inv_isize (nat : Nat) : Option Inn :=
   match nat with
   | 32 => some Inn.I32
   | 64 => some Inn.I64
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:249.1-249.40 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:249.1-249.40 -/
 def inv_jsize (nat : Nat) : Option Jnn :=
   match nat with
   | 8 => some Jnn.I8
@@ -845,20 +845,20 @@ def inv_jsize (nat : Nat) : Option Jnn :=
   | 64 => some Jnn.I64
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:250.1-250.40 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:250.1-250.40 -/
 def inv_fsize (nat : Nat) : Option Fnn :=
   match nat with
   | 32 => some Fnn.F32
   | 64 => some Fnn.F64
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
 inductive num_ : Type where
   | mk_num__0 (v_Inn : Inn) (var_x : iN) : num_
   | mk_num__1 (v_Fnn : Fnn) (var_x : fN) : num_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.8-262.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:262.8-262.13 -/
 inductive wf_num_ : numtype → num_ → Prop where
   | num__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : iN) :
     (size (valtype_Inn v_Inn)) ≠ none →
@@ -872,28 +872,28 @@ inductive wf_num_ : numtype → num_ → Prop where
     wf_num_ v_numtype (num_.mk_num__1 v_Fnn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
 def proj_num__0 (var_x : num_) : Option iN :=
   match var_x with
   | num_.mk_num__0 v_Inn var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:262.1-262.21 -/
 def proj_num__1 (var_x : num_) : Option fN :=
   match var_x with
   | num_.mk_num__1 v_Fnn var_x => some var_x
   | _ => none
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:266.1-266.36 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:266.1-266.36 -/
 abbrev pack_ : Type := iN
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
 inductive lane_ : Type where
   | mk_lane__0 (v_Jnn : Jnn) (var_x : iN) : lane_
   | mk_lane__1 (v_Fnn : Fnn) (var_x : fN) : lane_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.8-275.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:275.8-275.14 -/
 inductive wf_lane_ : lanetype → lane_ → Prop where
   | lane__case_0 (v_lanetype : lanetype) (v_Jnn : Jnn) (var_x : iN) (var_0 : N) :
     fun_lsize (lanetype_Jnn v_Jnn) var_0 →
@@ -907,22 +907,22 @@ inductive wf_lane_ : lanetype → lane_ → Prop where
     wf_lane_ v_lanetype (lane_.mk_lane__1 v_Fnn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
 def proj_lane__0 (var_x : lane_) : Option iN :=
   match var_x with
   | lane_.mk_lane__0 v_Jnn var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:275.1-275.23 -/
 def proj_lane__1 (var_x : lane_) : Option fN :=
   match var_x with
   | lane_.mk_lane__1 v_Fnn var_x => some var_x
   | _ => none
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:279.1-279.34 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:279.1-279.34 -/
 abbrev vec_ : Type := vN
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:281.6-281.11 -/
 inductive fun_zero : numtype → num_ → Prop where
   | fun_zero_case_0 : fun_zero numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN 0))
   | fun_zero_case_1 : fun_zero numtype.I64 (num_.mk_num__0 Inn.I64 (uN.mk_uN 0))
@@ -952,7 +952,7 @@ theorem iswf_num_Fnn_of_sizenn {F : Fnn} {N : Nat} {x : fN} (hN : fun_sizenn (nu
     (hx : wf_fN N x) : wf_num_ (numtype_Fnn F) (num_.mk_num__1 F x) :=
   wf_num_.num__case_1 _ _ _ _ hN hx rfl
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/1-syntax.spectec:281.6-281.11 -/
 theorem zero_is_wf (v_numtype : numtype) (ret_val : num_) (var_0 : num_) :
   fun_zero v_numtype var_0 →
   ret_val = var_0 →
@@ -970,30 +970,30 @@ theorem zero_is_wf (v_numtype : numtype) (ret_val : num_) (var_0 : num_) :
     cases hz with
     | fun_fzero_case_0 hw => exact iswf_num_Fnn_of_sizenn (F := Fnn.F64) (iswf_fun_sizenn_val _) hw
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:288.1-288.42 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:288.1-288.42 -/
 inductive sx : Type where
   | U : sx
   | S : sx
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.56 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:289.1-289.56 -/
 inductive sz : Type where
   | mk_sz (i : Nat) : sz
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.1-289.56 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:289.1-289.56 -/
 def proj_sz_0 (x : sz) : Nat :=
   match x with
   | sz.mk_sz v_num_0 => (v_num_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:289.8-289.10 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:289.8-289.10 -/
 inductive wf_sz : sz → Prop where
   | sz_case_0 (i : Nat) :
     (((i = 8) ∨ (i = 16)) ∨ (i = 32)) ∨ (i = 64) →
     wf_sz (sz.mk_sz i)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
 inductive unop_Inn : Type where
   | CLZ : unop_Inn
   | CTZ : unop_Inn
@@ -1001,7 +1001,7 @@ inductive unop_Inn : Type where
   | EXTEND (v_n : n) : unop_Inn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
 inductive unop_Fnn : Type where
   | ABS : unop_Fnn
   | NEG : unop_Fnn
@@ -1012,13 +1012,13 @@ inductive unop_Fnn : Type where
   | NEAREST : unop_Fnn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
 inductive unop_ : Type where
   | mk_unop__0 (v_Inn : Inn) (var_x : unop_Inn) : unop_
   | mk_unop__1 (v_Fnn : Fnn) (var_x : unop_Fnn) : unop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.8-291.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.8-291.14 -/
 inductive wf_unop_ : numtype → unop_ → Prop where
   | unop__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : unop_Inn) :
     v_numtype = (numtype_Inn v_Inn) →
@@ -1028,19 +1028,19 @@ inductive wf_unop_ : numtype → unop_ → Prop where
     wf_unop_ v_numtype (unop_.mk_unop__1 v_Fnn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
 def proj_unop__0 (var_x : unop_) : Option unop_Inn :=
   match var_x with
   | unop_.mk_unop__0 v_Inn var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:291.1-291.22 -/
 def proj_unop__1 (var_x : unop_) : Option unop_Fnn :=
   match var_x with
   | unop_.mk_unop__1 v_Fnn var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
 inductive binop_Inn : Type where
   | ADD : binop_Inn
   | SUB : binop_Inn
@@ -1056,7 +1056,7 @@ inductive binop_Inn : Type where
   | ROTR : binop_Inn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
 inductive binop_Fnn : Type where
   | ADD : binop_Fnn
   | SUB : binop_Fnn
@@ -1067,13 +1067,13 @@ inductive binop_Fnn : Type where
   | COPYSIGN : binop_Fnn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
 inductive binop_ : Type where
   | mk_binop__0 (v_Inn : Inn) (var_x : binop_Inn) : binop_
   | mk_binop__1 (v_Fnn : Fnn) (var_x : binop_Fnn) : binop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.8-295.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.8-295.15 -/
 inductive wf_binop_ : numtype → binop_ → Prop where
   | binop__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : binop_Inn) :
     v_numtype = (numtype_Inn v_Inn) →
@@ -1083,41 +1083,41 @@ inductive wf_binop_ : numtype → binop_ → Prop where
     wf_binop_ v_numtype (binop_.mk_binop__1 v_Fnn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
 def proj_binop__0 (var_x : binop_) : Option binop_Inn :=
   match var_x with
   | binop_.mk_binop__0 v_Inn var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:295.1-295.23 -/
 def proj_binop__1 (var_x : binop_) : Option binop_Fnn :=
   match var_x with
   | binop_.mk_binop__1 v_Fnn var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
 inductive testop_Inn : Type where
   | EQZ : testop_Inn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
 inductive testop_ : Type where
   | mk_testop__0 (v_Inn : Inn) (var_x : testop_Inn) : testop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.8-302.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:302.8-302.16 -/
 inductive wf_testop_ : numtype → testop_ → Prop where
   | testop__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : testop_Inn) :
     v_numtype = (numtype_Inn v_Inn) →
     wf_testop_ v_numtype (testop_.mk_testop__0 v_Inn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:302.1-302.24 -/
 def proj_testop__0 (var_x : testop_) : testop_Inn :=
   match var_x with
   | testop_.mk_testop__0 v_Inn var_x => var_x
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
 inductive relop_Inn : Type where
   | EQ : relop_Inn
   | NE : relop_Inn
@@ -1127,7 +1127,7 @@ inductive relop_Inn : Type where
   | GE (v_sx : sx) : relop_Inn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
 inductive relop_Fnn : Type where
   | EQ : relop_Fnn
   | NE : relop_Fnn
@@ -1137,13 +1137,13 @@ inductive relop_Fnn : Type where
   | GE : relop_Fnn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
 inductive relop_ : Type where
   | mk_relop__0 (v_Inn : Inn) (var_x : relop_Inn) : relop_
   | mk_relop__1 (v_Fnn : Fnn) (var_x : relop_Fnn) : relop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.8-306.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.8-306.15 -/
 inductive wf_relop_ : numtype → relop_ → Prop where
   | relop__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : relop_Inn) :
     v_numtype = (numtype_Inn v_Inn) →
@@ -1153,25 +1153,25 @@ inductive wf_relop_ : numtype → relop_ → Prop where
     wf_relop_ v_numtype (relop_.mk_relop__1 v_Fnn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
 def proj_relop__0 (var_x : relop_) : Option relop_Inn :=
   match var_x with
   | relop_.mk_relop__0 v_Inn var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:306.1-306.23 -/
 def proj_relop__1 (var_x : relop_) : Option relop_Fnn :=
   match var_x with
   | relop_.mk_relop__1 v_Fnn var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 inductive cvtop__Inn_1_Inn_2 : Type where
   | EXTEND (v_sx : sx) : cvtop__Inn_1_Inn_2
   | WRAP : cvtop__Inn_1_Inn_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
 inductive wf_cvtop__Inn_1_Inn_2 : Inn → Inn → cvtop__Inn_1_Inn_2 → Prop where
   | cvtop__Inn_1_Inn_2_case_0 (Inn_1 : Inn) (Inn_2 : Inn) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_sizenn2 (numtype_Inn Inn_2) var_1 →
@@ -1185,13 +1185,13 @@ inductive wf_cvtop__Inn_1_Inn_2 : Inn → Inn → cvtop__Inn_1_Inn_2 → Prop wh
     wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 cvtop__Inn_1_Inn_2.WRAP
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 inductive cvtop__Inn_1_Fnn_2 : Type where
   | CONVERT (v_sx : sx) : cvtop__Inn_1_Fnn_2
   | REINTERPRET : cvtop__Inn_1_Fnn_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
 inductive wf_cvtop__Inn_1_Fnn_2 : Inn → Fnn → cvtop__Inn_1_Fnn_2 → Prop where
   | cvtop__Inn_1_Fnn_2_case_0 (Inn_1 : Inn) (Fnn_2 : Fnn) (v_sx : sx) : wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 (cvtop__Inn_1_Fnn_2.CONVERT v_sx)
   | cvtop__Inn_1_Fnn_2_case_1 (Inn_1 : Inn) (Fnn_2 : Fnn) (var_1 : Nat) (var_0 : Nat) :
@@ -1201,14 +1201,14 @@ inductive wf_cvtop__Inn_1_Fnn_2 : Inn → Fnn → cvtop__Inn_1_Fnn_2 → Prop wh
     wf_cvtop__Inn_1_Fnn_2 Inn_1 Fnn_2 cvtop__Inn_1_Fnn_2.REINTERPRET
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 inductive cvtop__Fnn_1_Inn_2 : Type where
   | TRUNC (v_sx : sx) : cvtop__Fnn_1_Inn_2
   | TRUNC_SAT (v_sx : sx) : cvtop__Fnn_1_Inn_2
   | REINTERPRET : cvtop__Fnn_1_Inn_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
 inductive wf_cvtop__Fnn_1_Inn_2 : Fnn → Inn → cvtop__Fnn_1_Inn_2 → Prop where
   | cvtop__Fnn_1_Inn_2_case_0 (Fnn_1 : Fnn) (Inn_2 : Inn) (v_sx : sx) : wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 (cvtop__Fnn_1_Inn_2.TRUNC v_sx)
   | cvtop__Fnn_1_Inn_2_case_1 (Fnn_1 : Fnn) (Inn_2 : Inn) (v_sx : sx) : wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 (cvtop__Fnn_1_Inn_2.TRUNC_SAT v_sx)
@@ -1219,13 +1219,13 @@ inductive wf_cvtop__Fnn_1_Inn_2 : Fnn → Inn → cvtop__Fnn_1_Inn_2 → Prop wh
     wf_cvtop__Fnn_1_Inn_2 Fnn_1 Inn_2 cvtop__Fnn_1_Inn_2.REINTERPRET
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 inductive cvtop__Fnn_1_Fnn_2 : Type where
   | PROMOTE : cvtop__Fnn_1_Fnn_2
   | DEMOTE : cvtop__Fnn_1_Fnn_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
 inductive wf_cvtop__Fnn_1_Fnn_2 : Fnn → Fnn → cvtop__Fnn_1_Fnn_2 → Prop where
   | cvtop__Fnn_1_Fnn_2_case_0 (Fnn_1 : Fnn) (Fnn_2 : Fnn) (var_1 : Nat) (var_0 : Nat) :
     fun_sizenn2 (numtype_Fnn Fnn_2) var_1 →
@@ -1239,7 +1239,7 @@ inductive wf_cvtop__Fnn_1_Fnn_2 : Fnn → Fnn → cvtop__Fnn_1_Fnn_2 → Prop wh
     wf_cvtop__Fnn_1_Fnn_2 Fnn_1 Fnn_2 cvtop__Fnn_1_Fnn_2.DEMOTE
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 inductive cvtop__ : Type where
   | mk_cvtop___0 (Inn_1 : Inn) (Inn_2 : Inn) (var_x : cvtop__Inn_1_Inn_2) : cvtop__
   | mk_cvtop___1 (Inn_1 : Inn) (Fnn_2 : Fnn) (var_x : cvtop__Inn_1_Fnn_2) : cvtop__
@@ -1247,7 +1247,7 @@ inductive cvtop__ : Type where
   | mk_cvtop___3 (Fnn_1 : Fnn) (Fnn_2 : Fnn) (var_x : cvtop__Fnn_1_Fnn_2) : cvtop__
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.8-314.16 -/
 inductive wf_cvtop__ : numtype → numtype → cvtop__ → Prop where
   | cvtop___case_0 (numtype_1 : numtype) (numtype_2 : numtype) (Inn_1 : Inn) (Inn_2 : Inn) (var_x : cvtop__Inn_1_Inn_2) :
     wf_cvtop__Inn_1_Inn_2 Inn_1 Inn_2 var_x →
@@ -1271,41 +1271,41 @@ inductive wf_cvtop__ : numtype → numtype → cvtop__ → Prop where
     wf_cvtop__ numtype_1 numtype_2 (cvtop__.mk_cvtop___3 Fnn_1 Fnn_2 var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 def proj_cvtop___0 (var_x : cvtop__) : Option cvtop__Inn_1_Inn_2 :=
   match var_x with
   | cvtop__.mk_cvtop___0 Inn_1 Inn_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 def proj_cvtop___1 (var_x : cvtop__) : Option cvtop__Inn_1_Fnn_2 :=
   match var_x with
   | cvtop__.mk_cvtop___1 Inn_1 Fnn_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 def proj_cvtop___2 (var_x : cvtop__) : Option cvtop__Fnn_1_Inn_2 :=
   match var_x with
   | cvtop__.mk_cvtop___2 Fnn_1 Inn_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:314.1-314.37 -/
 def proj_cvtop___3 (var_x : cvtop__) : Option cvtop__Fnn_1_Fnn_2 :=
   match var_x with
   | cvtop__.mk_cvtop___3 Fnn_1 Fnn_2 var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-336.31 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:335.1-336.31 -/
 inductive ishape : Type where
   | mk_ishape (v_shape : shape) : ishape
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.1-336.31 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:335.1-336.31 -/
 def proj_ishape_0 (x : ishape) : shape :=
   match x with
   | ishape.mk_ishape v_shape_0 => (v_shape_0)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:335.8-335.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:335.8-335.14 -/
 inductive wf_ishape : ishape → Prop where
   | ishape_case_0 (v_Jnn : Jnn) (v_shape : shape) :
     wf_shape v_shape →
@@ -1313,12 +1313,12 @@ inductive wf_ishape : ishape → Prop where
     wf_ishape (ishape.mk_ishape v_shape)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.1-338.31 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:337.1-338.31 -/
 inductive fshape : Type where
   | mk_fshape (v_shape : shape) : fshape
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:337.8-337.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:337.8-337.14 -/
 inductive wf_fshape : fshape → Prop where
   | fshape_case_0 (v_Fnn : Fnn) (v_shape : shape) :
     wf_shape v_shape →
@@ -1326,12 +1326,12 @@ inductive wf_fshape : fshape → Prop where
     wf_fshape (fshape.mk_fshape v_shape)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.1-340.31 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:339.1-340.31 -/
 inductive pshape : Type where
   | mk_pshape (v_shape : shape) : pshape
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:339.8-339.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:339.8-339.14 -/
 inductive wf_pshape : pshape → Prop where
   | pshape_case_0 (v_Pnn : Pnn) (v_shape : shape) :
     wf_shape v_shape →
@@ -1339,12 +1339,12 @@ inductive wf_pshape : pshape → Prop where
     wf_pshape (pshape.mk_pshape v_shape)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.1-342.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:342.1-342.22 -/
 def fun_dim (v_shape : shape) : dim :=
   match v_shape with
   | shape.X v_Lnn (dim.mk_dim v_N) => dim.mk_dim v_N
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/1-syntax.spectec:342.6-342.10 -/
 theorem dim_is_wf (v_shape : shape) (ret_val : dim) :
   wf_shape v_shape →
   ret_val = (fun_dim v_shape) →
@@ -1352,19 +1352,19 @@ theorem dim_is_wf (v_shape : shape) (ret_val : dim) :
   rintro ⟨_, ⟨_⟩, _, _, hd, _⟩ rfl
   exact hd
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:343.6-343.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:343.6-343.13 -/
 inductive fun_shsize : shape → Nat → Prop where
   | fun_shsize_case_0 (v_Lnn : lanetype) (v_N : Nat) (var_0 : Nat) :
     fun_lsize v_Lnn var_0 →
     fun_shsize (shape.X v_Lnn (dim.mk_dim v_N)) (var_0 * v_N)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:345.1-345.20 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:345.1-345.20 -/
 inductive vvunop : Type where
   | NOT : vvunop
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:346.1-346.41 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:346.1-346.41 -/
 inductive vvbinop : Type where
   | AND : vvbinop
   | ANDNOT : vvbinop
@@ -1372,24 +1372,24 @@ inductive vvbinop : Type where
   | XOR : vvbinop
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:347.1-347.28 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:347.1-347.28 -/
 inductive vvternop : Type where
   | BITSELECT : vvternop
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:348.1-348.27 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:348.1-348.27 -/
 inductive vvtestop : Type where
   | ANY_TRUE : vvtestop
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
 inductive vunop_Jnn_N : Type where
   | ABS : vunop_Jnn_N
   | NEG : vunop_Jnn_N
   | POPCNT : vunop_Jnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.8-350.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.8-350.15 -/
 inductive wf_vunop_Jnn_N : Jnn → N → vunop_Jnn_N → Prop where
   | vunop_Jnn_N_case_0 (v_Jnn : Jnn) (v_N : N) : wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N.ABS
   | vunop_Jnn_N_case_1 (v_Jnn : Jnn) (v_N : N) : wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N.NEG
@@ -1398,7 +1398,7 @@ inductive wf_vunop_Jnn_N : Jnn → N → vunop_Jnn_N → Prop where
     wf_vunop_Jnn_N v_Jnn v_N vunop_Jnn_N.POPCNT
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
 inductive vunop_Fnn_N : Type where
   | ABS : vunop_Fnn_N
   | NEG : vunop_Fnn_N
@@ -1409,13 +1409,13 @@ inductive vunop_Fnn_N : Type where
   | NEAREST : vunop_Fnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
 inductive vunop_ : Type where
   | mk_vunop__0 (v_Jnn : Jnn) (v_N : N) (var_x : vunop_Jnn_N) : vunop_
   | mk_vunop__1 (v_Fnn : Fnn) (v_N : N) (var_x : vunop_Fnn_N) : vunop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.8-350.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.8-350.15 -/
 inductive wf_vunop_ : shape → vunop_ → Prop where
   | vunop__case_0 (v_shape : shape) (v_Jnn : Jnn) (v_N : N) (var_x : vunop_Jnn_N) :
     wf_vunop_Jnn_N v_Jnn v_N var_x →
@@ -1426,19 +1426,19 @@ inductive wf_vunop_ : shape → vunop_ → Prop where
     wf_vunop_ v_shape (vunop_.mk_vunop__1 v_Fnn v_N var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
 def proj_vunop__0 (var_x : vunop_) : Option vunop_Jnn_N :=
   match var_x with
   | vunop_.mk_vunop__0 v_Jnn v_N var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:350.1-350.21 -/
 def proj_vunop__1 (var_x : vunop_) : Option vunop_Fnn_N :=
   match var_x with
   | vunop_.mk_vunop__1 v_Fnn v_N var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
 inductive vbinop_Jnn_N : Type where
   | ADD : vbinop_Jnn_N
   | SUB : vbinop_Jnn_N
@@ -1451,7 +1451,7 @@ inductive vbinop_Jnn_N : Type where
   | MAX (v_sx : sx) : vbinop_Jnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.8-355.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.8-355.16 -/
 inductive wf_vbinop_Jnn_N : Jnn → N → vbinop_Jnn_N → Prop where
   | vbinop_Jnn_N_case_0 (v_Jnn : Jnn) (v_N : N) : wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N.ADD
   | vbinop_Jnn_N_case_1 (v_Jnn : Jnn) (v_N : N) : wf_vbinop_Jnn_N v_Jnn v_N vbinop_Jnn_N.SUB
@@ -1485,7 +1485,7 @@ inductive wf_vbinop_Jnn_N : Jnn → N → vbinop_Jnn_N → Prop where
     wf_vbinop_Jnn_N v_Jnn v_N (vbinop_Jnn_N.MAX v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
 inductive vbinop_Fnn_N : Type where
   | ADD : vbinop_Fnn_N
   | SUB : vbinop_Fnn_N
@@ -1497,13 +1497,13 @@ inductive vbinop_Fnn_N : Type where
   | PMAX : vbinop_Fnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
 inductive vbinop_ : Type where
   | mk_vbinop__0 (v_Jnn : Jnn) (v_N : N) (var_x : vbinop_Jnn_N) : vbinop_
   | mk_vbinop__1 (v_Fnn : Fnn) (v_N : N) (var_x : vbinop_Fnn_N) : vbinop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.8-355.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.8-355.16 -/
 inductive wf_vbinop_ : shape → vbinop_ → Prop where
   | vbinop__case_0 (v_shape : shape) (v_Jnn : Jnn) (v_N : N) (var_x : vbinop_Jnn_N) :
     wf_vbinop_Jnn_N v_Jnn v_N var_x →
@@ -1514,41 +1514,41 @@ inductive wf_vbinop_ : shape → vbinop_ → Prop where
     wf_vbinop_ v_shape (vbinop_.mk_vbinop__1 v_Fnn v_N var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
 def proj_vbinop__0 (var_x : vbinop_) : Option vbinop_Jnn_N :=
   match var_x with
   | vbinop_.mk_vbinop__0 v_Jnn v_N var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:355.1-355.22 -/
 def proj_vbinop__1 (var_x : vbinop_) : Option vbinop_Fnn_N :=
   match var_x with
   | vbinop_.mk_vbinop__1 v_Fnn v_N var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
 inductive vtestop_Jnn_N : Type where
   | ALL_TRUE : vtestop_Jnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
 inductive vtestop_ : Type where
   | mk_vtestop__0 (v_Jnn : Jnn) (v_N : N) (var_x : vtestop_Jnn_N) : vtestop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.8-368.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:368.8-368.17 -/
 inductive wf_vtestop_ : shape → vtestop_ → Prop where
   | vtestop__case_0 (v_shape : shape) (v_Jnn : Jnn) (v_N : N) (var_x : vtestop_Jnn_N) :
     v_shape = (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N)) →
     wf_vtestop_ v_shape (vtestop_.mk_vtestop__0 v_Jnn v_N var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:368.1-368.23 -/
 def proj_vtestop__0 (var_x : vtestop_) : vtestop_Jnn_N :=
   match var_x with
   | vtestop_.mk_vtestop__0 v_Jnn v_N var_x => var_x
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
 inductive vrelop_Jnn_N : Type where
   | EQ : vrelop_Jnn_N
   | NE : vrelop_Jnn_N
@@ -1558,7 +1558,7 @@ inductive vrelop_Jnn_N : Type where
   | GE (v_sx : sx) : vrelop_Jnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.8-372.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.8-372.16 -/
 inductive wf_vrelop_Jnn_N : Jnn → N → vrelop_Jnn_N → Prop where
   | vrelop_Jnn_N_case_0 (v_Jnn : Jnn) (v_N : N) : wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N.EQ
   | vrelop_Jnn_N_case_1 (v_Jnn : Jnn) (v_N : N) : wf_vrelop_Jnn_N v_Jnn v_N vrelop_Jnn_N.NE
@@ -1580,7 +1580,7 @@ inductive wf_vrelop_Jnn_N : Jnn → N → vrelop_Jnn_N → Prop where
     wf_vrelop_Jnn_N v_Jnn v_N (vrelop_Jnn_N.GE v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
 inductive vrelop_Fnn_N : Type where
   | EQ : vrelop_Fnn_N
   | NE : vrelop_Fnn_N
@@ -1590,13 +1590,13 @@ inductive vrelop_Fnn_N : Type where
   | GE : vrelop_Fnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
 inductive vrelop_ : Type where
   | mk_vrelop__0 (v_Jnn : Jnn) (v_N : N) (var_x : vrelop_Jnn_N) : vrelop_
   | mk_vrelop__1 (v_Fnn : Fnn) (v_N : N) (var_x : vrelop_Fnn_N) : vrelop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.8-372.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.8-372.16 -/
 inductive wf_vrelop_ : shape → vrelop_ → Prop where
   | vrelop__case_0 (v_shape : shape) (v_Jnn : Jnn) (v_N : N) (var_x : vrelop_Jnn_N) :
     wf_vrelop_Jnn_N v_Jnn v_N var_x →
@@ -1607,35 +1607,35 @@ inductive wf_vrelop_ : shape → vrelop_ → Prop where
     wf_vrelop_ v_shape (vrelop_.mk_vrelop__1 v_Fnn v_N var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
 def proj_vrelop__0 (var_x : vrelop_) : Option vrelop_Jnn_N :=
   match var_x with
   | vrelop_.mk_vrelop__0 v_Jnn v_N var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:372.1-372.22 -/
 def proj_vrelop__1 (var_x : vrelop_) : Option vrelop_Fnn_N :=
   match var_x with
   | vrelop_.mk_vrelop__1 v_Fnn v_N var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:380.1-380.48 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:380.1-380.48 -/
 inductive half : Type where
   | LOW : half
   | HIGH : half
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:381.1-381.19 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:381.1-381.19 -/
 inductive zero : Type where
   | ZERO : zero
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 inductive vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Type where
   | EXTEND (v_half : half) (v_sx : sx) : vcvtop__Jnn_1_M_1_Jnn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
 inductive wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vcvtop__Jnn_1_M_1_Jnn_2_M_2 → Prop where
   | vcvtop__Jnn_1_M_1_Jnn_2_M_2_case_0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_half : half) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsizenn1 (lanetype_Jnn Jnn_1) var_1 →
@@ -1644,12 +1644,12 @@ inductive wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vcvtop__J
     wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND v_half v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 inductive vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Type where
   | CONVERT (half_opt : Option half) (v_sx : sx) : vcvtop__Jnn_1_M_1_Fnn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
 inductive wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Jnn → M → Fnn → M → vcvtop__Jnn_1_M_1_Fnn_2_M_2 → Prop where
   | vcvtop__Jnn_1_M_1_Fnn_2_M_2_case_0 (Jnn_1 : Jnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (half_opt : Option half) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsizenn1 (lanetype_Jnn Jnn_1) var_1 →
@@ -1658,12 +1658,12 @@ inductive wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 : Jnn → M → Fnn → M → vcvtop__J
     wf_vcvtop__Jnn_1_M_1_Fnn_2_M_2 Jnn_1 M_1 Fnn_2 M_2 (vcvtop__Jnn_1_M_1_Fnn_2_M_2.CONVERT half_opt v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 inductive vcvtop__Fnn_1_M_1_Inn_2_M_2 : Type where
   | TRUNC_SAT (v_sx : sx) (zero_opt : Option zero) : vcvtop__Fnn_1_M_1_Inn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
 inductive wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 : Fnn → M → Inn → M → vcvtop__Fnn_1_M_1_Inn_2_M_2 → Prop where
   | vcvtop__Fnn_1_M_1_Inn_2_M_2_case_0 (Fnn_1 : Fnn) (M_1 : M) (Inn_2 : Inn) (M_2 : M) (v_sx : sx) (zero_opt : Option zero) (var_1 : Nat) (var_0 : Nat) :
     fun_lsizenn2 (lanetype_Inn Inn_2) var_1 →
@@ -1672,13 +1672,13 @@ inductive wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 : Fnn → M → Inn → M → vcvtop__F
     wf_vcvtop__Fnn_1_M_1_Inn_2_M_2 Fnn_1 M_1 Inn_2 M_2 (vcvtop__Fnn_1_M_1_Inn_2_M_2.TRUNC_SAT v_sx zero_opt)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 inductive vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Type where
   | DEMOTE (v_zero : zero) : vcvtop__Fnn_1_M_1_Fnn_2_M_2
   | PROMOTELOW : vcvtop__Fnn_1_M_1_Fnn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
 inductive wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Fnn → M → Fnn → M → vcvtop__Fnn_1_M_1_Fnn_2_M_2 → Prop where
   | vcvtop__Fnn_1_M_1_Fnn_2_M_2_case_0 (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (v_zero : zero) (var_1 : Nat) (var_0 : Nat) :
     fun_sizenn2 (numtype_Fnn Fnn_2) var_1 →
@@ -1692,7 +1692,7 @@ inductive wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 : Fnn → M → Fnn → M → vcvtop__F
     wf_vcvtop__Fnn_1_M_1_Fnn_2_M_2 Fnn_1 M_1 Fnn_2 M_2 vcvtop__Fnn_1_M_1_Fnn_2_M_2.PROMOTELOW
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 inductive vcvtop__ : Type where
   | mk_vcvtop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Jnn_2_M_2) : vcvtop__
   | mk_vcvtop___1 (Jnn_1 : Jnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Fnn_2_M_2) : vcvtop__
@@ -1700,7 +1700,7 @@ inductive vcvtop__ : Type where
   | mk_vcvtop___3 (Fnn_1 : Fnn) (M_1 : M) (Fnn_2 : Fnn) (M_2 : M) (var_x : vcvtop__Fnn_1_M_1_Fnn_2_M_2) : vcvtop__
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.8-383.17 -/
 inductive wf_vcvtop__ : shape → shape → vcvtop__ → Prop where
   | vcvtop___case_0 (shape_1 : shape) (shape_2 : shape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vcvtop__Jnn_1_M_1_Jnn_2_M_2) :
     wf_vcvtop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x →
@@ -1724,59 +1724,59 @@ inductive wf_vcvtop__ : shape → shape → vcvtop__ → Prop where
     wf_vcvtop__ shape_1 shape_2 (vcvtop__.mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 def proj_vcvtop___0 (var_x : vcvtop__) : Option vcvtop__Jnn_1_M_1_Jnn_2_M_2 :=
   match var_x with
   | vcvtop__.mk_vcvtop___0 Jnn_1 M_1 Jnn_2 M_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 def proj_vcvtop___1 (var_x : vcvtop__) : Option vcvtop__Jnn_1_M_1_Fnn_2_M_2 :=
   match var_x with
   | vcvtop__.mk_vcvtop___1 Jnn_1 M_1 Fnn_2 M_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 def proj_vcvtop___2 (var_x : vcvtop__) : Option vcvtop__Fnn_1_M_1_Inn_2_M_2 :=
   match var_x with
   | vcvtop__.mk_vcvtop___2 Fnn_1 M_1 Inn_2 M_2 var_x => some var_x
   | _ => none
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:383.1-383.55 -/
 def proj_vcvtop___3 (var_x : vcvtop__) : Option vcvtop__Fnn_1_M_1_Fnn_2_M_2 :=
   match var_x with
   | vcvtop__.mk_vcvtop___3 Fnn_1 M_1 Fnn_2 M_2 var_x => some var_x
   | _ => none
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
 inductive vshiftop_Jnn_N : Type where
   | SHL : vshiftop_Jnn_N
   | SHR (v_sx : sx) : vshiftop_Jnn_N
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
 inductive vshiftop_ : Type where
   | mk_vshiftop__0 (v_Jnn : Jnn) (v_N : N) (var_x : vshiftop_Jnn_N) : vshiftop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.8-401.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:401.8-401.18 -/
 inductive wf_vshiftop_ : ishape → vshiftop_ → Prop where
   | vshiftop__case_0 (v_ishape : ishape) (v_Jnn : Jnn) (v_N : N) (var_x : vshiftop_Jnn_N) :
     v_ishape = (ishape.mk_ishape (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N))) →
     wf_vshiftop_ v_ishape (vshiftop_.mk_vshiftop__0 v_Jnn v_N var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:401.1-401.25 -/
 def proj_vshiftop__0 (var_x : vshiftop_) : vshiftop_Jnn_N :=
   match var_x with
   | vshiftop_.mk_vshiftop__0 v_Jnn v_N var_x => var_x
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
 inductive vextunop__Jnn_1_M_1_Jnn_2_M_2 : Type where
   | EXTADD_PAIRWISE (v_sx : sx) : vextunop__Jnn_1_M_1_Jnn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.8-404.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:404.8-404.19 -/
 inductive wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vextunop__Jnn_1_M_1_Jnn_2_M_2 → Prop where
   | vextunop__Jnn_1_M_1_Jnn_2_M_2_case_0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsizenn2 (lanetype_Jnn Jnn_2) var_1 →
@@ -1785,12 +1785,12 @@ inductive wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vextuno
     wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 (vextunop__Jnn_1_M_1_Jnn_2_M_2.EXTADD_PAIRWISE v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
 inductive vextunop__ : Type where
   | mk_vextunop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextunop__Jnn_1_M_1_Jnn_2_M_2) : vextunop__
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.8-404.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:404.8-404.19 -/
 inductive wf_vextunop__ : ishape → ishape → vextunop__ → Prop where
   | vextunop___case_0 (ishape_1 : ishape) (ishape_2 : ishape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextunop__Jnn_1_M_1_Jnn_2_M_2) :
     wf_vextunop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x →
@@ -1799,18 +1799,18 @@ inductive wf_vextunop__ : ishape → ishape → vextunop__ → Prop where
     wf_vextunop__ ishape_1 ishape_2 (vextunop__.mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:404.1-404.59 -/
 def proj_vextunop___0 (var_x : vextunop__) : vextunop__Jnn_1_M_1_Jnn_2_M_2 :=
   match var_x with
   | vextunop__.mk_vextunop___0 Jnn_1 M_1 Jnn_2 M_2 var_x => var_x
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
 inductive vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Type where
   | EXTMUL (v_half : half) (v_sx : sx) : vextbinop__Jnn_1_M_1_Jnn_2_M_2
   | DOTS : vextbinop__Jnn_1_M_1_Jnn_2_M_2
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.8-408.20 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:408.8-408.20 -/
 inductive wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vextbinop__Jnn_1_M_1_Jnn_2_M_2 → Prop where
   | vextbinop__Jnn_1_M_1_Jnn_2_M_2_case_0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (v_half : half) (v_sx : sx) (var_1 : Nat) (var_0 : Nat) :
     fun_lsizenn2 (lanetype_Jnn Jnn_2) var_1 →
@@ -1824,12 +1824,12 @@ inductive wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 : Jnn → M → Jnn → M → vextbi
     wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 vextbinop__Jnn_1_M_1_Jnn_2_M_2.DOTS
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
 inductive vextbinop__ : Type where
   | mk_vextbinop___0 (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextbinop__Jnn_1_M_1_Jnn_2_M_2) : vextbinop__
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.8-408.20 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:408.8-408.20 -/
 inductive wf_vextbinop__ : ishape → ishape → vextbinop__ → Prop where
   | vextbinop___case_0 (ishape_1 : ishape) (ishape_2 : ishape) (Jnn_1 : Jnn) (M_1 : M) (Jnn_2 : Jnn) (M_2 : M) (var_x : vextbinop__Jnn_1_M_1_Jnn_2_M_2) :
     wf_vextbinop__Jnn_1_M_1_Jnn_2_M_2 Jnn_1 M_1 Jnn_2 M_2 var_x →
@@ -1838,19 +1838,19 @@ inductive wf_vextbinop__ : ishape → ishape → vextbinop__ → Prop where
     wf_vextbinop__ ishape_1 ishape_2 (vextbinop__.mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:408.1-408.60 -/
 def proj_vextbinop___0 (var_x : vextbinop__) : vextbinop__Jnn_1_M_1_Jnn_2_M_2 :=
   match var_x with
   | vextbinop__.mk_vextbinop___0 Jnn_1 M_1 Jnn_2 M_2 var_x => var_x
 
-/- Record Creation Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.1-418.69 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:418.1-418.69 -/
 structure memarg where
   MKmemarg ::
   ALIGN : u32
   OFFSET : u32
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:418.8-418.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:418.8-418.14 -/
 inductive wf_memarg : memarg → Prop where
   | memarg_case_ (var_0 : u32) (var_1 : u32) :
     wf_uN 32 var_0 →
@@ -1861,12 +1861,12 @@ inductive wf_memarg : memarg → Prop where
     })
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
 inductive loadop_Inn : Type where
   | mk_loadop_Inn (v_sz : sz) (v_sx : sx) : loadop_Inn
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.8-422.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:422.8-422.16 -/
 inductive wf_loadop_Inn : Inn → loadop_Inn → Prop where
   | loadop_Inn_case_0 (v_Inn : Inn) (v_sz : sz) (v_sx : sx) (var_0 : Nat) :
     fun_sizenn (numtype_Inn v_Inn) var_0 →
@@ -1875,12 +1875,12 @@ inductive wf_loadop_Inn : Inn → loadop_Inn → Prop where
     wf_loadop_Inn v_Inn (loadop_Inn.mk_loadop_Inn v_sz v_sx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
 inductive loadop_ : Type where
   | mk_loadop__0 (v_Inn : Inn) (var_x : loadop_Inn) : loadop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.8-422.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:422.8-422.16 -/
 inductive wf_loadop_ : numtype → loadop_ → Prop where
   | loadop__case_0 (v_numtype : numtype) (v_Inn : Inn) (var_x : loadop_Inn) :
     wf_loadop_Inn v_Inn var_x →
@@ -1888,19 +1888,19 @@ inductive wf_loadop_ : numtype → loadop_ → Prop where
     wf_loadop_ v_numtype (loadop_.mk_loadop__0 v_Inn var_x)
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:422.1-422.24 -/
 def proj_loadop__0 (var_x : loadop_) : loadop_Inn :=
   match var_x with
   | loadop_.mk_loadop__0 v_Inn var_x => var_x
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:425.1-428.61 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:425.1-428.61 -/
 inductive vloadop_ : Type where
   | SHAPEX_ (v_sz : sz) (v_M : M) (v_sx : sx) : vloadop_
   | SPLAT (v_sz : sz) : vloadop_
   | ZERO (v_sz : sz) : vloadop_
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:425.8-425.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:425.8-425.17 -/
 inductive wf_vloadop_ : vectype → vloadop_ → Prop where
   | vloadop__case_0 (v_vectype : vectype) (v_sz : sz) (v_M : M) (v_sx : sx) :
     wf_sz v_sz →
@@ -1915,13 +1915,13 @@ inductive wf_vloadop_ : vectype → vloadop_ → Prop where
     wf_vloadop_ v_vectype (vloadop_.ZERO v_sz)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:435.1-437.17 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:435.1-437.17 -/
 inductive blocktype : Type where
   | _RESULT (valtype_opt : Option valtype) : blocktype
   | _IDX (v_typeidx : typeidx) : blocktype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:435.8-435.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:435.8-435.17 -/
 inductive wf_blocktype : blocktype → Prop where
   | blocktype_case_0 (valtype_opt : Option valtype) : wf_blocktype (blocktype._RESULT valtype_opt)
   | blocktype_case_1 (v_typeidx : typeidx) :
@@ -1929,7 +1929,7 @@ inductive wf_blocktype : blocktype → Prop where
     wf_blocktype (blocktype._IDX v_typeidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.1-552.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:551.1-552.22 -/
 inductive instr : Type where
   | NOP : instr
   | UNREACHABLE : instr
@@ -2002,7 +2002,7 @@ deriving Inhabited, BEq
 
 derive_deceq instr
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:551.8-551.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:551.8-551.13 -/
 inductive wf_instr : instr → Prop where
   | instr_case_0 : wf_instr instr.NOP
   | instr_case_1 : wf_instr instr.UNREACHABLE
@@ -2221,10 +2221,10 @@ inductive wf_instr : instr → Prop where
     wf_instr (instr.DATA_DROP v_dataidx)
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/1-syntax.spectec:555.1-556.9 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:555.1-556.9 -/
 abbrev expr : Type := List instr
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.1-568.59 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:568.1-568.59 -/
 inductive elemmode : Type where
   | ACTIVE (v_tableidx : tableidx) (v_expr : expr) : elemmode
   | PASSIVE : elemmode
@@ -2233,7 +2233,7 @@ deriving Inhabited, BEq
 
 derive_deceq elemmode
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:568.8-568.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:568.8-568.16 -/
 inductive wf_elemmode : elemmode → Prop where
   | elemmode_case_0 (v_tableidx : tableidx) (v_expr : expr) :
     wf_uN 32 v_tableidx →
@@ -2243,7 +2243,7 @@ inductive wf_elemmode : elemmode → Prop where
   | elemmode_case_2 : wf_elemmode elemmode.DECLARE
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.1-569.47 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:569.1-569.47 -/
 inductive datamode : Type where
   | ACTIVE (v_memidx : memidx) (v_expr : expr) : datamode
   | PASSIVE : datamode
@@ -2251,7 +2251,7 @@ deriving Inhabited, BEq
 
 derive_deceq datamode
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:569.8-569.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:569.8-569.16 -/
 inductive wf_datamode : datamode → Prop where
   | datamode_case_0 (v_memidx : memidx) (v_expr : expr) :
     wf_uN 32 v_memidx →
@@ -2260,24 +2260,24 @@ inductive wf_datamode : datamode → Prop where
   | datamode_case_1 : wf_datamode datamode.PASSIVE
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:571.1-572.16 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:571.1-572.16 -/
 inductive type : Type where
   | TYPE (v_functype : functype) : type
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:573.1-574.16 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:573.1-574.16 -/
 inductive «local» : Type where
   | LOCAL (v_valtype : valtype) : «local»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.1-576.27 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:575.1-576.27 -/
 inductive func : Type where
   | FUNC (v_typeidx : typeidx) (local_lst : List «local») (v_expr : expr) : func
 deriving Inhabited, BEq
 
 derive_deceq func
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:575.8-575.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:575.8-575.12 -/
 inductive wf_func : func → Prop where
   | func_case_0 (v_typeidx : typeidx) (local_lst : List «local») (v_expr : expr) :
     wf_uN 32 v_typeidx →
@@ -2285,52 +2285,52 @@ inductive wf_func : func → Prop where
     wf_func (func.FUNC v_typeidx local_lst v_expr)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.1-578.25 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:577.1-578.25 -/
 inductive global : Type where
   | GLOBAL (v_globaltype : globaltype) (v_expr : expr) : global
 deriving Inhabited, BEq
 
 derive_deceq global
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:577.8-577.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:577.8-577.14 -/
 inductive wf_global : global → Prop where
   | global_case_0 (v_globaltype : globaltype) (v_expr : expr) :
     Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr →
     wf_global (global.GLOBAL v_globaltype v_expr)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.1-580.18 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:579.1-580.18 -/
 inductive table : Type where
   | TABLE (v_tabletype : tabletype) : table
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:579.8-579.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:579.8-579.13 -/
 inductive wf_table : table → Prop where
   | table_case_0 (v_tabletype : tabletype) :
     wf_tabletype v_tabletype →
     wf_table (table.TABLE v_tabletype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.1-582.17 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:581.1-582.17 -/
 inductive mem : Type where
   | MEMORY (v_memtype : memtype) : mem
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:581.8-581.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:581.8-581.11 -/
 inductive wf_mem : mem → Prop where
   | mem_case_0 (v_memtype : memtype) :
     wf_memtype v_memtype →
     wf_mem (mem.MEMORY v_memtype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.1-584.30 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:583.1-584.30 -/
 inductive elem : Type where
   | ELEM (v_reftype : reftype) (expr_lst : List expr) (v_elemmode : elemmode) : elem
 deriving Inhabited, BEq
 
 derive_deceq elem
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:583.8-583.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:583.8-583.12 -/
 inductive wf_elem : elem → Prop where
   | elem_case_0 (v_reftype : reftype) (expr_lst : List expr) (v_elemmode : elemmode) :
     Forall (fun (v_expr_elem : expr) => Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr_elem) expr_lst →
@@ -2338,14 +2338,14 @@ inductive wf_elem : elem → Prop where
     wf_elem (elem.ELEM v_reftype expr_lst v_elemmode)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.1-586.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:585.1-586.22 -/
 inductive data : Type where
   | DATA (byte_lst : List byte) (v_datamode : datamode) : data
 deriving Inhabited, BEq
 
 derive_deceq data
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:585.8-585.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:585.8-585.12 -/
 inductive wf_data : data → Prop where
   | data_case_0 (byte_lst : List byte) (v_datamode : datamode) :
     Forall (fun (v_byte_elem : byte) => wf_byte v_byte_elem) byte_lst →
@@ -2353,19 +2353,19 @@ inductive wf_data : data → Prop where
     wf_data (data.DATA byte_lst v_datamode)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.1-588.16 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:587.1-588.16 -/
 inductive start : Type where
   | START (v_funcidx : funcidx) : start
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:587.8-587.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:587.8-587.13 -/
 inductive wf_start : start → Prop where
   | start_case_0 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
     wf_start (start.START v_funcidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.1-591.66 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:590.1-591.66 -/
 inductive externidx : Type where
   | FUNC (v_funcidx : funcidx) : externidx
   | GLOBAL (v_globalidx : globalidx) : externidx
@@ -2373,7 +2373,7 @@ inductive externidx : Type where
   | MEM (v_memidx : memidx) : externidx
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:590.8-590.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:590.8-590.17 -/
 inductive wf_externidx : externidx → Prop where
   | externidx_case_0 (v_funcidx : funcidx) :
     wf_uN 32 v_funcidx →
@@ -2389,12 +2389,12 @@ inductive wf_externidx : externidx → Prop where
     wf_externidx (externidx.MEM v_memidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.1-593.24 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:592.1-593.24 -/
 inductive «export» : Type where
   | EXPORT (v_name : name) (v_externidx : externidx) : «export»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:592.8-592.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:592.8-592.14 -/
 inductive wf_export : «export» → Prop where
   | export_case_0 (v_name : name) (v_externidx : externidx) :
     wf_name v_name →
@@ -2402,12 +2402,12 @@ inductive wf_export : «export» → Prop where
     wf_export (export.EXPORT v_name v_externidx)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.1-595.30 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:594.1-595.30 -/
 inductive «import» : Type where
   | IMPORT (v_name_0 : name) (v_name_1 : name) (v_externtype : externtype) : «import»
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:594.8-594.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:594.8-594.14 -/
 inductive wf_import : «import» → Prop where
   | import_case_0 (v_name : name) (name_0 : name) (v_externtype : externtype) :
     wf_name v_name →
@@ -2416,14 +2416,14 @@ inductive wf_import : «import» → Prop where
     wf_import (import.IMPORT v_name name_0 v_externtype)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.1-598.76 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:597.1-598.76 -/
 inductive module : Type where
   | MODULE (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») : module
 deriving Inhabited, BEq
 
 derive_deceq module
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/1-syntax.spectec:597.8-597.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:597.8-597.14 -/
 inductive wf_module : module → Prop where
   | module_case_0 (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») :
     Forall (fun (v_import_elem : «import») => wf_import v_import_elem) import_lst →
@@ -2438,7 +2438,7 @@ inductive wf_module : module → Prop where
     wf_module (module.MODULE type_lst import_lst func_lst global_lst table_lst mem_lst elem_lst data_lst start_opt export_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.6-7.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:7.6-7.19 -/
 inductive fun_concat_bytes : List (List byte) → List byte → Prop where
   | fun_concat_bytes_case_0 : fun_concat_bytes [] []
   | fun_concat_bytes_case_1 (b_lst : List byte) (b'_lst_lst : List (List byte)) (var_0 : List byte) :
@@ -2457,7 +2457,7 @@ theorem iswf_Forall_append {α : Type} {P : α → Prop} {l1 l2 : List α} :
   · exact h1 x h
   · exact h2 x h
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.6-7.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:7.6-7.19 -/
 theorem concat_bytes_is_wf (var_0_lst_lst : List (List byte)) (ret_val_lst : List byte) (var_0 : List byte) :
   fun_concat_bytes var_0_lst_lst var_0 →
   Forall (fun (var_0_lst_elem : List byte) => Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst_elem) var_0_lst_lst →
@@ -2469,7 +2469,7 @@ theorem concat_bytes_is_wf (var_0_lst_lst : List (List byte)) (ret_val_lst : Lis
   | fun_concat_bytes_case_1 b_lst b'_lst_lst var_0 _ ih =>
     exact iswf_Forall_append (hall b_lst (by simp)) (ih (fun l hl => hall l (by simp [hl])))
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:28.1-28.32 -/
 def unpack (v_lanetype : lanetype) : numtype :=
   match v_lanetype with
   | lanetype.I32 => numtype.I32
@@ -2479,12 +2479,12 @@ def unpack (v_lanetype : lanetype) : numtype :=
   | lanetype.I8 => numtype.I32
   | lanetype.I16 => numtype.I32
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:44.1-44.54 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:44.1-44.54 -/
 def shunpack (v_shape : shape) : numtype :=
   match v_shape with
   | shape.X v_Lnn (dim.mk_dim v_N) => unpack v_Lnn
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:51.6-51.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:51.6-51.14 -/
 inductive fun_funcsxt : List externtype → List functype → Prop where
   | fun_funcsxt_case_0 : fun_funcsxt [] []
   | fun_funcsxt_case_1 (ft : functype) (xt_lst : List externtype) (var_0 : List functype) :
@@ -2495,7 +2495,7 @@ inductive fun_funcsxt : List externtype → List functype → Prop where
     fun_funcsxt ([v_externtype] ++ xt_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:52.6-52.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:52.6-52.16 -/
 inductive fun_globalsxt : List externtype → List globaltype → Prop where
   | fun_globalsxt_case_0 : fun_globalsxt [] []
   | fun_globalsxt_case_1 (gt : globaltype) (xt_lst : List externtype) (var_0 : List globaltype) :
@@ -2506,7 +2506,7 @@ inductive fun_globalsxt : List externtype → List globaltype → Prop where
     fun_globalsxt ([v_externtype] ++ xt_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.6-53.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:53.6-53.15 -/
 inductive fun_tablesxt : List externtype → List tabletype → Prop where
   | fun_tablesxt_case_0 : fun_tablesxt [] []
   | fun_tablesxt_case_1 (tt : tabletype) (xt_lst : List externtype) (var_0 : List tabletype) :
@@ -2525,7 +2525,7 @@ theorem iswf_Forall_cons {α : Type} {P : α → Prop} {x : α} {l : List α} :
   | head => exact hx
   | tail _ h => exact hl y h
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.6-53.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:53.6-53.15 -/
 theorem tablesxt_is_wf (var_0_lst : List externtype) (ret_val_lst : List tabletype) (var_0 : List tabletype) :
   fun_tablesxt var_0_lst var_0 →
   Forall (fun (var_0_elem : externtype) => wf_externtype var_0_elem) var_0_lst →
@@ -2541,7 +2541,7 @@ theorem tablesxt_is_wf (var_0_lst : List externtype) (ret_val_lst : List tablety
   | fun_tablesxt_case_2 xt xt_lst var_0 _ ih =>
     exact ih (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.6-54.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:54.6-54.13 -/
 inductive fun_memsxt : List externtype → List memtype → Prop where
   | fun_memsxt_case_0 : fun_memsxt [] []
   | fun_memsxt_case_1 (mt : memtype) (xt_lst : List externtype) (var_0 : List memtype) :
@@ -2552,7 +2552,7 @@ inductive fun_memsxt : List externtype → List memtype → Prop where
     fun_memsxt ([v_externtype] ++ xt_lst) var_0
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.6-54.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:54.6-54.13 -/
 theorem memsxt_is_wf (var_0_lst : List externtype) (ret_val_lst : List memtype) (var_0 : List memtype) :
   fun_memsxt var_0_lst var_0 →
   Forall (fun (var_0_elem : externtype) => wf_externtype var_0_elem) var_0_lst →
@@ -2568,14 +2568,14 @@ theorem memsxt_is_wf (var_0_lst : List externtype) (ret_val_lst : List memtype) 
   | fun_memsxt_case_2 xt xt_lst var_0 _ ih =>
     exact ih (fun x hx => hall x (by simp [hx]))
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:80.1-80.61 -/
 def dataidx_instr (v_instr : instr) : List dataidx :=
   match v_instr with
   | instr.MEMORY_INIT x => [x]
   | instr.DATA_DROP x => [x]
   | _ => []
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 -/
 theorem dataidx_instr_is_wf (v_instr : instr) (ret_val_lst : List dataidx) :
   wf_instr v_instr →
   ret_val_lst = (dataidx_instr v_instr) →
@@ -2585,7 +2585,7 @@ theorem dataidx_instr_is_wf (v_instr : instr) (ret_val_lst : List dataidx) :
     | exact iswf_Forall_nil _
     | exact iswf_Forall_cons (by assumption) (iswf_Forall_nil _)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.6-85.21 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:85.6-85.21 -/
 inductive fun_dataidx_instrs : List instr → List dataidx → Prop where
   | fun_dataidx_instrs_case_0 : fun_dataidx_instrs [] []
   | fun_dataidx_instrs_case_1 (v_instr : instr) (instr'_lst : List instr) (var_0 : List dataidx) :
@@ -2593,7 +2593,7 @@ inductive fun_dataidx_instrs : List instr → List dataidx → Prop where
     fun_dataidx_instrs ([v_instr] ++ instr'_lst) ((dataidx_instr v_instr) ++ var_0)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.6-85.21 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:85.6-85.21 -/
 theorem dataidx_instrs_is_wf (var_0_lst : List instr) (ret_val_lst : List dataidx) (var_0 : List dataidx) :
   fun_dataidx_instrs var_0_lst var_0 →
   Forall (fun (var_0_elem : instr) => wf_instr var_0_elem) var_0_lst →
@@ -2606,14 +2606,14 @@ theorem dataidx_instrs_is_wf (var_0_lst : List instr) (ret_val_lst : List dataid
     exact iswf_Forall_append (dataidx_instr_is_wf v_instr _ (hall v_instr (by simp)) rfl)
       (ih (fun x hx => hall x (by simp [hx])))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 -/
 inductive fun_dataidx_expr : expr → List dataidx → Prop where
   | fun_dataidx_expr_case_0 (in_lst : List instr) (var_0 : List dataidx) :
     fun_dataidx_instrs in_lst var_0 →
     fun_dataidx_expr in_lst var_0
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 -/
 theorem dataidx_expr_is_wf (v_expr : expr) (ret_val_lst : List dataidx) (var_0 : List dataidx) :
   fun_dataidx_expr v_expr var_0 →
   Forall (fun (v_expr_elem : instr) => wf_instr v_expr_elem) v_expr →
@@ -2623,14 +2623,14 @@ theorem dataidx_expr_is_wf (v_expr : expr) (ret_val_lst : List dataidx) (var_0 :
   cases h
   exact dataidx_instrs_is_wf _ _ _ (by assumption) hall rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 -/
 inductive fun_dataidx_func : func → List dataidx → Prop where
   | fun_dataidx_func_case_0 (x : uN) (loc_lst : List «local») (e : List instr) (var_0 : List dataidx) :
     fun_dataidx_expr e var_0 →
     fun_dataidx_func (func.FUNC x loc_lst e) var_0
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 -/
 theorem dataidx_func_is_wf (v_func : func) (ret_val_lst : List dataidx) (var_0 : List dataidx) :
   fun_dataidx_func v_func var_0 →
   wf_func v_func →
@@ -2641,7 +2641,7 @@ theorem dataidx_func_is_wf (v_func : func) (ret_val_lst : List dataidx) (var_0 :
   cases hwf
   exact dataidx_expr_is_wf _ _ _ (by assumption) (by assumption) rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.6-95.20 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:95.6-95.20 -/
 inductive fun_dataidx_funcs : List func → List dataidx → Prop where
   | fun_dataidx_funcs_case_0 : fun_dataidx_funcs [] []
   | fun_dataidx_funcs_case_1 (v_func : func) (func'_lst : List func) (var_1 : List dataidx) (var_0 : List dataidx) :
@@ -2650,7 +2650,7 @@ inductive fun_dataidx_funcs : List func → List dataidx → Prop where
     fun_dataidx_funcs ([v_func] ++ func'_lst) (var_0 ++ var_1)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.6-95.20 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:95.6-95.20 -/
 theorem dataidx_funcs_is_wf (var_0_lst : List func) (ret_val_lst : List dataidx) (var_0 : List dataidx) :
   fun_dataidx_funcs var_0_lst var_0 →
   Forall (fun (var_0_elem : func) => wf_func var_0_elem) var_0_lst →
@@ -2663,21 +2663,21 @@ theorem dataidx_funcs_is_wf (var_0_lst : List func) (ret_val_lst : List dataidx)
     exact iswf_Forall_append (dataidx_func_is_wf v_func _ _ hf (hall v_func (by simp)) rfl)
       (ih (fun x hx => hall x (by simp [hx])))
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:106.1-106.35 -/
 def memarg0 : memarg :=
   {
     ALIGN := uN.mk_uN 0
     OFFSET := uN.mk_uN 0 : memarg
   }
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 -/
 theorem memarg0_is_wf (ret_val : memarg) :
   ret_val = memarg0 →
   wf_memarg ret_val := by
   intro h; subst h
   exact wf_memarg.memarg_case_ _ _ (iswf_uN_zero _) (iswf_uN_zero _)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.1-7.41 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:7.1-7.41 -/
 opaque s33_to_u32 (v_s33 : s33) : u32 := by
   first
      | exact Inhabited.default
@@ -2689,20 +2689,20 @@ axiom s33_to_u32_is_wf (v_s33 : s33) (ret_val : u32) :
   ret_val = (s33_to_u32 v_s33) →
   wf_uN 32 ret_val
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:9.1-9.22 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:9.1-9.22 -/
 def nat_of_bool (v_bool : Bool) : Nat :=
   match v_bool with
   | false => 0
   | true => 1
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:13.1-13.23 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:13.1-13.23 -/
 opaque truncz (rat : Rat) : Int := by
   first
      | exact Inhabited.default
      | intros ; assumption
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:20.6-20.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:20.6-20.14 -/
 inductive fun_signed_ : N → Nat → Int → Prop where
   | fun_signed__case_0 (v_N : Nat) (i : Nat) :
     i < (2 ^ (Int.toNat ((v_N : Int) - (1 : Int)))) →
@@ -2712,7 +2712,7 @@ inductive fun_signed_ : N → Nat → Int → Prop where
     fun_signed_ v_N i ((i : Int) - ((2 ^ v_N) : Int))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:24.6-24.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:24.6-24.18 -/
 inductive fun_inv_signed_ : N → Int → Nat → Prop where
   | fun_inv_signed__case_0 (v_N : Nat) (i : Int) :
     ((0 : Int) ≤ i) ∧ (i < ((2 ^ (Int.toNat ((v_N : Int) - (1 : Int)))) : Int)) →
@@ -2722,7 +2722,7 @@ inductive fun_inv_signed_ : N → Int → Nat → Prop where
     fun_inv_signed_ v_N i (Int.toNat (i + ((2 ^ v_N) : Int)))
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:31.1-31.61 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:31.1-31.61 -/
 def sat_u_ (v_N : N) (int : Int) : Nat :=
   if
     int < (0 : Int)
@@ -2736,7 +2736,7 @@ def sat_u_ (v_N : N) (int : Int) : Nat :=
     else
       Int.toNat int
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:36.1-36.61 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:36.1-36.61 -/
 def sat_s_ (v_N : N) (int : Int) : Int :=
   if
     int < (- ((2 ^ (Int.toNat ((v_N : Int) - (1 : Int)))) : Int))
@@ -2750,7 +2750,7 @@ def sat_s_ (v_N : N) (int : Int) : Int :=
     else
       int
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.1-56.89 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:56.1-56.89 -/
 opaque extend__ (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -2762,7 +2762,7 @@ axiom extend___is_wf (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) (ret_val : iN) 
   ret_val = (extend__ v_M v_N v_sx v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.1-224.30 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:224.1-224.30 -/
 opaque fabs_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2774,7 +2774,7 @@ axiom fabs__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fabs_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.1-227.31 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:227.1-227.31 -/
 opaque fceil_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2786,7 +2786,7 @@ axiom fceil__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fceil_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.1-228.32 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:228.1-228.32 -/
 opaque ffloor_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2798,7 +2798,7 @@ axiom ffloor__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (ffloor_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.1-230.34 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:230.1-230.34 -/
 opaque fnearest_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2810,7 +2810,7 @@ axiom fnearest__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fnearest_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.1-225.30 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:225.1-225.30 -/
 opaque fneg_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2822,7 +2822,7 @@ axiom fneg__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fneg_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.1-226.31 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:226.1-226.31 -/
 opaque fsqrt_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2834,7 +2834,7 @@ axiom fsqrt__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fsqrt_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.1-229.32 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:229.1-229.32 -/
 opaque ftrunc_ (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -2846,7 +2846,7 @@ axiom ftrunc__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (ftrunc_ v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.1-120.29 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:120.1-120.29 -/
 opaque iclz_ (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -2858,7 +2858,7 @@ axiom iclz__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (iclz_ v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.1-121.29 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:121.1-121.29 -/
 opaque ictz_ (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -2870,7 +2870,7 @@ axiom ictz__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (ictz_ v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.1-122.32 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:122.1-122.32 -/
 opaque ipopcnt_ (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -2882,7 +2882,7 @@ axiom ipopcnt__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (ipopcnt_ v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.1-55.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:55.1-55.33 -/
 opaque wrap__ (v_M : M) (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -2894,7 +2894,7 @@ axiom wrap___is_wf (v_M : M) (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (wrap__ v_M v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
 inductive fun_unop__before_fun_unop__case_22 : numtype → unop_ → num_ → Prop where
   | fun_unop__case_21 (v_fN : fN) (var_0 : N) : fun_unop__before_fun_unop__case_22 numtype.F64 (unop_.mk_unop__1 Fnn.F64 unop_Fnn.NEAREST) (num_.mk_num__1 Fnn.F64 v_fN)
   | fun_unop__case_20 (v_fN : fN) (var_0 : N) : fun_unop__before_fun_unop__case_22 numtype.F32 (unop_.mk_unop__1 Fnn.F32 unop_Fnn.NEAREST) (num_.mk_num__1 Fnn.F32 v_fN)
@@ -2920,7 +2920,7 @@ inductive fun_unop__before_fun_unop__case_22 : numtype → unop_ → num_ → Pr
   | fun_unop__case_0 (v_iN : uN) (var_0 : N) : fun_unop__before_fun_unop__case_22 numtype.I32 (unop_.mk_unop__0 Inn.I32 unop_Inn.CLZ) (num_.mk_num__0 Inn.I32 v_iN)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
 inductive fun_unop_ : numtype → unop_ → num_ → Option (List num_) → Prop where
   | fun_unop__case_0 (v_iN : uN) (var_0 : N) :
     fun_sizenn (numtype_Inn Inn.I32) var_0 →
@@ -3015,7 +3015,7 @@ theorem iswf_fN_of_num_Fnn {nt : numtype} {F : Fnn} {N : Nat} {x : fN}
   rw [iswf_fun_sizenn_det hN hN']
   exact hx
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:44.6-44.12 -/
 theorem unop__is_wf (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) (ret_val_lst : List num_) (var_0 : Option (List num_)) :
   fun_unop_ v_numtype v_unop_ v_num_ var_0 →
   wf_unop_ v_numtype v_unop_ →
@@ -3044,7 +3044,7 @@ theorem unop__is_wf (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) (ret
         | exact ftrunc__is_wf _ _ _ hx rfl
         | exact fnearest__is_wf _ _ _ hx rfl)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.1-215.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:215.1-215.37 -/
 opaque fadd_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3057,7 +3057,7 @@ axiom fadd__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fadd_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.1-223.42 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:223.1-223.42 -/
 opaque fcopysign_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3070,7 +3070,7 @@ axiom fcopysign__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN)
   ret_val_lst = (fcopysign_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.1-218.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:218.1-218.37 -/
 opaque fdiv_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3083,7 +3083,7 @@ axiom fdiv__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fdiv_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.1-220.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:220.1-220.37 -/
 opaque fmax_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3096,7 +3096,7 @@ axiom fmax__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fmax_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.1-219.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:219.1-219.37 -/
 opaque fmin_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3109,7 +3109,7 @@ axiom fmin__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fmin_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.1-217.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:217.1-217.37 -/
 opaque fmul_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3122,7 +3122,7 @@ axiom fmul__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fmul_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.1-216.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:216.1-216.37 -/
 opaque fsub_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -3135,7 +3135,7 @@ axiom fsub__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fsub_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.1-105.36 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:105.1-105.36 -/
 def iadd_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN :=
   uN.mk_uN (((proj_uN_0 v_iN) + (proj_uN_0 iN_0)) % (2 ^ v_N))
 
@@ -3148,7 +3148,7 @@ theorem iswf_uN_of_lt {v_N i : Nat} (h : i < 2 ^ v_N) : wf_uN v_N (uN.mk_uN i) :
   rw [iswf_two_pow_cast]
   omega
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:105.6-105.12 -/
 theorem iadd__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   wf_uN v_N v_iN →
   wf_uN v_N iN_0 →
@@ -3157,7 +3157,7 @@ theorem iadd__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   intro _ _ h; subst h
   exact iswf_uN_of_lt (Nat.mod_lt _ (Nat.two_pow_pos _))
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.1-112.36 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:112.1-112.36 -/
 opaque iand_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3170,7 +3170,7 @@ axiom iand__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (iand_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:108.6-108.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:108.6-108.12 -/
 inductive fun_idiv_ : N → sx → iN → iN → Option iN → Prop where
   | fun_idiv__case_0 (v_N : Nat) (i_1 : uN) : fun_idiv_ v_N sx.U i_1 (uN.mk_uN 0) none
   | fun_idiv__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) :
@@ -3190,11 +3190,11 @@ inductive fun_idiv_ : N → sx → iN → iN → Option iN → Prop where
     fun_idiv_ v_N sx.S i_1 i_2 (some (uN.mk_uN var_0))
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.1-107.36 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:107.1-107.36 -/
 def imul_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN :=
   uN.mk_uN (((proj_uN_0 v_iN) * (proj_uN_0 iN_0)) % (2 ^ v_N))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:107.6-107.12 -/
 theorem imul__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   wf_uN v_N v_iN →
   wf_uN v_N iN_0 →
@@ -3203,7 +3203,7 @@ theorem imul__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   intro _ _ h; subst h
   exact iswf_uN_of_lt (Nat.mod_lt _ (Nat.two_pow_pos _))
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.1-114.35 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:114.1-114.35 -/
 opaque ior_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3216,7 +3216,7 @@ axiom ior__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (ior_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:109.6-109.12 -/
 inductive fun_irem_ : N → sx → iN → iN → Option iN → Prop where
   | fun_irem__case_0 (v_N : Nat) (i_1 : uN) : fun_irem_ v_N sx.U i_1 (uN.mk_uN 0) none
   | fun_irem__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_irem_ v_N sx.U i_1 i_2 (some (uN.mk_uN (Int.toNat (((proj_uN_0 i_1) : Int) - (((proj_uN_0 i_2) * (Int.toNat (truncz (((proj_uN_0 i_1) : Rat) / ((proj_uN_0 i_2) : Rat))))) : Int)))))
@@ -3252,7 +3252,7 @@ theorem iswf_inv_signed {v_N : Nat} {z : Int} {m : Nat} (h : fun_inv_signed_ v_N
 /- HELPER LEMMA CREATED BY CLAUDE -/
 theorem iswf_toNat_sub_le (a b : Nat) : Int.toNat ((a : Int) - (b : Int)) ≤ a := by omega
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:109.6-109.12 -/
 theorem irem__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt : Option iN) (var_0 : Option iN) :
   fun_irem_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -3267,7 +3267,7 @@ theorem irem__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt :
   · exact iswf_Forall_nil _
   · exact iswf_Forall_cons (iswf_inv_signed (by assumption)) (iswf_Forall_nil _)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.1-118.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:118.1-118.37 -/
 opaque irotl_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3280,7 +3280,7 @@ axiom irotl__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (irotl_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.1-119.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:119.1-119.37 -/
 opaque irotr_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3293,7 +3293,7 @@ axiom irotr__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (irotr_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.1-116.36 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:116.1-116.36 -/
 opaque ishl_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3306,7 +3306,7 @@ axiom ishl__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (ishl_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.1-117.76 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:117.1-117.76 -/
 opaque ishr_ (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3319,7 +3319,7 @@ axiom ishr__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (ishr_ v_N v_sx v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.1-106.36 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:106.1-106.36 -/
 def isub_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN :=
   uN.mk_uN (Int.toNat (((((2 ^ v_N) + (proj_uN_0 v_iN)) : Int) - ((proj_uN_0 iN_0) : Int)) % ((2 ^ v_N) : Int)))
 
@@ -3333,7 +3333,7 @@ theorem iswf_uN_toNat_emod (v_N : Nat) (x : Int) :
   have h2 := Int.emod_lt_of_pos x (by omega : (0 : Int) < ((2 ^ v_N : Nat) : Int))
   omega
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:106.6-106.12 -/
 theorem isub__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   wf_uN v_N v_iN →
   wf_uN v_N iN_0 →
@@ -3342,7 +3342,7 @@ theorem isub__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   intro _ _ h; subst h
   exact iswf_uN_toNat_emod _ _
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.1-115.36 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:115.1-115.36 -/
 opaque ixor_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -3355,7 +3355,7 @@ axiom ixor__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (ixor_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:46.6-46.13 -/
 inductive fun_binop__before_fun_binop__case_38 : numtype → binop_ → num_ → num_ → Prop where
   | fun_binop__case_37 (fN_1 : fN) (fN_2 : fN) (var_0 : N) :
     fun_sizenn (numtype_Fnn Fnn.F64) var_0 →
@@ -3541,7 +3541,7 @@ inductive fun_binop__before_fun_binop__case_38 : numtype → binop_ → num_ →
     fun_binop__before_fun_binop__case_38 numtype.I32 (binop_.mk_binop__0 Inn.I32 binop_Inn.ADD) (num_.mk_num__0 Inn.I32 iN_1) (num_.mk_num__0 Inn.I32 iN_2)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:46.6-46.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:46.6-46.13 -/
 inductive fun_binop_ : numtype → binop_ → num_ → num_ → Option (List num_) → Prop where
   | fun_binop__case_0 (iN_1 : uN) (iN_2 : uN) (var_0 : N) :
     fun_sizenn (numtype_Inn Inn.I32) var_0 →
@@ -3730,7 +3730,7 @@ inductive fun_binop_ : numtype → binop_ → num_ → num_ → Option (List num
     fun_binop_ x0 x1 x2 x3 none
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.1-123.27 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:123.1-123.27 -/
 def ieqz_ (v_N : N) (v_iN : iN) : u32 :=
   uN.mk_uN (nat_of_bool ((proj_uN_0 v_iN) == 0))
 
@@ -3738,7 +3738,7 @@ def ieqz_ (v_N : N) (v_iN : iN) : u32 :=
 theorem iswf_uN_bool (b : Bool) : wf_uN 32 (uN.mk_uN (nat_of_bool b)) :=
   iswf_uN_of_lt (by cases b <;> decide)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:123.6-123.12 -/
 theorem ieqz__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
   wf_uN v_N v_iN →
   ret_val = (ieqz_ v_N v_iN) →
@@ -3746,13 +3746,13 @@ theorem ieqz__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
   intro _ h; subst h
   exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
 inductive fun_testop__before_fun_testop__case_2 : numtype → testop_ → num_ → Prop where
   | fun_testop__case_1 (v_iN : uN) (var_0 : N) : fun_testop__before_fun_testop__case_2 numtype.I64 (testop_.mk_testop__0 Inn.I64 testop_Inn.EQZ) (num_.mk_num__0 Inn.I64 v_iN)
   | fun_testop__case_0 (v_iN : uN) (var_0 : N) : fun_testop__before_fun_testop__case_2 numtype.I32 (testop_.mk_testop__0 Inn.I32 testop_Inn.EQZ) (num_.mk_num__0 Inn.I32 v_iN)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
 inductive fun_testop_ : numtype → testop_ → num_ → Option num_ → Prop where
   | fun_testop__case_0 (v_iN : uN) (var_0 : N) :
     fun_sizenn (numtype_Inn Inn.I32) var_0 →
@@ -3769,7 +3769,7 @@ inductive fun_testop_ : numtype → testop_ → num_ → Option num_ → Prop wh
 theorem iswf_num_I32 {x : iN} (hx : wf_uN 32 x) : wf_num_ numtype.I32 (num_.mk_num__0 Inn.I32 x) :=
   wf_num_.num__case_0 _ _ _ (by decide) hx rfl
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:48.6-48.14 -/
 theorem testop__is_wf (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_) (ret_val : num_) (var_0 : Option num_) :
   fun_testop_ v_numtype v_testop_ v_num_ var_0 →
   wf_testop_ v_numtype v_testop_ →
@@ -3782,7 +3782,7 @@ theorem testop__is_wf (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_
     | exact absurd rfl hne
     | exact iswf_num_I32 (ieqz__is_wf _ _ _ (iswf_uN_of_num_Inn hn hs) rfl)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.1-231.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:231.1-231.33 -/
 opaque feq_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3795,7 +3795,7 @@ axiom feq__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (feq_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.1-236.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:236.1-236.33 -/
 opaque fge_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3808,7 +3808,7 @@ axiom fge__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (fge_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.1-234.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:234.1-234.33 -/
 opaque fgt_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3821,7 +3821,7 @@ axiom fgt__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (fgt_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.1-235.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:235.1-235.33 -/
 opaque fle_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3834,7 +3834,7 @@ axiom fle__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (fle_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.1-233.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:233.1-233.33 -/
 opaque flt_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3847,7 +3847,7 @@ axiom flt__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (flt_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.1-232.33 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:232.1-232.33 -/
 opaque fne_ (v_N : N) (v_fN : fN) (fN_0 : fN) : u32 := by
   first
      | exact Inhabited.default
@@ -3860,11 +3860,11 @@ axiom fne__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val : u32) :
   ret_val = (fne_ v_N v_fN fN_0) →
   wf_uN 32 ret_val
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.1-125.33 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:125.1-125.33 -/
 def ieq_ (v_N : N) (v_iN : iN) (iN_0 : iN) : u32 :=
   uN.mk_uN (nat_of_bool (v_iN == iN_0))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:125.6-125.11 -/
 theorem ieq__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : u32) :
   wf_uN v_N v_iN →
   wf_uN v_N iN_0 →
@@ -3873,7 +3873,7 @@ theorem ieq__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : u32) :
   intro _ _ h; subst h
   exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:130.6-130.11 -/
 inductive fun_ige_ : N → sx → iN → iN → u32 → Prop where
   | fun_ige__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_ige_ v_N sx.U i_1 i_2 (uN.mk_uN (nat_of_bool ((proj_uN_0 i_1) ≥ (proj_uN_0 i_2))))
   | fun_ige__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_1 : Int) (var_0 : Int) :
@@ -3882,7 +3882,7 @@ inductive fun_ige_ : N → sx → iN → iN → u32 → Prop where
     fun_ige_ v_N sx.S i_1 i_2 (uN.mk_uN (nat_of_bool (var_0 ≥ var_1)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:130.6-130.11 -/
 theorem ige__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32) :
   fun_ige_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -3892,7 +3892,7 @@ theorem ige__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32)
   intro h _ _ heq; subst heq
   cases h <;> exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:128.6-128.11 -/
 inductive fun_igt_ : N → sx → iN → iN → u32 → Prop where
   | fun_igt__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_igt_ v_N sx.U i_1 i_2 (uN.mk_uN (nat_of_bool ((proj_uN_0 i_1) > (proj_uN_0 i_2))))
   | fun_igt__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_1 : Int) (var_0 : Int) :
@@ -3901,7 +3901,7 @@ inductive fun_igt_ : N → sx → iN → iN → u32 → Prop where
     fun_igt_ v_N sx.S i_1 i_2 (uN.mk_uN (nat_of_bool (var_0 > var_1)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:128.6-128.11 -/
 theorem igt__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32) :
   fun_igt_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -3911,7 +3911,7 @@ theorem igt__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32)
   intro h _ _ heq; subst heq
   cases h <;> exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:129.6-129.11 -/
 inductive fun_ile_ : N → sx → iN → iN → u32 → Prop where
   | fun_ile__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_ile_ v_N sx.U i_1 i_2 (uN.mk_uN (nat_of_bool ((proj_uN_0 i_1) ≤ (proj_uN_0 i_2))))
   | fun_ile__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_1 : Int) (var_0 : Int) :
@@ -3920,7 +3920,7 @@ inductive fun_ile_ : N → sx → iN → iN → u32 → Prop where
     fun_ile_ v_N sx.S i_1 i_2 (uN.mk_uN (nat_of_bool (var_0 ≤ var_1)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:129.6-129.11 -/
 theorem ile__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32) :
   fun_ile_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -3930,7 +3930,7 @@ theorem ile__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32)
   intro h _ _ heq; subst heq
   cases h <;> exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:127.6-127.11 -/
 inductive fun_ilt_ : N → sx → iN → iN → u32 → Prop where
   | fun_ilt__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_ilt_ v_N sx.U i_1 i_2 (uN.mk_uN (nat_of_bool ((proj_uN_0 i_1) < (proj_uN_0 i_2))))
   | fun_ilt__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_1 : Int) (var_0 : Int) :
@@ -3939,7 +3939,7 @@ inductive fun_ilt_ : N → sx → iN → iN → u32 → Prop where
     fun_ilt_ v_N sx.S i_1 i_2 (uN.mk_uN (nat_of_bool (var_0 < var_1)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:127.6-127.11 -/
 theorem ilt__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32) :
   fun_ilt_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -3949,11 +3949,11 @@ theorem ilt__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32)
   intro h _ _ heq; subst heq
   cases h <;> exact iswf_uN_bool _
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.1-126.33 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:126.1-126.33 -/
 def ine_ (v_N : N) (v_iN : iN) (iN_0 : iN) : u32 :=
   uN.mk_uN (nat_of_bool (v_iN != iN_0))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:126.6-126.11 -/
 theorem ine__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : u32) :
   wf_uN v_N v_iN →
   wf_uN v_N iN_0 →
@@ -3962,7 +3962,7 @@ theorem ine__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : u32) :
   intro _ _ h; subst h
   exact iswf_uN_bool _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
 inductive fun_relop__before_fun_relop__case_24 : numtype → relop_ → num_ → num_ → Prop where
   | fun_relop__case_23 (fN_1 : fN) (fN_2 : fN) (var_0 : N) : fun_relop__before_fun_relop__case_24 numtype.F64 (relop_.mk_relop__1 Fnn.F64 relop_Fnn.GE) (num_.mk_num__1 Fnn.F64 fN_1) (num_.mk_num__1 Fnn.F64 fN_2)
   | fun_relop__case_22 (fN_1 : fN) (fN_2 : fN) (var_0 : N) : fun_relop__before_fun_relop__case_24 numtype.F32 (relop_.mk_relop__1 Fnn.F32 relop_Fnn.GE) (num_.mk_num__1 Fnn.F32 fN_1) (num_.mk_num__1 Fnn.F32 fN_2)
@@ -4006,7 +4006,7 @@ inductive fun_relop__before_fun_relop__case_24 : numtype → relop_ → num_ →
   | fun_relop__case_0 (iN_1 : uN) (iN_2 : uN) (var_0 : N) : fun_relop__before_fun_relop__case_24 numtype.I32 (relop_.mk_relop__0 Inn.I32 relop_Inn.EQ) (num_.mk_num__0 Inn.I32 iN_1) (num_.mk_num__0 Inn.I32 iN_2)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
 inductive fun_relop_ : numtype → relop_ → num_ → num_ → Option num_ → Prop where
   | fun_relop__case_0 (iN_1 : uN) (iN_2 : uN) (var_0 : N) :
     fun_sizenn (numtype_Inn Inn.I32) var_0 →
@@ -4093,7 +4093,7 @@ inductive fun_relop_ : numtype → relop_ → num_ → num_ → Option num_ → 
     fun_relop_ x0 x1 x2 x3 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:50.6-50.13 -/
 theorem relop__is_wf (v_numtype : numtype) (v_relop_ : relop_) (v_num_ : num_) (num__0 : num_) (ret_val : num_) (var_0 : Option num_) :
   fun_relop_ v_numtype v_relop_ v_num_ num__0 var_0 →
   wf_relop_ v_numtype v_relop_ →
@@ -4134,7 +4134,7 @@ theorem relop__is_wf (v_numtype : numtype) (v_relop_ : relop_) (v_num_ : num_) (
         | exact fle__is_wf _ _ _ _ h1 h2 rfl
         | exact fge__is_wf _ _ _ _ h1 h2 rfl)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.1-61.90 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:61.1-61.90 -/
 opaque convert__ (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) : fN := by
   first
      | exact Inhabited.default
@@ -4146,7 +4146,7 @@ axiom convert___is_wf (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) (ret_val : fN)
   ret_val = (convert__ v_M v_N v_sx v_iN) →
   wf_fN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.1-59.36 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:59.1-59.36 -/
 opaque demote__ (v_M : M) (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -4158,7 +4158,7 @@ axiom demote___is_wf (v_M : M) (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (demote__ v_M v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.1-60.37 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:60.1-60.37 -/
 opaque promote__ (v_M : M) (v_N : N) (v_fN : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -4170,7 +4170,7 @@ axiom promote___is_wf (v_M : M) (v_N : N) (v_fN : fN) (ret_val_lst : List fN) :
   ret_val_lst = (promote__ v_M v_N v_fN) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.1-63.76 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:63.1-63.76 -/
 opaque reinterpret__ (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : num_) : num_ := by
   first
      | exact Inhabited.default
@@ -4182,7 +4182,7 @@ axiom reinterpret___is_wf (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : 
   ret_val = (reinterpret__ numtype_1 numtype_2 v_num_) →
   wf_num_ numtype_2 ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.1-57.88 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:57.1-57.88 -/
 opaque trunc__ (v_M : M) (v_N : N) (v_sx : sx) (v_fN : fN) : Option iN := by
   first
      | exact Inhabited.default
@@ -4194,7 +4194,7 @@ axiom trunc___is_wf (v_M : M) (v_N : N) (v_sx : sx) (v_fN : fN) (ret_val_opt : O
   ret_val_opt = (trunc__ v_M v_N v_sx v_fN) →
   Forall (fun (ret_val_elem : iN) => wf_uN v_N ret_val_elem) (Option.toList ret_val_opt)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.1-58.93 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:58.1-58.93 -/
 opaque trunc_sat__ (v_M : M) (v_N : N) (v_sx : sx) (v_fN : fN) : Option iN := by
   first
      | exact Inhabited.default
@@ -4206,7 +4206,7 @@ axiom trunc_sat___is_wf (v_M : M) (v_N : N) (v_sx : sx) (v_fN : fN) (ret_val_opt
   ret_val_opt = (trunc_sat__ v_M v_N v_sx v_fN) →
   Forall (fun (ret_val_elem : iN) => wf_uN v_N ret_val_elem) (Option.toList ret_val_opt)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
 inductive fun_cvtop___before_fun_cvtop___case_36 : numtype → numtype → cvtop__ → num_ → Prop where
   | fun_cvtop___case_35 (fN_1 : fN) :
     (size (valtype_Fnn Fnn.F64)) ≠ none →
@@ -4278,7 +4278,7 @@ inductive fun_cvtop___before_fun_cvtop___case_36 : numtype → numtype → cvtop
   | fun_cvtop___case_0 (v_sx : sx) (iN_1 : uN) (var_1 : N) (var_0 : M) : fun_cvtop___before_fun_cvtop___case_36 numtype.I32 numtype.I32 (cvtop__.mk_cvtop___0 Inn.I32 Inn.I32 (cvtop__Inn_1_Inn_2.EXTEND v_sx)) (num_.mk_num__0 Inn.I32 iN_1)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
 inductive fun_cvtop__ : numtype → numtype → cvtop__ → num_ → Option (List num_) → Prop where
   | fun_cvtop___case_0 (v_sx : sx) (iN_1 : uN) (var_1 : N) (var_0 : M) :
     fun_sizenn2 (numtype_Inn Inn.I32) var_1 →
@@ -4453,7 +4453,7 @@ theorem iswf_Forall_list_OMap_imp {α β : Type} {P : β → Prop} {Q : α → P
   | none => exact iswf_Forall_nil _
   | some v => exact iswf_Forall_cons (hf v (h v (List.mem_singleton_self v))) (iswf_Forall_nil _)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:52.6-52.14 -/
 theorem cvtop___is_wf (numtype_1 : numtype) (numtype_2 : numtype) (v_cvtop__ : cvtop__) (v_num_ : num_) (ret_val_lst : List num_) (var_0 : Option (List num_)) :
   fun_cvtop__ numtype_1 numtype_2 v_cvtop__ v_num_ var_0 →
   wf_cvtop__ numtype_1 numtype_2 v_cvtop__ →
@@ -4489,7 +4489,7 @@ theorem cvtop___is_wf (numtype_1 : numtype) (numtype_2 : numtype) (v_cvtop__ : c
         | exact iswf_Forall_map _ _
             (demote___is_wf _ _ _ _ hx rfl) (fun _ hy => iswf_num_Fnn_of_sizenn hs2 hy))
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.1-62.87 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:62.1-62.87 -/
 opaque narrow__ (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4501,7 +4501,7 @@ axiom narrow___is_wf (v_M : M) (v_N : N) (v_sx : sx) (v_iN : iN) (ret_val : iN) 
   ret_val = (narrow__ v_M v_N v_sx v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.1-76.102 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:76.1-76.102 -/
 opaque ibits_ (v_N : N) (v_iN : iN) : List bit := by
   first
      | exact Inhabited.default
@@ -4513,7 +4513,7 @@ axiom ibits__is_wf (v_N : N) (v_iN : iN) (ret_val_lst : List bit) :
   ret_val_lst = (ibits_ v_N v_iN) →
   Forall (fun (ret_val_elem : bit) => wf_bit ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.1-77.102 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:77.1-77.102 -/
 opaque fbits_ (v_N : N) (v_fN : fN) : List bit := by
   first
      | exact Inhabited.default
@@ -4525,7 +4525,7 @@ axiom fbits__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List bit) :
   ret_val_lst = (fbits_ v_N v_fN) →
   Forall (fun (ret_val_elem : bit) => wf_bit ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.1-78.103 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:78.1-78.103 -/
 opaque ibytes_ (v_N : N) (v_iN : iN) : List byte := by
   first
      | exact Inhabited.default
@@ -4537,7 +4537,7 @@ axiom ibytes__is_wf (v_N : N) (v_iN : iN) (ret_val_lst : List byte) :
   ret_val_lst = (ibytes_ v_N v_iN) →
   Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.1-79.103 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:79.1-79.103 -/
 opaque fbytes_ (v_N : N) (v_fN : fN) : List byte := by
   first
      | exact Inhabited.default
@@ -4549,7 +4549,7 @@ axiom fbytes__is_wf (v_N : N) (v_fN : fN) (ret_val_lst : List byte) :
   ret_val_lst = (fbytes_ v_N v_fN) →
   Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.1-80.103 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:80.1-80.103 -/
 opaque nbytes_ (v_numtype : numtype) (v_num_ : num_) : List byte := by
   first
      | exact Inhabited.default
@@ -4561,7 +4561,7 @@ axiom nbytes__is_wf (v_numtype : numtype) (v_num_ : num_) (ret_val_lst : List by
   ret_val_lst = (nbytes_ v_numtype v_num_) →
   Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.1-81.103 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:81.1-81.103 -/
 opaque vbytes_ (v_vectype : vectype) (v_vec_ : vec_) : List byte := by
   first
      | exact Inhabited.default
@@ -4574,7 +4574,7 @@ axiom vbytes__is_wf (v_vectype : vectype) (v_vec_ : vec_) (ret_val_lst : List by
   ret_val_lst = (vbytes_ v_vectype v_vec_) →
   Forall (fun (ret_val_elem : byte) => wf_byte ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.1-83.85 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:83.1-83.85 -/
 opaque inv_ibits_ (v_N : N) (var_0_lst : List bit) : iN := by
   first
      | exact Inhabited.default
@@ -4586,7 +4586,7 @@ axiom inv_ibits__is_wf (v_N : N) (var_0_lst : List bit) (ret_val : iN) :
   ret_val = (inv_ibits_ v_N var_0_lst) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.1-84.85 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:84.1-84.85 -/
 opaque inv_fbits_ (v_N : N) (var_0_lst : List bit) : fN := by
   first
      | exact Inhabited.default
@@ -4598,7 +4598,7 @@ axiom inv_fbits__is_wf (v_N : N) (var_0_lst : List bit) (ret_val : fN) :
   ret_val = (inv_fbits_ v_N var_0_lst) →
   wf_fN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.1-85.86 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:85.1-85.86 -/
 opaque inv_ibytes_ (v_N : N) (var_0_lst : List byte) : iN := by
   first
      | exact Inhabited.default
@@ -4610,7 +4610,7 @@ axiom inv_ibytes__is_wf (v_N : N) (var_0_lst : List byte) (ret_val : iN) :
   ret_val = (inv_ibytes_ v_N var_0_lst) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.1-86.86 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:86.1-86.86 -/
 opaque inv_fbytes_ (v_N : N) (var_0_lst : List byte) : fN := by
   first
      | exact Inhabited.default
@@ -4622,7 +4622,7 @@ axiom inv_fbytes__is_wf (v_N : N) (var_0_lst : List byte) (ret_val : fN) :
   ret_val = (inv_fbytes_ v_N var_0_lst) →
   wf_fN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.1-87.84 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:87.1-87.84 -/
 opaque inv_nbytes_ (v_numtype : numtype) (var_0_lst : List byte) : num_ := by
   first
      | exact Inhabited.default
@@ -4634,7 +4634,7 @@ axiom inv_nbytes__is_wf (v_numtype : numtype) (var_0_lst : List byte) (ret_val :
   ret_val = (inv_nbytes_ v_numtype var_0_lst) →
   wf_num_ v_numtype ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.1-88.84 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:88.1-88.84 -/
 opaque inv_vbytes_ (v_vectype : vectype) (var_0_lst : List byte) : vec_ := by
   first
      | exact Inhabited.default
@@ -4647,7 +4647,7 @@ axiom inv_vbytes__is_wf (v_vectype : vectype) (var_0_lst : List byte) (ret_val :
   (size (valtype_vectype v_vectype)) ≠ none →
   wf_uN (Option.get! (size (valtype_vectype v_vectype))) ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.1-110.29 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:110.1-110.29 -/
 opaque inot_ (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4659,7 +4659,7 @@ axiom inot__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (inot_ v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.1-111.29 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:111.1-111.29 -/
 opaque irev_ (v_N : N) (v_iN : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4671,7 +4671,7 @@ axiom irev__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   ret_val = (irev_ v_N v_iN) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.1-113.39 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:113.1-113.39 -/
 opaque iandnot_ (v_N : N) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4684,11 +4684,11 @@ axiom iandnot__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (ret_val : iN) :
   ret_val = (iandnot_ v_N v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.1-124.27 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:124.1-124.27 -/
 def inez_ (v_N : N) (v_iN : iN) : u32 :=
   uN.mk_uN (nat_of_bool ((proj_uN_0 v_iN) != 0))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:124.6-124.12 -/
 theorem inez__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
   wf_uN v_N v_iN →
   ret_val = (inez_ v_N v_iN) →
@@ -4696,7 +4696,7 @@ theorem inez__is_wf (v_N : N) (v_iN : iN) (ret_val : u32) :
   intro _ h; subst h
   exact iswf_uN_bool _
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.1-131.49 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:131.1-131.49 -/
 opaque ibitselect_ (v_N : N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4710,11 +4710,11 @@ axiom ibitselect__is_wf (v_N : N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) (ret_val :
   ret_val = (ibitselect_ v_N v_iN iN_0 iN_1) →
   wf_uN v_N ret_val
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.1-133.29 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:133.1-133.29 -/
 def ineg_ (v_N : N) (v_iN : iN) : iN :=
   uN.mk_uN (Int.toNat ((((2 ^ v_N) : Int) - ((proj_uN_0 v_iN) : Int)) % ((2 ^ v_N) : Int)))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:133.6-133.12 -/
 theorem ineg__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   wf_uN v_N v_iN →
   ret_val = (ineg_ v_N v_iN) →
@@ -4722,7 +4722,7 @@ theorem ineg__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) :
   intro _ h; subst h
   exact iswf_uN_toNat_emod _ _
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:132.6-132.12 -/
 inductive fun_iabs_ : N → iN → iN → Prop where
   | fun_iabs__case_0 (v_N : Nat) (i_1 : uN) (var_0 : Int) :
     fun_signed_ v_N (proj_uN_0 i_1) var_0 →
@@ -4734,7 +4734,7 @@ inductive fun_iabs_ : N → iN → iN → Prop where
       ineg_ v_N i_1)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:132.6-132.12 -/
 theorem iabs__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) (var_0 : iN) :
   fun_iabs_ v_N v_iN var_0 →
   wf_uN v_N v_iN →
@@ -4746,7 +4746,7 @@ theorem iabs__is_wf (v_N : N) (v_iN : iN) (ret_val : iN) (var_0 : iN) :
   · exact hw
   · exact ineg__is_wf _ _ _ hw rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:134.6-134.12 -/
 inductive fun_imin_ : N → sx → iN → iN → iN → Prop where
   | fun_imin__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) :
     (proj_uN_0 i_1) ≤ (proj_uN_0 i_2) →
@@ -4765,7 +4765,7 @@ inductive fun_imin_ : N → sx → iN → iN → iN → Prop where
       i_2)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:134.6-134.12 -/
 theorem imin__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN) :
   fun_imin_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -4780,7 +4780,7 @@ theorem imin__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN)
     · exact hw1
     · exact hw2
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:135.6-135.12 -/
 inductive fun_imax_ : N → sx → iN → iN → iN → Prop where
   | fun_imax__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) :
     (proj_uN_0 i_1) ≥ (proj_uN_0 i_2) →
@@ -4799,7 +4799,7 @@ inductive fun_imax_ : N → sx → iN → iN → iN → Prop where
       i_2)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:135.6-135.12 -/
 theorem imax__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN) :
   fun_imax_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -4814,7 +4814,7 @@ theorem imax__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN)
     · exact hw1
     · exact hw2
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:136.6-136.16 -/
 inductive fun_iadd_sat_ : N → sx → iN → iN → iN → Prop where
   | fun_iadd_sat__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_iadd_sat_ v_N sx.U i_1 i_2 (uN.mk_uN (sat_u_ v_N (((proj_uN_0 i_1) + (proj_uN_0 i_2)) : Int)))
   | fun_iadd_sat__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_2 : Int) (var_1 : Int) (var_0 : Nat) :
@@ -4834,7 +4834,7 @@ theorem iswf_sat_u (v_N : Nat) (z : Int) : wf_uN v_N (uN.mk_uN (sat_u_ v_N z)) :
   · omega
   · split <;> omega
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:136.6-136.16 -/
 theorem iadd_sat__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN) :
   fun_iadd_sat_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -4846,7 +4846,7 @@ theorem iadd_sat__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val :
   · exact iswf_sat_u _ _
   · exact iswf_inv_signed (by assumption)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:137.6-137.16 -/
 inductive fun_isub_sat_ : N → sx → iN → iN → iN → Prop where
   | fun_isub_sat__case_0 (v_N : Nat) (i_1 : uN) (i_2 : uN) : fun_isub_sat_ v_N sx.U i_1 i_2 (uN.mk_uN (sat_u_ v_N (((proj_uN_0 i_1) : Int) - ((proj_uN_0 i_2) : Int))))
   | fun_isub_sat__case_1 (v_N : Nat) (i_1 : uN) (i_2 : uN) (var_2 : Int) (var_1 : Int) (var_0 : Nat) :
@@ -4856,7 +4856,7 @@ inductive fun_isub_sat_ : N → sx → iN → iN → iN → Prop where
     fun_isub_sat_ v_N sx.S i_1 i_2 (uN.mk_uN var_0)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:137.6-137.16 -/
 theorem isub_sat__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN) :
   fun_isub_sat_ v_N v_sx v_iN iN_0 var_0 →
   wf_uN v_N v_iN →
@@ -4868,7 +4868,7 @@ theorem isub_sat__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val :
   · exact iswf_sat_u _ _
   · exact iswf_inv_signed (by assumption)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.1-138.82 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:138.1-138.82 -/
 opaque iavgr_ (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4881,7 +4881,7 @@ axiom iavgr__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) 
   ret_val = (iavgr_ v_N v_sx v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.1-139.90 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:139.1-139.90 -/
 opaque iq15mulr_sat_ (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) : iN := by
   first
      | exact Inhabited.default
@@ -4894,7 +4894,7 @@ axiom iq15mulr_sat__is_wf (v_N : N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val
   ret_val = (iq15mulr_sat_ v_N v_sx v_iN iN_0) →
   wf_uN v_N ret_val
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.1-221.38 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:221.1-221.38 -/
 opaque fpmin_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -4907,7 +4907,7 @@ axiom fpmin__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fpmin_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.1-222.38 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:222.1-222.38 -/
 opaque fpmax_ (v_N : N) (v_fN : fN) (fN_0 : fN) : List fN := by
   first
      | exact Inhabited.default
@@ -4920,7 +4920,7 @@ axiom fpmax__is_wf (v_N : N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : List fN) :
   ret_val_lst = (fpmax_ v_N v_fN fN_0) →
   Forall (fun (ret_val_elem : fN) => wf_fN v_N ret_val_elem) ret_val_lst
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.1-324.27 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:323.1-324.27 -/
 def packnum_ (v_lanetype : lanetype) (v_num_ : num_) : Option lane_ :=
   match v_lanetype, v_num_ with
   | lanetype.I32, num_.mk_num__0 Inn.I32 c => some (lane_.mk_lane__0 (Jnn_Inn Inn.I32) c)
@@ -4931,7 +4931,7 @@ def packnum_ (v_lanetype : lanetype) (v_num_ : num_) : Option lane_ :=
   | lanetype.I16, num_.mk_num__0 Inn.I32 c => OMap (fun (iter_val_4_elem : M) => lane_.mk_lane__0 (Jnn_packtype packtype.I16) (wrap__ iter_val_4_elem (psize packtype.I16) c)) (size (valtype_numtype (unpack (lanetype_packtype packtype.I16))))
   | _, _ => none
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:323.6-323.15 -/
 theorem packnum__is_wf (v_lanetype : lanetype) (v_num_ : num_) (ret_val : lane_) :
   wf_num_ (unpack v_lanetype) v_num_ →
   (packnum_ v_lanetype v_num_) ≠ none →
@@ -4950,7 +4950,7 @@ theorem packnum__is_wf (v_lanetype : lanetype) (v_num_ : num_) (ret_val : lane_)
     | exact wf_lane_.lane__case_1 _ _ _ _ (iswf_fun_sizenn_val _)
         (iswf_fN_of_num_Fnn hn (iswf_fun_sizenn_val _)) rfl
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.1-330.29 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:329.1-330.29 -/
 def unpacknum_ (v_lanetype : lanetype) (v_lane_ : lane_) : Option num_ :=
   match v_lanetype, v_lane_ with
   | lanetype.I32, lane_.mk_lane__0 Jnn.I32 c => some (num_.mk_num__0 Inn.I32 c)
@@ -4977,7 +4977,7 @@ theorem iswf_fN_of_lane_Fnn {lt : lanetype} {F : Fnn} {N : Nat} {x : fN}
   rw [iswf_fun_sizenn_det hN hN']
   exact hx
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:329.6-329.17 -/
 theorem unpacknum__is_wf (v_lanetype : lanetype) (v_lane_ : lane_) (ret_val : num_) :
   wf_lane_ v_lanetype v_lane_ →
   (unpacknum_ v_lanetype v_lane_) ≠ none →
@@ -4997,7 +4997,7 @@ theorem unpacknum__is_wf (v_lanetype : lanetype) (v_lane_ : lane_) (ret_val : nu
     | exact iswf_num_Inn_of_sizenn (I := Inn.I32) (iswf_fun_sizenn_val _)
         (extend___is_wf _ _ _ _ _ (iswf_uN_of_lane_Jnn hl fun_lsize.fun_lsize_case_5) rfl)
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.1-338.84 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:338.1-338.84 -/
 opaque lanes_ (v_shape : shape) (v_vec_ : vec_) : List lane_ := by
   first
      | exact Inhabited.default
@@ -5010,7 +5010,7 @@ axiom lanes__is_wf (v_shape : shape) (v_vec_ : vec_) (ret_val_lst : List lane_) 
   ret_val_lst = (lanes_ v_shape v_vec_) →
   Forall (fun (ret_val_elem : lane_) => wf_lane_ (fun_lanetype v_shape) ret_val_elem) ret_val_lst
 
-/- Axiom Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.1-342.36 -/
+/- Axiom Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:341.1-342.36 -/
 opaque inv_lanes_ (v_shape : shape) (var_0_lst : List lane_) : vec_ := by
   first
      | exact Inhabited.default
@@ -5023,7 +5023,7 @@ axiom inv_lanes__is_wf (v_shape : shape) (var_0_lst : List lane_) (ret_val : vec
   ret_val = (inv_lanes_ v_shape var_0_lst) →
   wf_uN 128 ret_val
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:345.6-345.13 -/
 inductive fun_zeroop_before_fun_zeroop_case_36 : shape → shape → vcvtop__ → Prop where
   | fun_zeroop_case_35 (M_1 : Nat) (M_2 : Nat) (M_1_0 : Nat) (M_2_0 : Nat) :
     M_1 = M_1_0 →
@@ -5171,7 +5171,7 @@ inductive fun_zeroop_before_fun_zeroop_case_36 : shape → shape → vcvtop__ �
     fun_zeroop_before_fun_zeroop_case_36 (shape.X lanetype.I32 (dim.mk_dim M_1)) (shape.X lanetype.I32 (dim.mk_dim M_2)) (vcvtop__.mk_vcvtop___0 Jnn.I32 M_1_0 Jnn.I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND v_half v_sx))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:345.6-345.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:345.6-345.13 -/
 inductive fun_zeroop : shape → shape → vcvtop__ → Option (Option zero) → Prop where
   | fun_zeroop_case_0 (M_1 : Nat) (M_2 : Nat) (v_half : half) (v_sx : sx) (M_1_0 : Nat) (M_2_0 : Nat) :
     M_1 = M_1_0 →
@@ -5322,7 +5322,7 @@ inductive fun_zeroop : shape → shape → vcvtop__ → Option (Option zero) →
     fun_zeroop x0 x1 x2 none
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:352.6-352.13 -/
 inductive fun_halfop_before_fun_halfop_case_36 : shape → shape → vcvtop__ → Prop where
   | fun_halfop_case_35 (M_1 : Nat) (M_2 : Nat) (M_1_0 : Nat) (M_2_0 : Nat) :
     M_1 = M_1_0 →
@@ -5470,7 +5470,7 @@ inductive fun_halfop_before_fun_halfop_case_36 : shape → shape → vcvtop__ �
     fun_halfop_before_fun_halfop_case_36 (shape.X lanetype.I32 (dim.mk_dim M_1)) (shape.X lanetype.I32 (dim.mk_dim M_2)) (vcvtop__.mk_vcvtop___0 Jnn.I32 M_1_0 Jnn.I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND v_half v_sx))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:352.6-352.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:352.6-352.13 -/
 inductive fun_halfop : shape → shape → vcvtop__ → Option (Option half) → Prop where
   | fun_halfop_case_0 (M_1 : Nat) (M_2 : Nat) (v_half : half) (v_sx : sx) (M_1_0 : Nat) (M_2_0 : Nat) :
     M_1 = M_1_0 →
@@ -5621,20 +5621,20 @@ inductive fun_halfop : shape → shape → vcvtop__ → Option (Option half) →
     fun_halfop x0 x1 x2 none
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/3-numerics.spectec:359.1-359.32 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:359.1-359.32 -/
 def fun_half (v_half : half) (nat : Nat) (nat_0 : Nat) : Nat :=
   match v_half with
   | half.LOW => nat
   | half.HIGH => nat_0
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:364.6-364.14 -/
 inductive fun_vvunop_ : vectype → vvunop → vec_ → vec_ → Prop where
   | fun_vvunop__case_0 (v128 : uN) :
     (size valtype.V128) ≠ none →
     fun_vvunop_ vectype.V128 vvunop.NOT v128 (inot_ (Option.get! (size valtype.V128)) v128)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:364.6-364.14 -/
 theorem vvunop__is_wf (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ : vec_) (ret_val : vec_) (var_0 : vec_) :
   fun_vvunop_ v_vectype v_vvunop v_vec_ var_0 →
   (size (valtype_vectype v_vectype)) ≠ none →
@@ -5644,7 +5644,7 @@ theorem vvunop__is_wf (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ : vec_) 
   rintro ⟨_, -⟩ - hv rfl
   exact inot__is_wf _ _ _ hv rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:366.6-366.15 -/
 inductive fun_vvbinop_ : vectype → vvbinop → vec_ → vec_ → vec_ → Prop where
   | fun_vvbinop__case_0 (v128_1 : uN) (v128_2 : uN) :
     (size valtype.V128) ≠ none →
@@ -5660,7 +5660,7 @@ inductive fun_vvbinop_ : vectype → vvbinop → vec_ → vec_ → vec_ → Prop
     fun_vvbinop_ vectype.V128 vvbinop.XOR v128_1 v128_2 (ixor_ (Option.get! (size valtype.V128)) v128_1 v128_2)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:366.6-366.15 -/
 theorem vvbinop__is_wf (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : vec_) :
   fun_vvbinop_ v_vectype v_vvbinop v_vec_ vec__0 var_0 →
   (size (valtype_vectype v_vectype)) ≠ none →
@@ -5674,14 +5674,14 @@ theorem vvbinop__is_wf (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec
   · exact ior__is_wf _ _ _ _ h1 h2 rfl
   · exact ixor__is_wf _ _ _ _ h1 h2 rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:368.6-368.16 -/
 inductive fun_vvternop_ : vectype → vvternop → vec_ → vec_ → vec_ → vec_ → Prop where
   | fun_vvternop__case_0 (v128_1 : uN) (v128_2 : uN) (v128_3 : uN) :
     (size valtype.V128) ≠ none →
     fun_vvternop_ vectype.V128 vvternop.BITSELECT v128_1 v128_2 v128_3 (ibitselect_ (Option.get! (size valtype.V128)) v128_1 v128_2 v128_3)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:368.6-368.16 -/
 theorem vvternop__is_wf (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec_) (vec__0 : vec_) (vec__1 : vec_) (ret_val : vec_) (var_0 : vec_) :
   fun_vvternop_ v_vectype v_vvternop v_vec_ vec__0 vec__1 var_0 →
   (size (valtype_vectype v_vectype)) ≠ none →
@@ -5693,7 +5693,7 @@ theorem vvternop__is_wf (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : 
   rintro ⟨_, _, _, -⟩ - h1 h2 h3 rfl
   exact ibitselect__is_wf _ _ _ _ _ h1 h2 h3 rfl
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
 inductive fun_vunop__before_fun_vunop__case_26 : shape → vunop_ → vec_ → Prop where
   | fun_vunop__case_25 (v_M : Nat) (v128_1 : uN) (M_0 : Nat) (lane_1_lst : List lane_) (lane_lst_lst : List (List lane_)) (v128_lst : List vec_) (var_0 : N) :
     fun_sizenn (numtype_Fnn Fnn.F64) var_0 →
@@ -5959,7 +5959,7 @@ inductive fun_vunop__before_fun_vunop__case_26 : shape → vunop_ → vec_ → P
     fun_vunop__before_fun_vunop__case_26 (shape.X lanetype.I32 (dim.mk_dim v_M)) (vunop_.mk_vunop__0 Jnn.I32 M_0 vunop_Jnn_N.ABS) v128_1
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
 inductive fun_vunop_ : shape → vunop_ → vec_ → Option (List vec_) → Prop where
   | fun_vunop__case_0 (v_M : Nat) (v128_1 : uN) (M_0 : Nat) (lane_1_lst : List lane_) (v128 : vec_) (var_2_lst : List uN) (var_1 : N) (var_0_lst : List uN) :
     (List.length var_2_lst) = (List.length lane_1_lst) →
@@ -6316,7 +6316,7 @@ theorem iswf_vunop_setproduct_inv_lanes {α β : Type} {sh : shape} {g : β → 
     (iswf_setproduct_Forall_Forall _ (iswf_Forall_map _ _ h (fun _ hx => iswf_Forall_map _ _ hx (fun _ hy => hy))))
     (fun _ hls => inv_lanes__is_wf _ _ _ hsh hls rfl)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:379.6-379.13 -/
 theorem vunop__is_wf (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_) (ret_val_lst : List vec_) (var_0 : Option (List vec_)) :
   fun_vunop_ v_shape v_vunop_ v_vec_ var_0 →
   wf_shape v_shape →
@@ -6339,7 +6339,7 @@ theorem vunop__is_wf (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_) (ret_
     -- float operators (case_12-25): `setproduct_` of the per-lane results, each with a wf premise
     | exact iswf_vunop_setproduct_inv_lanes ‹_› ‹_›
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
 inductive fun_vbinop__before_fun_vbinop__case_52 : shape → vbinop_ → vec_ → vec_ → Prop where
   | fun_vbinop__case_51 (v_M : Nat) (v128_1 : uN) (v128_2 : uN) (M_0 : Nat) (lane_1_lst : List lane_) (lane_2_lst : List lane_) (lane_lst_lst : List (List lane_)) (v128_lst : List vec_) (var_0 : N) :
     fun_sizenn (numtype_Fnn Fnn.F64) var_0 →
@@ -7119,7 +7119,7 @@ inductive fun_vbinop__before_fun_vbinop__case_52 : shape → vbinop_ → vec_ �
     fun_vbinop__before_fun_vbinop__case_52 (shape.X lanetype.I32 (dim.mk_dim v_M)) (vbinop_.mk_vbinop__0 Jnn.I32 M_0 vbinop_Jnn_N.ADD) v128_1 v128_2
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
 inductive fun_vbinop_ : shape → vbinop_ → vec_ → vec_ → Option (List vec_) → Prop where
   | fun_vbinop__case_0 (v_M : Nat) (v128_1 : uN) (v128_2 : uN) (M_0 : Nat) (lane_1_lst : List lane_) (lane_2_lst : List lane_) (v128 : vec_) (var_0 : N) :
     fun_lsizenn (lanetype_Jnn Jnn.I32) var_0 →
@@ -7958,7 +7958,7 @@ theorem iswf_vbinop_setproduct_inv_lanes {α β γ : Type} {sh : shape} {g : γ 
       (iswf_Forall_Map₂ _ _ _ (fun t ht => iswf_Forall_map _ _ (h t ht) (fun _ hy => hy))))
     (fun _ hls => inv_lanes__is_wf _ _ _ hsh hls rfl)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:381.6-381.14 -/
 theorem vbinop__is_wf (v_shape : shape) (v_vbinop_ : vbinop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val_lst : List vec_) (var_0 : Option (List vec_)) :
   fun_vbinop_ v_shape v_vbinop_ v_vec_ vec__0 var_0 →
   wf_shape v_shape →
@@ -7985,7 +7985,7 @@ theorem vbinop__is_wf (v_shape : shape) (v_vbinop_ : vbinop_) (v_vec_ : vec_) (v
     | exact iswf_Forall_singleton (iswf_vbinop_Jnn_inv_lanes iadd_sat__is_wf ‹_› hv1 hv2 ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›)
     | exact iswf_Forall_singleton (iswf_vbinop_Jnn_inv_lanes isub_sat__is_wf ‹_› hv1 hv2 ‹_› ‹_› ‹_› ‹_› ‹_› ‹_›)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
 inductive fun_vrelop__before_fun_vrelop__case_36 : shape → vrelop_ → vec_ → vec_ → Prop where
   | fun_vrelop__case_35 (v_M : Nat) (v128_1 : uN) (v128_2 : uN) (v_Inn : Inn) (M_0 : Nat) (lane_1_lst : List lane_) (lane_2_lst : List lane_) (lane_3_lst : List iN) (v128 : vec_) (var_1 : Nat) (var_0 : N) :
     fun_isize v_Inn var_1 →
@@ -8709,7 +8709,7 @@ inductive fun_vrelop__before_fun_vrelop__case_36 : shape → vrelop_ → vec_ �
     fun_vrelop__before_fun_vrelop__case_36 (shape.X lanetype.I32 (dim.mk_dim v_M)) (vrelop_.mk_vrelop__0 Jnn.I32 M_0 vrelop_Jnn_N.EQ) v128_1 v128_2
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
 inductive fun_vrelop_ : shape → vrelop_ → vec_ → vec_ → Option vec_ → Prop where
   | fun_vrelop__case_0 (v_M : Nat) (v128_1 : uN) (v128_2 : uN) (M_0 : Nat) (lane_1_lst : List lane_) (lane_2_lst : List lane_) (lane_3_lst : List iN) (v128 : vec_) (var_0 : N) :
     fun_lsizenn (lanetype_Jnn Jnn.I32) var_0 →
@@ -9436,7 +9436,7 @@ inductive fun_vrelop_ : shape → vrelop_ → vec_ → vec_ → Option vec_ → 
     fun_vrelop_ x0 x1 x2 x3 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:383.6-383.14 -/
 theorem vrelop__is_wf (v_shape : shape) (v_vrelop_ : vrelop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : Option vec_) :
   fun_vrelop_ v_shape v_vrelop_ v_vec_ vec__0 var_0 →
   wf_shape v_shape →
@@ -9451,7 +9451,7 @@ theorem vrelop__is_wf (v_shape : shape) (v_vrelop_ : vrelop_) (v_vec_ : vec_) (v
     | exact absurd rfl hne
     | (subst_vars; exact iswf_inv_lanes_of_Forall_Map (by assumption) (by assumption))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
 inductive fun_lcvtop___before_fun_lcvtop___case_36 : shape → shape → vcvtop__ → lane_ → Prop where
   | fun_lcvtop___case_35 (M_1 : Nat) (M_2 : Nat) (fN_1 : fN) (M_1_0 : Nat) (M_2_0 : Nat) (fN_2_lst : List fN) (var_1 : N) (var_0 : M) :
     fun_lsizenn2 (lanetype_Fnn Fnn.F64) var_1 →
@@ -9707,7 +9707,7 @@ inductive fun_lcvtop___before_fun_lcvtop___case_36 : shape → shape → vcvtop_
     fun_lcvtop___before_fun_lcvtop___case_36 (shape.X lanetype.I32 (dim.mk_dim M_1)) (shape.X lanetype.I32 (dim.mk_dim M_2)) (vcvtop__.mk_vcvtop___0 Jnn.I32 M_1_0 Jnn.I32 M_2_0 (vcvtop__Jnn_1_M_1_Jnn_2_M_2.EXTEND v_half v_sx)) (lane_.mk_lane__0 Jnn.I32 iN_1)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
 inductive fun_lcvtop__ : shape → shape → vcvtop__ → lane_ → Option (List lane_) → Prop where
   | fun_lcvtop___case_0 (M_1 : Nat) (M_2 : Nat) (v_half : half) (v_sx : sx) (iN_1 : uN) (M_1_0 : Nat) (M_2_0 : Nat) (iN_2 : iN) (var_1 : N) (var_0 : M) :
     fun_lsizenn2 (lanetype_Jnn Jnn.I32) var_1 →
@@ -10008,7 +10008,7 @@ theorem iswf_Forall_Map_lane1 {F : Fnn} {lt : lanetype} {n : Nat} {l : List fN}
   obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hy
   exact iswf_lane1_mk hn (hl x hx) hlt
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:385.6-385.15 -/
 theorem lcvtop___is_wf (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_lane_ : lane_) (ret_val_lst : List lane_) (var_0 : Option (List lane_)) :
   fun_lcvtop__ shape_1 shape_2 v_vcvtop__ v_lane_ var_0 →
   wf_shape shape_1 →
@@ -10031,7 +10031,7 @@ theorem lcvtop___is_wf (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop_
     | exact iswf_Forall_Map_lane1 (iswf_fun_lsizenn2_lsize ‹_›) rfl
         (promote___is_wf _ _ _ _ (iswf_lane1_payload hl (iswf_fun_lsizenn1_lsize ‹_›)) rfl)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
 inductive fun_vcvtop___before_fun_vcvtop___case_3 : shape → shape → vcvtop__ → vec_ → Prop where
   | fun_vcvtop___case_2 (Lnn_1 : lanetype) (M_1 : Nat) (Lnn_2 : lanetype) (M_2 : Nat) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2 : num_) (var_1_lst : List (Option (List lane_))) (var_0 : Option (Option zero)) :
     fun_zero (unpack Lnn_2) var_2 →
@@ -10082,7 +10082,7 @@ inductive fun_vcvtop___before_fun_vcvtop___case_3 : shape → shape → vcvtop__
     fun_vcvtop___before_fun_vcvtop___case_3 (shape.X Lnn_1 (dim.mk_dim v_M)) (shape.X Lnn_2 (dim.mk_dim M_0)) vcvtop v128_1
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
 inductive fun_vcvtop__ : shape → shape → vcvtop__ → vec_ → Option vec_ → Prop where
   | fun_vcvtop___case_0 (Lnn_1 : lanetype) (v_M : Nat) (Lnn_2 : lanetype) (vcvtop : vcvtop__) (v128_1 : uN) (v128 : uN) (M_0 : Nat) (c_1_lst : List lane_) (c_lst_lst : List (List lane_)) (var_2_lst : List (Option (List lane_))) (var_1 : Option (Option zero)) (var_0 : Option (Option half)) :
     (List.length var_2_lst) = (List.length c_1_lst) →
@@ -10181,7 +10181,7 @@ theorem iswf_vcvtop_wf_of_contains_inv_lanes {sh : shape} {lls : List (List lane
   obtain ⟨l, hl, rfl⟩ := List.mem_map.mp (List.contains_iff_mem.mp hc)
   exact inv_lanes__is_wf sh l _ hsh (iswf_Forall_setproduct lls h l hl) rfl
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:387.6-387.15 -/
 theorem vcvtop___is_wf (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : Option vec_) :
   fun_vcvtop__ shape_1 shape_2 v_vcvtop__ v_vec_ var_0 →
   wf_shape shape_1 →
@@ -10217,7 +10217,7 @@ theorem vcvtop___is_wf (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop_
         (fun l hl => List.eq_of_mem_replicate hl ▸ iswf_Forall_cons hz (iswf_Forall_nil _))) ‹_›
   | fun_vcvtop___case_3 => exact absurd rfl hne
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
 inductive fun_vextunop___before_fun_vextunop___case_16 : ishape → ishape → vextunop__ → vec_ → Prop where
   | fun_vextunop___case_15 (M_1 : Nat) (M_2 : Nat) (v_sx : sx) (c_1 : uN) (cj_1_lst : List iN) (cj_2_lst : List iN) (M_1_0 : Nat) (M_2_0 : Nat) (ci_lst : List lane_) (c : vec_) (var_1 : N) (var_0 : M) :
     fun_lsizenn2 (lanetype_Jnn Jnn.I16) var_1 →
@@ -10445,7 +10445,7 @@ inductive fun_vextunop___before_fun_vextunop___case_16 : ishape → ishape → v
     fun_vextunop___before_fun_vextunop___case_16 (ishape.mk_ishape (shape.X lanetype.I32 (dim.mk_dim M_1))) (ishape.mk_ishape (shape.X lanetype.I32 (dim.mk_dim M_2))) (vextunop__.mk_vextunop___0 Jnn.I32 M_1_0 Jnn.I32 M_2_0 (vextunop__Jnn_1_M_1_Jnn_2_M_2.EXTADD_PAIRWISE v_sx)) c_1
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
 inductive fun_vextunop__ : ishape → ishape → vextunop__ → vec_ → Option vec_ → Prop where
   | fun_vextunop___case_0 (M_1 : Nat) (M_2 : Nat) (v_sx : sx) (c_1 : uN) (cj_1_lst : List iN) (cj_2_lst : List iN) (M_1_0 : Nat) (M_2_0 : Nat) (ci_lst : List lane_) (c : vec_) (var_1 : N) (var_0 : M) :
     fun_lsizenn2 (lanetype_Jnn Jnn.I32) var_1 →
@@ -10676,7 +10676,7 @@ inductive fun_vextunop__ : ishape → ishape → vextunop__ → vec_ → Option 
     fun_vextunop__ x0 x1 x2 x3 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:603.6-603.17 -/
 theorem vextunop___is_wf (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop__ : vextunop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : Option vec_) :
   fun_vextunop__ ishape_1 ishape_2 v_vextunop__ v_vec_ var_0 →
   wf_ishape ishape_1 →
@@ -10691,7 +10691,7 @@ theorem vextunop___is_wf (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop__ :
     | exact absurd rfl hne
     | (subst_vars; exact iswf_inv_lanes_of_Forall₂_Map₂ (by assumption) (by assumption))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
 inductive fun_vextbinop___before_fun_vextbinop___case_32 : ishape → ishape → vextbinop__ → vec_ → vec_ → Prop where
   | fun_vextbinop___case_31 (M_1 : Nat) (M_2 : Nat) (c_1 : uN) (c_2 : uN) (cj_1_lst : List iN) (cj_2_lst : List iN) (M_1_0 : Nat) (M_2_0 : Nat) (ci_1_lst : List lane_) (ci_2_lst : List lane_) (c : vec_) (var_1 : M) (var_0 : N) :
     fun_lsizenn1 (lanetype_Jnn Jnn.I16) var_1 →
@@ -11223,7 +11223,7 @@ inductive fun_vextbinop___before_fun_vextbinop___case_32 : ishape → ishape →
     fun_vextbinop___before_fun_vextbinop___case_32 (ishape.mk_ishape (shape.X lanetype.I32 (dim.mk_dim M_1))) (ishape.mk_ishape (shape.X lanetype.I32 (dim.mk_dim M_2))) (vextbinop__.mk_vextbinop___0 Jnn.I32 M_1_0 Jnn.I32 M_2_0 (vextbinop__Jnn_1_M_1_Jnn_2_M_2.EXTMUL v_half v_sx)) c_1 c_2
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
 inductive fun_vextbinop__ : ishape → ishape → vextbinop__ → vec_ → vec_ → Option vec_ → Prop where
   | fun_vextbinop___case_0 (M_1 : Nat) (M_2 : Nat) (v_half : half) (v_sx : sx) (c_1 : uN) (c_2 : uN) (M_1_0 : Nat) (M_2_0 : Nat) (ci_1_lst : List lane_) (ci_2_lst : List lane_) (c : vec_) (var_1 : M) (var_0 : N) :
     fun_lsizenn1 (lanetype_Jnn Jnn.I32) var_1 →
@@ -11758,7 +11758,7 @@ inductive fun_vextbinop__ : ishape → ishape → vextbinop__ → vec_ → vec_ 
     fun_vextbinop__ x0 x1 x2 x3 x4 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:605.6-605.18 -/
 theorem vextbinop___is_wf (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop__ : vextbinop__) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : Option vec_) :
   fun_vextbinop__ ishape_1 ishape_2 v_vextbinop__ v_vec_ vec__0 var_0 →
   wf_ishape ishape_1 →
@@ -11774,7 +11774,7 @@ theorem vextbinop___is_wf (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop__
     | exact absurd rfl hne
     | (subst_vars; exact iswf_inv_lanes_of_Forall₂_Map₂ (by assumption) (by assumption))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
 inductive fun_vshiftop__before_fun_vshiftop__case_8 : ishape → vshiftop_ → lane_ → u32 → Prop where
   | fun_vshiftop__case_7 (v_M : Nat) (v_sx : sx) (lane : uN) (v_n : Nat) (M_0 : Nat) (var_0 : N) :
     v_M = M_0 →
@@ -11802,7 +11802,7 @@ inductive fun_vshiftop__before_fun_vshiftop__case_8 : ishape → vshiftop_ → l
     fun_vshiftop__before_fun_vshiftop__case_8 (ishape.mk_ishape (shape.X lanetype.I32 (dim.mk_dim v_M))) (vshiftop_.mk_vshiftop__0 Jnn.I32 M_0 vshiftop_Jnn_N.SHL) (lane_.mk_lane__0 Jnn.I32 lane) (uN.mk_uN v_n)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
 inductive fun_vshiftop_ : ishape → vshiftop_ → lane_ → u32 → Option lane_ → Prop where
   | fun_vshiftop__case_0 (v_M : Nat) (lane : uN) (v_n : Nat) (M_0 : Nat) (var_0 : N) :
     fun_lsizenn (lanetype_Jnn Jnn.I32) var_0 →
@@ -11848,7 +11848,7 @@ theorem iswf_fun_lsize_pos {lt : lanetype} {n : Nat} (h : fun_lsize lt n) : 0 < 
 theorem iswf_uN_mod {n : Nat} (k : Nat) (hn : 0 < n) : wf_uN n (uN.mk_uN (k % n)) :=
   iswf_uN_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt k hn) (Nat.le_of_lt Nat.lt_two_pow_self))
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/3-numerics.spectec:628.6-628.16 -/
 theorem vshiftop__is_wf (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_lane_ : lane_) (v_u32 : u32) (ret_val : lane_) (var_0 : Option lane_) :
   fun_vshiftop_ v_ishape v_vshiftop_ v_lane_ v_u32 var_0 →
   wf_ishape v_ishape →
@@ -11866,31 +11866,31 @@ theorem vshiftop__is_wf (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_lane_ :
     | exact wf_lane_.lane__case_0 _ _ _ _ hs
         (ishr__is_wf _ _ _ _ _ (iswf_lane0_payload hl hs) (iswf_uN_mod _ (iswf_fun_lsize_pos hs)) rfl) rfl
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:5.1-5.39 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:5.1-5.39 -/
 abbrev addr : Type := Nat
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:6.1-6.53 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:6.1-6.53 -/
 abbrev funcaddr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:7.1-7.53 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:7.1-7.53 -/
 abbrev globaladdr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:8.1-8.51 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:8.1-8.51 -/
 abbrev tableaddr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:9.1-9.50 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:9.1-9.50 -/
 abbrev memaddr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:10.1-10.49 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:10.1-10.49 -/
 abbrev elemaddr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:11.1-11.49 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:11.1-11.49 -/
 abbrev dataaddr : Type := addr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/4-runtime.spectec:12.1-12.49 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:12.1-12.49 -/
 abbrev hostaddr : Type := addr
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:25.1-26.70 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:25.1-26.70 -/
 inductive externaddr : Type where
   | FUNC (v_funcaddr : funcaddr) : externaddr
   | GLOBAL (v_globaladdr : globaladdr) : externaddr
@@ -11898,24 +11898,24 @@ inductive externaddr : Type where
   | MEM (v_memaddr : memaddr) : externaddr
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:37.1-38.62 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:37.1-38.62 -/
 inductive num : Type where
   | CONST (v_numtype : numtype) (_ : num_) : num
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:37.8-37.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:37.8-37.11 -/
 inductive wf_num : num → Prop where
   | num_case_0 (v_numtype : numtype) (var_0 : num_) :
     wf_num_ v_numtype var_0 →
     wf_num (num.CONST v_numtype var_0)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:39.1-40.62 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:39.1-40.62 -/
 inductive vec : Type where
   | VCONST (v_vectype : vectype) (_ : vec_) : vec
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:39.8-39.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:39.8-39.11 -/
 inductive wf_vec : vec → Prop where
   | vec_case_0 (v_vectype : vectype) (var_0 : vec_) :
     (size (valtype_vectype v_vectype)) ≠ none →
@@ -11923,14 +11923,14 @@ inductive wf_vec : vec → Prop where
     wf_vec (vec.VCONST v_vectype var_0)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:41.1-42.71 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:41.1-42.71 -/
 inductive ref : Type where
   | REF_NULL (v_reftype : reftype) : ref
   | REF_FUNC_ADDR (v_funcaddr : funcaddr) : ref
   | REF_HOST_ADDR (v_hostaddr : hostaddr) : ref
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:43.1-44.20 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:43.1-44.20 -/
 inductive val : Type where
   | CONST (v_numtype : numtype) (_ : num_) : val
   | VCONST (v_vectype : vectype) (_ : vec_) : val
@@ -11946,7 +11946,7 @@ def val_ref (var_0 : ref) : val :=
   | ref.REF_FUNC_ADDR x0 => val.REF_FUNC_ADDR x0
   | ref.REF_HOST_ADDR x0 => val.REF_HOST_ADDR x0
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:43.8-43.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:43.8-43.11 -/
 inductive wf_val : val → Prop where
   | val_case_0 (v_numtype : numtype) (var_0 : num_) :
     wf_num_ v_numtype var_0 →
@@ -11960,13 +11960,13 @@ inductive wf_val : val → Prop where
   | val_case_4 (v_hostaddr : hostaddr) : wf_val (val.REF_HOST_ADDR v_hostaddr)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:46.1-47.22 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:46.1-47.22 -/
 inductive result : Type where
   | _VALS (val_lst : List val) : result
   | TRAP : result
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:46.8-46.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:46.8-46.14 -/
 inductive wf_result : result → Prop where
   | result_case_0 (val_lst : List val) :
     Forall (fun (v_val_elem : val) => wf_val v_val_elem) val_lst →
@@ -11974,14 +11974,14 @@ inductive wf_result : result → Prop where
   | result_case_1 : wf_result result.TRAP
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:78.1-80.22 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:78.1-80.22 -/
 structure exportinst where
   MKexportinst ::
   NAME : name
   ADDR : externaddr
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:78.8-78.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:78.8-78.18 -/
 inductive wf_exportinst : exportinst → Prop where
   | exportinst_case_ (var_0 : name) (var_1 : externaddr) :
     wf_name var_0 →
@@ -11991,7 +11991,7 @@ inductive wf_exportinst : exportinst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:82.1-90.26 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:82.1-90.26 -/
 structure moduleinst where
   MKmoduleinst ::
   TYPES : List functype
@@ -12004,7 +12004,7 @@ structure moduleinst where
   EXPORTS : List exportinst
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:82.8-82.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:82.8-82.18 -/
 inductive wf_moduleinst : moduleinst → Prop where
   | moduleinst_case_ (var_0_lst : List functype) (var_1_lst : List funcaddr) (var_2_lst : List globaladdr) (var_3_lst : List tableaddr) (var_4_lst : List memaddr) (var_5_lst : List elemaddr) (var_6_lst : List dataaddr) (var_7_lst : List exportinst) :
     Forall (fun (var_7_elem : exportinst) => wf_exportinst var_7_elem) var_7_lst →
@@ -12020,7 +12020,7 @@ inductive wf_moduleinst : moduleinst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:60.1-63.16 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:60.1-63.16 -/
 structure funcinst where
   MKfuncinst ::
   TYPE : functype
@@ -12030,7 +12030,7 @@ deriving Inhabited, BEq
 
 derive_deceq funcinst
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:60.8-60.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:60.8-60.16 -/
 inductive wf_funcinst : funcinst → Prop where
   | funcinst_case_ (var_0 : functype) (var_1 : moduleinst) (var_2 : func) :
     wf_moduleinst var_1 →
@@ -12042,14 +12042,14 @@ inductive wf_funcinst : funcinst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:64.1-66.16 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:64.1-66.16 -/
 structure globalinst where
   MKglobalinst ::
   TYPE : globaltype
   VALUE : val
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:64.8-64.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:64.8-64.18 -/
 inductive wf_globalinst : globalinst → Prop where
   | globalinst_case_ (var_0 : globaltype) (var_1 : val) :
     wf_val var_1 →
@@ -12059,14 +12059,14 @@ inductive wf_globalinst : globalinst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:67.1-69.16 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:67.1-69.16 -/
 structure tableinst where
   MKtableinst ::
   TYPE : tabletype
   REFS : List ref
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:67.8-67.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:67.8-67.17 -/
 inductive wf_tableinst : tableinst → Prop where
   | tableinst_case_ (var_0 : tabletype) (var_1_lst : List ref) :
     wf_tabletype var_0 →
@@ -12076,14 +12076,14 @@ inductive wf_tableinst : tableinst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:70.1-72.18 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:70.1-72.18 -/
 structure meminst where
   MKmeminst ::
   TYPE : memtype
   BYTES : List byte
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:70.8-70.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:70.8-70.15 -/
 inductive wf_meminst : meminst → Prop where
   | meminst_case_ (var_0 : memtype) (var_1_lst : List byte) :
     wf_memtype var_0 →
@@ -12094,20 +12094,20 @@ inductive wf_meminst : meminst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:73.1-75.16 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:73.1-75.16 -/
 structure eleminst where
   MKeleminst ::
   TYPE : elemtype
   REFS : List ref
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:76.1-77.18 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:76.1-77.18 -/
 structure datainst where
   MKdatainst ::
   BYTES : List byte
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:76.8-76.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:76.8-76.16 -/
 inductive wf_datainst : datainst → Prop where
   | datainst_case_ (var_0_lst : List byte) :
     Forall (fun (var_0_elem : byte) => wf_byte var_0_elem) var_0_lst →
@@ -12116,7 +12116,7 @@ inductive wf_datainst : datainst → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:104.1-110.22 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:104.1-110.22 -/
 structure store where
   MKstore ::
   FUNCS : List funcinst
@@ -12129,7 +12129,7 @@ deriving Inhabited, BEq
 
 derive_deceq store
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:104.8-104.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:104.8-104.13 -/
 inductive wf_store : store → Prop where
   | store_case_ (var_0_lst : List funcinst) (var_1_lst : List globalinst) (var_2_lst : List tableinst) (var_3_lst : List meminst) (var_4_lst : List eleminst) (var_5_lst : List datainst) :
     Forall (fun (var_0_elem : funcinst) => wf_funcinst var_0_elem) var_0_lst →
@@ -12147,14 +12147,14 @@ inductive wf_store : store → Prop where
     })
 
 
-/- Record Creation Definition at: ../specification/wasm-2.0/4-runtime.spectec:112.1-114.24 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:112.1-114.24 -/
 structure frame where
   MKframe ::
   LOCALS : List val
   MODULE : moduleinst
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:112.8-112.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:112.8-112.13 -/
 inductive wf_frame : frame → Prop where
   | frame_case_ (var_0_lst : List val) (var_1 : moduleinst) :
     Forall (fun (var_0_elem : val) => wf_val var_0_elem) var_0_lst →
@@ -12165,14 +12165,14 @@ inductive wf_frame : frame → Prop where
     })
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:116.1-116.47 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:116.1-116.47 -/
 inductive state : Type where
   | mk_state (v_store : store) (v_frame : frame) : state
 deriving Inhabited, BEq
 
 derive_deceq state
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:116.8-116.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:116.8-116.13 -/
 inductive wf_state : state → Prop where
   | state_case_0 (v_store : store) (v_frame : frame) :
     wf_store v_store →
@@ -12180,7 +12180,7 @@ inductive wf_state : state → Prop where
     wf_state (state.mk_state v_store v_frame)
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.1-135.9 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:128.1-135.9 -/
 inductive admininstr : Type where
   | NOP : admininstr
   | UNREACHABLE : admininstr
@@ -12346,7 +12346,7 @@ def admininstr_val (var_0 : val) : admininstr :=
   | val.REF_FUNC_ADDR x0 => admininstr.REF_FUNC_ADDR x0
   | val.REF_HOST_ADDR x0 => admininstr.REF_HOST_ADDR x0
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:128.8-128.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:128.8-128.18 -/
 inductive wf_admininstr : admininstr → Prop where
   | admininstr_case_0 : wf_admininstr admininstr.NOP
   | admininstr_case_1 : wf_admininstr admininstr.UNREACHABLE
@@ -12577,14 +12577,14 @@ inductive wf_admininstr : admininstr → Prop where
   | admininstr_case_72 : wf_admininstr admininstr.TRAP
 
 
-/- Inductive Type Definition at: ../specification/wasm-2.0/4-runtime.spectec:117.1-117.62 -/
+/- Inductive Type Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:117.1-117.62 -/
 inductive config : Type where
   | mk_config (v_state : state) (admininstr_lst : List admininstr) : config
 deriving Inhabited, BEq
 
 derive_deceq config
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/4-runtime.spectec:117.8-117.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/4-runtime.spectec:117.8-117.14 -/
 inductive wf_config : config → Prop where
   | config_case_0 (v_state : state) (admininstr_lst : List admininstr) :
     wf_state v_state →
@@ -12592,7 +12592,7 @@ inductive wf_config : config → Prop where
     wf_config (config.mk_config v_state admininstr_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
 inductive fun_default__before_fun_default__case_7 : valtype → Prop where
   | fun_default__case_6 : fun_default__before_fun_default__case_7 valtype.EXTERNREF
   | fun_default__case_5 : fun_default__before_fun_default__case_7 valtype.FUNCREF
@@ -12603,7 +12603,7 @@ inductive fun_default__before_fun_default__case_7 : valtype → Prop where
   | fun_default__case_0 : fun_default__before_fun_default__case_7 valtype.I32
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
 inductive fun_default_ : valtype → Option val → Prop where
   | fun_default__case_0 : fun_default_ valtype.I32 (some (val.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN 0))))
   | fun_default__case_1 : fun_default_ valtype.I64 (some (val.CONST numtype.I64 (num_.mk_num__0 Inn.I64 (uN.mk_uN 0))))
@@ -12621,7 +12621,7 @@ inductive fun_default_ : valtype → Option val → Prop where
     fun_default_ x0 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 -/
 theorem default__is_wf (v_valtype : valtype) (ret_val : val) (var_0 : Option val) :
   fun_default_ v_valtype var_0 →
   var_0 ≠ none →
@@ -12649,7 +12649,7 @@ theorem default__is_wf (v_valtype : valtype) (ret_val : val) (var_0 : Option val
   | fun_default__case_6 => exact wf_val.val_case_2 _
   | fun_default__case_7 _ _ => exact absurd rfl hne
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:20.6-20.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:20.6-20.14 -/
 inductive fun_funcsxa : List externaddr → List funcaddr → Prop where
   | fun_funcsxa_case_0 : fun_funcsxa [] []
   | fun_funcsxa_case_1 (fa : Nat) (xv_lst : List externaddr) (var_0 : List funcaddr) :
@@ -12660,7 +12660,7 @@ inductive fun_funcsxa : List externaddr → List funcaddr → Prop where
     fun_funcsxa ([v_externaddr] ++ xv_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:21.6-21.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:21.6-21.16 -/
 inductive fun_globalsxa : List externaddr → List globaladdr → Prop where
   | fun_globalsxa_case_0 : fun_globalsxa [] []
   | fun_globalsxa_case_1 (ga : Nat) (xv_lst : List externaddr) (var_0 : List globaladdr) :
@@ -12671,7 +12671,7 @@ inductive fun_globalsxa : List externaddr → List globaladdr → Prop where
     fun_globalsxa ([v_externaddr] ++ xv_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:22.6-22.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:22.6-22.15 -/
 inductive fun_tablesxa : List externaddr → List tableaddr → Prop where
   | fun_tablesxa_case_0 : fun_tablesxa [] []
   | fun_tablesxa_case_1 (ta : Nat) (xv_lst : List externaddr) (var_0 : List tableaddr) :
@@ -12682,7 +12682,7 @@ inductive fun_tablesxa : List externaddr → List tableaddr → Prop where
     fun_tablesxa ([v_externaddr] ++ xv_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:23.6-23.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:23.6-23.13 -/
 inductive fun_memsxa : List externaddr → List memaddr → Prop where
   | fun_memsxa_case_0 : fun_memsxa [] []
   | fun_memsxa_case_1 (ma : Nat) (xv_lst : List externaddr) (var_0 : List memaddr) :
@@ -12693,12 +12693,12 @@ inductive fun_memsxa : List externaddr → List memaddr → Prop where
     fun_memsxa ([v_externaddr] ++ xv_lst) var_0
 
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.1-48.57 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:48.1-48.57 -/
 def fun_store (v_state : state) : store :=
   match v_state with
   | state.mk_state s f => s
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 -/
 theorem store_is_wf (v_state : state) (ret_val : store) :
   wf_state v_state →
   ret_val = (fun_store v_state) →
@@ -12706,12 +12706,12 @@ theorem store_is_wf (v_state : state) (ret_val : store) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:49.1-49.57 -/
 def fun_frame (v_state : state) : frame :=
   match v_state with
   | state.mk_state s f => f
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 -/
 theorem frame_is_wf (v_state : state) (ret_val : frame) :
   wf_state v_state →
   ret_val = (fun_frame v_state) →
@@ -12719,17 +12719,17 @@ theorem frame_is_wf (v_state : state) (ret_val : frame) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ _ h => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:55.1-55.64 -/
 def fun_funcaddr (v_state : state) : List funcaddr :=
   match v_state with
   | state.mk_state s f => f.MODULE.FUNCS
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.1-58.57 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:58.1-58.57 -/
 def fun_funcinst (v_state : state) : List funcinst :=
   match v_state with
   | state.mk_state s f => s.FUNCS
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 -/
 theorem funcinst_is_wf (v_state : state) (ret_val_lst : List funcinst) :
   wf_state v_state →
   ret_val_lst = (fun_funcinst v_state) →
@@ -12737,12 +12737,12 @@ theorem funcinst_is_wf (v_state : state) (ret_val_lst : List funcinst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ h _ _ _ _ => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:59.1-59.59 -/
 def fun_globalinst (v_state : state) : List globalinst :=
   match v_state with
   | state.mk_state s f => s.GLOBALS
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 -/
 theorem globalinst_is_wf (v_state : state) (ret_val_lst : List globalinst) :
   wf_state v_state →
   ret_val_lst = (fun_globalinst v_state) →
@@ -12750,12 +12750,12 @@ theorem globalinst_is_wf (v_state : state) (ret_val_lst : List globalinst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ h _ _ _ => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:60.1-60.58 -/
 def fun_tableinst (v_state : state) : List tableinst :=
   match v_state with
   | state.mk_state s f => s.TABLES
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 -/
 theorem tableinst_is_wf (v_state : state) (ret_val_lst : List tableinst) :
   wf_state v_state →
   ret_val_lst = (fun_tableinst v_state) →
@@ -12763,12 +12763,12 @@ theorem tableinst_is_wf (v_state : state) (ret_val_lst : List tableinst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ h _ _ => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:61.1-61.56 -/
 def fun_meminst (v_state : state) : List meminst :=
   match v_state with
   | state.mk_state s f => s.MEMS
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 -/
 theorem meminst_is_wf (v_state : state) (ret_val_lst : List meminst) :
   wf_state v_state →
   ret_val_lst = (fun_meminst v_state) →
@@ -12776,17 +12776,17 @@ theorem meminst_is_wf (v_state : state) (ret_val_lst : List meminst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ _ h _ => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:62.1-62.57 -/
 def fun_eleminst (v_state : state) : List eleminst :=
   match v_state with
   | state.mk_state s f => s.ELEMS
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.1-63.57 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:63.1-63.57 -/
 def fun_datainst (v_state : state) : List datainst :=
   match v_state with
   | state.mk_state s f => s.DATAS
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 -/
 theorem datainst_is_wf (v_state : state) (ret_val_lst : List datainst) :
   wf_state v_state →
   ret_val_lst = (fun_datainst v_state) →
@@ -12794,12 +12794,12 @@ theorem datainst_is_wf (v_state : state) (ret_val_lst : List datainst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ h _ => cases h with | store_case_ _ _ _ _ _ _ _ _ _ _ h => exact h
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:64.1-64.58 -/
 def fun_moduleinst (v_state : state) : moduleinst :=
   match v_state with
   | state.mk_state s f => f.MODULE
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 -/
 theorem moduleinst_is_wf (v_state : state) (ret_val : moduleinst) :
   wf_state v_state →
   ret_val = (fun_moduleinst v_state) →
@@ -12807,14 +12807,14 @@ theorem moduleinst_is_wf (v_state : state) (ret_val : moduleinst) :
   intro hs h; subst h
   cases hs with | state_case_0 _ _ _ h => cases h with | frame_case_ _ _ _ h => exact h
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:74.6-74.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:74.6-74.11 -/
 inductive fun_type : state → typeidx → functype → Prop where
   | fun_type_case_0 (s : store) (f : frame) (x : uN) :
     (proj_uN_0 x) < (List.length (f.MODULE.TYPES)) →
     fun_type (state.mk_state s f) x ((f.MODULE.TYPES)[proj_uN_0 x]!)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 -/
 inductive fun_func : state → funcidx → funcinst → Prop where
   | fun_func_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.FUNCS)[proj_uN_0 x]!) < (List.length (s.FUNCS)) →
@@ -12827,7 +12827,7 @@ theorem iswf_Forall_getElem!_of_lt {α : Type} [Inhabited α] {P : α → Prop} 
     (h : Forall P l) (hn : n < l.length) : P l[n]! := by
   rw [getElem!_pos l n hn]; exact h _ (List.getElem_mem hn)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 -/
 theorem func_is_wf (v_state : state) (v_funcidx : funcidx) (ret_val : funcinst) (var_0 : funcinst) :
   fun_func v_state v_funcidx var_0 →
   wf_state v_state →
@@ -12837,7 +12837,7 @@ theorem func_is_wf (v_state : state) (v_funcidx : funcidx) (ret_val : funcinst) 
   rintro ⟨s, f, x, hlt, -⟩ ⟨_, _, ⟨_, _, _, _, _, _, hfs, -, -, -, -⟩, -⟩ - rfl
   exact iswf_Forall_getElem!_of_lt hfs hlt
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 -/
 inductive fun_global : state → globalidx → globalinst → Prop where
   | fun_global_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.GLOBALS)[proj_uN_0 x]!) < (List.length (s.GLOBALS)) →
@@ -12845,7 +12845,7 @@ inductive fun_global : state → globalidx → globalinst → Prop where
     fun_global (state.mk_state s f) x ((s.GLOBALS)[(f.MODULE.GLOBALS)[proj_uN_0 x]!]!)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 -/
 theorem global_is_wf (v_state : state) (v_globalidx : globalidx) (ret_val : globalinst) (var_0 : globalinst) :
   fun_global v_state v_globalidx var_0 →
   wf_state v_state →
@@ -12855,7 +12855,7 @@ theorem global_is_wf (v_state : state) (v_globalidx : globalidx) (ret_val : glob
   rintro ⟨s, f, x, hlt, -⟩ ⟨_, _, ⟨_, _, _, _, _, _, -, hgs, -, -, -⟩, -⟩ - rfl
   exact iswf_Forall_getElem!_of_lt hgs hlt
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 -/
 inductive fun_table : state → tableidx → tableinst → Prop where
   | fun_table_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.TABLES)[proj_uN_0 x]!) < (List.length (s.TABLES)) →
@@ -12863,7 +12863,7 @@ inductive fun_table : state → tableidx → tableinst → Prop where
     fun_table (state.mk_state s f) x ((s.TABLES)[(f.MODULE.TABLES)[proj_uN_0 x]!]!)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 -/
 theorem table_is_wf (v_state : state) (v_tableidx : tableidx) (ret_val : tableinst) (var_0 : tableinst) :
   fun_table v_state v_tableidx var_0 →
   wf_state v_state →
@@ -12876,7 +12876,7 @@ theorem table_is_wf (v_state : state) (v_tableidx : tableidx) (ret_val : tablein
     cases hst with
     | store_case_ _ _ _ _ _ _ _ _ hts _ _ => exact iswf_Forall_getElem!_of_lt hts hlt
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 -/
 inductive fun_mem : state → memidx → meminst → Prop where
   | fun_mem_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.MEMS)[proj_uN_0 x]!) < (List.length (s.MEMS)) →
@@ -12884,7 +12884,7 @@ inductive fun_mem : state → memidx → meminst → Prop where
     fun_mem (state.mk_state s f) x ((s.MEMS)[(f.MODULE.MEMS)[proj_uN_0 x]!]!)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 -/
 theorem mem_is_wf (v_state : state) (v_memidx : memidx) (ret_val : meminst) (var_0 : meminst) :
   fun_mem v_state v_memidx var_0 →
   wf_state v_state →
@@ -12894,7 +12894,7 @@ theorem mem_is_wf (v_state : state) (v_memidx : memidx) (ret_val : meminst) (var
   rintro ⟨s, f, x, hlt, -⟩ ⟨_, _, ⟨_, _, _, _, _, _, -, -, -, hms, -⟩, -⟩ - rfl
   exact iswf_Forall_getElem!_of_lt hms hlt
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:79.6-79.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:79.6-79.11 -/
 inductive fun_elem : state → tableidx → eleminst → Prop where
   | fun_elem_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.ELEMS)[proj_uN_0 x]!) < (List.length (s.ELEMS)) →
@@ -12902,7 +12902,7 @@ inductive fun_elem : state → tableidx → eleminst → Prop where
     fun_elem (state.mk_state s f) x ((s.ELEMS)[(f.MODULE.ELEMS)[proj_uN_0 x]!]!)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 -/
 inductive fun_data : state → dataidx → datainst → Prop where
   | fun_data_case_0 (s : store) (f : frame) (x : uN) :
     ((f.MODULE.DATAS)[proj_uN_0 x]!) < (List.length (s.DATAS)) →
@@ -12910,7 +12910,7 @@ inductive fun_data : state → dataidx → datainst → Prop where
     fun_data (state.mk_state s f) x ((s.DATAS)[(f.MODULE.DATAS)[proj_uN_0 x]!]!)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 -/
 theorem data_is_wf (v_state : state) (v_dataidx : dataidx) (ret_val : datainst) (var_0 : datainst) :
   fun_data v_state v_dataidx var_0 →
   wf_state v_state →
@@ -12920,14 +12920,14 @@ theorem data_is_wf (v_state : state) (v_dataidx : dataidx) (ret_val : datainst) 
   rintro ⟨s, f, x, hlt, -⟩ ⟨_, _, ⟨_, _, _, _, _, _, -, -, -, -, hds⟩, -⟩ - rfl
   exact iswf_Forall_getElem!_of_lt hds hlt
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 -/
 inductive fun_local : state → localidx → val → Prop where
   | fun_local_case_0 (s : store) (f : frame) (x : uN) :
     (proj_uN_0 x) < (List.length (f.LOCALS)) →
     fun_local (state.mk_state s f) x ((f.LOCALS)[proj_uN_0 x]!)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 -/
 theorem local_is_wf (v_state : state) (v_localidx : localidx) (ret_val : val) (var_0 : val) :
   fun_local v_state v_localidx var_0 →
   wf_state v_state →
@@ -12937,7 +12937,7 @@ theorem local_is_wf (v_state : state) (v_localidx : localidx) (ret_val : val) (v
   rintro ⟨s, f, x, hlt⟩ ⟨_, _, -, ⟨_, _, hls, -⟩⟩ - rfl
   exact iswf_Forall_getElem!_of_lt hls hlt
 
-/- Auxiliary Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 -/
+/- Auxiliary Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:95.1-95.89 -/
 def with_local (v_state : state) (v_localidx : localidx) (v_val : val) : state :=
   match v_state with
   | state.mk_state s f => state.mk_state s ({
@@ -12959,7 +12959,7 @@ theorem iswf_Forall_modify {α : Type} {P : α → Prop} (f : α → α) (hf : �
     | zero => rw [List.modify_zero_cons]; exact iswf_Forall_cons (hf a ha) ht
     | succ k => rw [List.modify_succ_cons]; exact iswf_Forall_cons ha (ih k ht)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 -/
 theorem with_local_is_wf (v_state : state) (v_localidx : localidx) (v_val : val) (ret_val : state) :
   wf_state v_state →
   wf_uN 32 v_localidx →
@@ -12974,7 +12974,7 @@ theorem with_local_is_wf (v_state : state) (v_localidx : localidx) (v_val : val)
       exact wf_state.state_case_0 _ _ hst
         (wf_frame.frame_case_ _ _ (iswf_Forall_modify _ (fun _ _ => hv) ls _ hls) hm)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 -/
 inductive fun_with_global : state → globalidx → val → state → Prop where
   | fun_with_global_case_0 (s : store) (f : frame) (x : uN) (v : val) :
     (proj_uN_0 x) < (List.length (f.MODULE.GLOBALS)) →
@@ -12987,7 +12987,7 @@ inductive fun_with_global : state → globalidx → val → state → Prop where
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 -/
 theorem with_global_is_wf (v_state : state) (v_globalidx : globalidx) (v_val : val) (ret_val : state) (var_0 : state) :
   fun_with_global v_state v_globalidx v_val var_0 →
   wf_state v_state →
@@ -13004,7 +13004,7 @@ theorem with_global_is_wf (v_state : state) (v_globalidx : globalidx) (v_val : v
       exact iswf_Forall_modify _ (fun g hg => by
         cases hg with | globalinst_case_ gt0 _ _ => exact wf_globalinst.globalinst_case_ gt0 _ hv) gs _ hgs
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 -/
 inductive fun_with_table : state → tableidx → Nat → ref → state → Prop where
   | fun_with_table_case_0 (s : store) (f : frame) (x : uN) (i : Nat) (r : ref) :
     (proj_uN_0 x) < (List.length (f.MODULE.TABLES)) →
@@ -13017,7 +13017,7 @@ inductive fun_with_table : state → tableidx → Nat → ref → state → Prop
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 -/
 theorem with_table_is_wf (v_state : state) (v_tableidx : tableidx) (nat : Nat) (v_ref : ref) (ret_val : state) (var_0 : state) :
   fun_with_table v_state v_tableidx nat v_ref var_0 →
   wf_state v_state →
@@ -13028,7 +13028,7 @@ theorem with_table_is_wf (v_state : state) (v_tableidx : tableidx) (nat : Nat) (
   refine wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs ?_ hms hds) hf
   exact iswf_Forall_modify _ (fun _ ⟨tt, _, htt⟩ => wf_tableinst.tableinst_case_ tt _ htt) _ _ hts
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 -/
 inductive fun_with_tableinst : state → tableidx → tableinst → state → Prop where
   | fun_with_tableinst_case_0 (s : store) (f : frame) (x : uN) (ti : tableinst) :
     (proj_uN_0 x) < (List.length (f.MODULE.TABLES)) →
@@ -13038,7 +13038,7 @@ inductive fun_with_tableinst : state → tableidx → tableinst → state → Pr
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 -/
 theorem with_tableinst_is_wf (v_state : state) (v_tableidx : tableidx) (v_tableinst : tableinst) (ret_val : state) (var_0 : state) :
   fun_with_tableinst v_state v_tableidx v_tableinst var_0 →
   wf_state v_state →
@@ -13050,7 +13050,7 @@ theorem with_tableinst_is_wf (v_state : state) (v_tableidx : tableidx) (v_tablei
   exact wf_state.state_case_0 _ _
     (wf_store.store_case_ _ _ _ _ _ _ hfs hgs (iswf_Forall_modify _ (fun _ _ => hti) _ _ hts) hms hds) hf
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 -/
 inductive fun_with_mem : state → memidx → Nat → Nat → List byte → state → Prop where
   | fun_with_mem_case_0 (s : store) (f : frame) (x : uN) (i : Nat) (j : Nat) (b_lst : List byte) :
     (proj_uN_0 x) < (List.length (f.MODULE.MEMS)) →
@@ -13073,7 +13073,7 @@ theorem iswf_Forall_splice {α : Type} {P : α → Prop} (l u : List α) (i : Na
   · exact fun x hx => hu x (List.mem_of_mem_take hx)
   · exact fun x hx => hl x (List.mem_of_mem_drop hx)
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 -/
 theorem with_mem_is_wf (v_state : state) (v_memidx : memidx) (nat : Nat) (nat_0 : Nat) (var_0_lst : List byte) (ret_val : state) (var_0 : state) :
   fun_with_mem v_state v_memidx nat nat_0 var_0_lst var_0 →
   wf_state v_state →
@@ -13086,7 +13086,7 @@ theorem with_mem_is_wf (v_state : state) (v_memidx : memidx) (nat : Nat) (nat_0 
   exact iswf_Forall_modify _
     (fun _ ⟨mt, _, hmt, hbs⟩ => wf_meminst.meminst_case_ mt _ hmt (iswf_Forall_splice _ _ _ hbs hb)) _ _ hms
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 -/
 inductive fun_with_meminst : state → memidx → meminst → state → Prop where
   | fun_with_meminst_case_0 (s : store) (f : frame) (x : uN) (mi : meminst) :
     (proj_uN_0 x) < (List.length (f.MODULE.MEMS)) →
@@ -13096,7 +13096,7 @@ inductive fun_with_meminst : state → memidx → meminst → state → Prop whe
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 -/
 theorem with_meminst_is_wf (v_state : state) (v_memidx : memidx) (v_meminst : meminst) (ret_val : state) (var_0 : state) :
   fun_with_meminst v_state v_memidx v_meminst var_0 →
   wf_state v_state →
@@ -13108,7 +13108,7 @@ theorem with_meminst_is_wf (v_state : state) (v_memidx : memidx) (v_meminst : me
   exact wf_state.state_case_0 _ _
     (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts (iswf_Forall_modify _ (fun _ _ => hmi) _ _ hms) hds) hf
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 -/
 inductive fun_with_elem : state → elemidx → List ref → state → Prop where
   | fun_with_elem_case_0 (s : store) (f : frame) (x : uN) (r_lst : List ref) :
     (proj_uN_0 x) < (List.length (f.MODULE.ELEMS)) →
@@ -13121,7 +13121,7 @@ inductive fun_with_elem : state → elemidx → List ref → state → Prop wher
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 -/
 theorem with_elem_is_wf (v_state : state) (v_elemidx : elemidx) (var_0_lst : List ref) (ret_val : state) (var_0 : state) :
   fun_with_elem v_state v_elemidx var_0_lst var_0 →
   wf_state v_state →
@@ -13131,7 +13131,7 @@ theorem with_elem_is_wf (v_state : state) (v_elemidx : elemidx) (var_0_lst : Lis
   rintro ⟨s, f, x, rs, -⟩ ⟨_, _, ⟨_, _, _, _, _, _, hfs, hgs, hts, hms, hds⟩, hf⟩ - rfl
   exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts hms hds) hf
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 -/
 inductive fun_with_data : state → dataidx → List byte → state → Prop where
   | fun_with_data_case_0 (s : store) (f : frame) (x : uN) (b_lst : List byte) :
     (proj_uN_0 x) < (List.length (f.MODULE.DATAS)) →
@@ -13144,7 +13144,7 @@ inductive fun_with_data : state → dataidx → List byte → state → Prop whe
     }) f)
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 -/
 theorem with_data_is_wf (v_state : state) (v_dataidx : dataidx) (var_0_lst : List byte) (ret_val : state) (var_0 : state) :
   fun_with_data v_state v_dataidx var_0_lst var_0 →
   wf_state v_state →
@@ -13156,7 +13156,7 @@ theorem with_data_is_wf (v_state : state) (v_dataidx : dataidx) (var_0_lst : Lis
   exact wf_state.state_case_0 _ _ (wf_store.store_case_ _ _ _ _ _ _ hfs hgs hts hms
     (iswf_Forall_modify _ (fun _ _ => wf_datainst.datainst_case_ _ hb) _ _ hds)) hf
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
 inductive fun_growtable_before_fun_growtable_case_1 : tableinst → Nat → ref → Prop where
   | fun_growtable_case_0 (ti : tableinst) (v_n : Nat) (r : ref) (ti' : tableinst) (i : u32) (j_opt : Option u32) (rt : reftype) (r'_lst : List ref) (i' : Nat) :
     ({
@@ -13180,7 +13180,7 @@ inductive fun_growtable_before_fun_growtable_case_1 : tableinst → Nat → ref 
     fun_growtable_before_fun_growtable_case_1 ti v_n r
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
 inductive fun_growtable : tableinst → Nat → ref → Option tableinst → Prop where
   | fun_growtable_case_0 (ti : tableinst) (v_n : Nat) (r : ref) (ti' : tableinst) (i : u32) (j_opt : Option u32) (rt : reftype) (r'_lst : List ref) (i' : Nat) :
     ({
@@ -13207,7 +13207,7 @@ inductive fun_growtable : tableinst → Nat → ref → Option tableinst → Pro
     fun_growtable x0 x1 x2 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 -/
 theorem growtable_is_wf (v_tableinst : tableinst) (nat : Nat) (v_ref : ref) (ret_val : tableinst) (var_0 : Option tableinst) :
   fun_growtable v_tableinst nat v_ref var_0 →
   wf_tableinst v_tableinst →
@@ -13220,7 +13220,7 @@ theorem growtable_is_wf (v_tableinst : tableinst) (nat : Nat) (v_ref : ref) (ret
   | fun_growtable_case_0 ti' i j_opt rt r'_lst i' _ _ _ hti' _ hwfnew =>
     subst hti'; exact hwfnew
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
 inductive fun_growmemory_before_fun_growmemory_case_1 : meminst → Nat → Prop where
   | fun_growmemory_case_0 (mi : meminst) (v_n : Nat) (mi' : meminst) (i : u32) (j_opt : Option u32) (b_lst : List byte) (i' : Rat) :
     ({
@@ -13245,7 +13245,7 @@ inductive fun_growmemory_before_fun_growmemory_case_1 : meminst → Nat → Prop
     fun_growmemory_before_fun_growmemory_case_1 mi v_n
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
 inductive fun_growmemory : meminst → Nat → Option meminst → Prop where
   | fun_growmemory_case_0 (mi : meminst) (v_n : Nat) (mi' : meminst) (i : u32) (j_opt : Option u32) (b_lst : List byte) (i' : Rat) :
     ({
@@ -13273,7 +13273,7 @@ inductive fun_growmemory : meminst → Nat → Option meminst → Prop where
     fun_growmemory x0 x1 none
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 -/
 theorem growmemory_is_wf (v_meminst : meminst) (nat : Nat) (ret_val : meminst) (var_0 : Option meminst) :
   fun_growmemory v_meminst nat var_0 →
   wf_meminst v_meminst →
@@ -13286,7 +13286,7 @@ theorem growmemory_is_wf (v_meminst : meminst) (nat : Nat) (ret_val : meminst) (
   | fun_growmemory_case_0 mi' i j_opt b_lst i' _ _ _ _ hmi' _ hwfnew =>
     subst hmi'; exact hwfnew
 
-/- Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:5.1-9.62 -/
 structure context where
   MKcontext ::
   TYPES : List functype
@@ -13301,7 +13301,7 @@ structure context where
   RETURN : Option resulttype
 deriving Inhabited, BEq, DecidableEq, ReflBEq, LawfulBEq
 
-/- Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:5.1-9.62 -/
 def append_context (arg1 arg2 : context) : context where
   TYPES := (arg1.TYPES) ++ (arg2.TYPES)
   FUNCS := (arg1.FUNCS) ++ (arg2.FUNCS)
@@ -13314,11 +13314,11 @@ def append_context (arg1 arg2 : context) : context where
   LABELS := (arg1.LABELS) ++ (arg2.LABELS)
   RETURN := Option.orElse (arg1.RETURN) (fun _ => arg2.RETURN)
 
-/- Record Creation Definition at: ../specification/wasm-2.0/6-typing.spectec:5.1-9.62 -/
+/- Record Creation Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:5.1-9.62 -/
 instance  : Append context where
   append := append_context
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:5.8-5.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:5.8-5.15 -/
 inductive wf_context : context → Prop where
   | context_case_ (var_0_lst : List functype) (var_1_lst : List functype) (var_2_lst : List globaltype) (var_3_lst : List tabletype) (var_4_lst : List memtype) (var_5_lst : List elemtype) (var_6_lst : List datatype) (var_7_lst : List valtype) (var_8_lst : List resulttype) (var_9_opt : Option resulttype) :
     Forall (fun (var_3_elem : tabletype) => wf_tabletype var_3_elem) var_3_lst →
@@ -13337,7 +13337,7 @@ inductive wf_context : context → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:19.1-19.66 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:19.1-19.66 -/
 inductive Limits_ok : limits → Nat → Prop where
   | mk_Limits_ok (v_n : n) (m_opt : Option m) (k : Nat) :
     v_n ≤ k →
@@ -13346,17 +13346,17 @@ inductive Limits_ok : limits → Nat → Prop where
     Limits_ok (limits.mk_limits (uN.mk_uN v_n) (OMap (fun (v_m_elem : m) => uN.mk_uN v_m_elem) m_opt)) k
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:20.1-20.64 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:20.1-20.64 -/
 inductive Functype_ok : functype → Prop where
   | mk_Functype_ok (t_1_lst : List valtype) (t_2_lst : List valtype) : Functype_ok (functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:21.1-21.66 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:21.1-21.66 -/
 inductive Globaltype_ok : globaltype → Prop where
   | mk_Globaltype_ok (t : valtype) : Globaltype_ok (globaltype.mk_globaltype (some r_MUT.MUT) t)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:22.1-22.65 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:22.1-22.65 -/
 inductive Tabletype_ok : tabletype → Prop where
   | mk_Tabletype_ok (v_limits : limits) (v_reftype : reftype) :
     Limits_ok v_limits (Int.toNat (((2 ^ 32) : Int) - (1 : Int))) →
@@ -13364,7 +13364,7 @@ inductive Tabletype_ok : tabletype → Prop where
     Tabletype_ok (tabletype.mk_tabletype v_limits v_reftype)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:23.1-23.63 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:23.1-23.63 -/
 inductive Memtype_ok : memtype → Prop where
   | mk_Memtype_ok (v_limits : limits) :
     Limits_ok v_limits (2 ^ 16) →
@@ -13372,7 +13372,7 @@ inductive Memtype_ok : memtype → Prop where
     Memtype_ok (memtype.PAGE v_limits)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:24.1-24.66 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:24.1-24.66 -/
 inductive Externtype_ok : externtype → Prop where
   | func (v_functype : functype) :
     Functype_ok v_functype →
@@ -13392,13 +13392,13 @@ inductive Externtype_ok : externtype → Prop where
     Externtype_ok (externtype.MEM v_memtype)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:71.1-71.69 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:71.1-71.69 -/
 inductive Valtype_sub : valtype → valtype → Prop where
   | refl (t : valtype) : Valtype_sub t t
   | bot (t : valtype) : Valtype_sub valtype.BOT t
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:72.1-72.76 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:72.1-72.76 -/
 inductive Resulttype_sub : resulttype → resulttype → Prop where
   | mk_Resulttype_sub (t_1_lst : List valtype) (t_2_lst : List valtype) :
     (List.length t_1_lst) = (List.length t_2_lst) →
@@ -13406,7 +13406,7 @@ inductive Resulttype_sub : resulttype → resulttype → Prop where
     Resulttype_sub (.mk_list t_1_lst) (.mk_list t_2_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:87.1-87.75 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:87.1-87.75 -/
 inductive Limits_sub : limits → limits → Prop where
   | max (n_1 : n) (m_1 : m) (n_2 : n) (m_2_opt : Option m) :
     n_1 ≥ n_2 →
@@ -13421,17 +13421,17 @@ inductive Limits_sub : limits → limits → Prop where
     Limits_sub (limits.mk_limits (uN.mk_uN n_1) none) (limits.mk_limits (uN.mk_uN n_2) none)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:88.1-88.73 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:88.1-88.73 -/
 inductive Functype_sub : functype → functype → Prop where
   | mk_Functype_sub (ft : functype) : Functype_sub ft ft
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:89.1-89.75 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:89.1-89.75 -/
 inductive Globaltype_sub : globaltype → globaltype → Prop where
   | mk_Globaltype_sub (gt : globaltype) : Globaltype_sub gt gt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:90.1-90.74 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:90.1-90.74 -/
 inductive Tabletype_sub : tabletype → tabletype → Prop where
   | mk_Tabletype_sub (lim_1 : limits) (rt : reftype) (lim_2 : limits) :
     Limits_sub lim_1 lim_2 →
@@ -13440,7 +13440,7 @@ inductive Tabletype_sub : tabletype → tabletype → Prop where
     Tabletype_sub (tabletype.mk_tabletype lim_1 rt) (tabletype.mk_tabletype lim_2 rt)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:91.1-91.72 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:91.1-91.72 -/
 inductive Memtype_sub : memtype → memtype → Prop where
   | mk_Memtype_sub (lim_1 : limits) (lim_2 : limits) :
     Limits_sub lim_1 lim_2 →
@@ -13449,7 +13449,7 @@ inductive Memtype_sub : memtype → memtype → Prop where
     Memtype_sub (memtype.PAGE lim_1) (memtype.PAGE lim_2)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:92.1-92.75 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:92.1-92.75 -/
 inductive Externtype_sub : externtype → externtype → Prop where
   | func (ft_1 : functype) (ft_2 : functype) :
     Functype_sub ft_1 ft_2 →
@@ -13473,7 +13473,7 @@ inductive Externtype_sub : externtype → externtype → Prop where
     Externtype_sub (externtype.MEM mt_1) (externtype.MEM mt_2)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:202.1-202.76 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:202.1-202.76 -/
 inductive Blocktype_ok : context → blocktype → functype → Prop where
   | valtype (C : context) (valtype_opt : Option valtype) :
     wf_context C →
@@ -13488,7 +13488,7 @@ inductive Blocktype_ok : context → blocktype → functype → Prop where
 
 
 mutual
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:141.1-141.64 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:141.1-141.64 -/
 inductive Instr_ok : context → instr → functype → Prop where
   | nop (C : context) :
     wf_context C →
@@ -14003,7 +14003,7 @@ inductive Instr_ok : context → instr → functype → Prop where
     wf_instr (instr.VSTORE_LANE vectype.V128 (sz.mk_sz v_n) v_memarg v_laneidx) →
     Instr_ok C (instr.VSTORE_LANE vectype.V128 (sz.mk_sz v_n) v_memarg v_laneidx) (functype.mk_functype (.mk_list [valtype.I32, valtype.V128]) (.mk_list []))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:142.1-142.65 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:142.1-142.65 -/
 inductive Instrs_ok : context → List instr → functype → Prop where
   | empty (C : context) :
     wf_context C →
@@ -14036,7 +14036,7 @@ inductive Instrs_ok : context → List instr → functype → Prop where
 
 end
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:143.1-143.69 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:143.1-143.69 -/
 inductive Expr_ok : context → expr → resulttype → Prop where
   | mk_Expr_ok (C : context) (instr_lst : List instr) (t_lst : List valtype) :
     Instrs_ok C instr_lst (functype.mk_functype (.mk_list []) (.mk_list t_lst)) →
@@ -14045,7 +14045,7 @@ inductive Expr_ok : context → expr → resulttype → Prop where
     Expr_ok C instr_lst (.mk_list t_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:532.1-532.78 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:532.1-532.78 -/
 inductive Instr_const : context → instr → Prop where
   | const (C : context) (nt : numtype) (c : num_) :
     wf_context C →
@@ -14071,7 +14071,7 @@ inductive Instr_const : context → instr → Prop where
     Instr_const C (instr.GLOBAL_GET x)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:533.1-533.77 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:533.1-533.77 -/
 inductive Expr_const : context → expr → Prop where
   | mk_Expr_const (C : context) (instr_lst : List instr) :
     Forall (fun (v_instr_elem : instr) => Instr_const C v_instr_elem) instr_lst →
@@ -14080,7 +14080,7 @@ inductive Expr_const : context → expr → Prop where
     Expr_const C instr_lst
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:534.1-534.78 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:534.1-534.78 -/
 inductive Expr_ok_const : context → expr → valtype → Prop where
   | mk_Expr_ok_const (C : context) (v_expr : expr) (t : valtype) :
     Expr_ok C v_expr (.mk_list [t]) →
@@ -14090,14 +14090,14 @@ inductive Expr_ok_const : context → expr → valtype → Prop where
     Expr_ok_const C v_expr t
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:567.1-567.73 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:567.1-567.73 -/
 inductive Type_ok : type → functype → Prop where
   | mk_Type_ok (ft : functype) :
     Functype_ok ft →
     Type_ok (type.TYPE ft) ft
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:568.1-568.73 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:568.1-568.73 -/
 inductive Func_ok : context → func → functype → Prop where
   | mk_Func_ok (C : context) (x : idx) (t_lst : List valtype) (v_expr : expr) (t_1_lst : List valtype) (t_2_lst : List valtype) :
     (proj_uN_0 x) < (List.length (C.TYPES)) →
@@ -14132,7 +14132,7 @@ inductive Func_ok : context → func → functype → Prop where
     Func_ok C (func.FUNC x (Map (fun (t_elem : valtype) => local.LOCAL t_elem) t_lst) v_expr) (functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:569.1-569.75 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:569.1-569.75 -/
 inductive Global_ok : context → global → globaltype → Prop where
   | mk_Global_ok (C : context) (gt : globaltype) (v_expr : expr) (v_mut : «mut») (t : valtype) :
     Globaltype_ok gt →
@@ -14143,7 +14143,7 @@ inductive Global_ok : context → global → globaltype → Prop where
     Global_ok C (global.GLOBAL gt v_expr) gt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:570.1-570.74 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:570.1-570.74 -/
 inductive Table_ok : context → table → tabletype → Prop where
   | mk_Table_ok (C : context) (tt : tabletype) :
     Tabletype_ok tt →
@@ -14152,7 +14152,7 @@ inductive Table_ok : context → table → tabletype → Prop where
     Table_ok C (table.TABLE tt) tt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:571.1-571.72 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:571.1-571.72 -/
 inductive Mem_ok : context → mem → memtype → Prop where
   | mk_Mem_ok (C : context) (mt : memtype) :
     Memtype_ok mt →
@@ -14161,7 +14161,7 @@ inductive Mem_ok : context → mem → memtype → Prop where
     Mem_ok C (mem.MEMORY mt) mt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:574.1-574.77 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:574.1-574.77 -/
 inductive Elemmode_ok : context → elemmode → reftype → Prop where
   | active (C : context) (x : idx) (v_expr : expr) (rt : reftype) (lim : limits) :
     (proj_uN_0 x) < (List.length (C.TABLES)) →
@@ -14181,7 +14181,7 @@ inductive Elemmode_ok : context → elemmode → reftype → Prop where
     Elemmode_ok C elemmode.DECLARE rt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:572.1-572.73 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:572.1-572.73 -/
 inductive Elem_ok : context → elem → reftype → Prop where
   | mk_Elem_ok (C : context) (rt : reftype) (expr_lst : List expr) (v_elemmode : elemmode) :
     Forall (fun (v_expr_elem : expr) => Expr_ok_const C v_expr_elem (valtype_reftype rt)) expr_lst →
@@ -14191,7 +14191,7 @@ inductive Elem_ok : context → elem → reftype → Prop where
     Elem_ok C (elem.ELEM rt expr_lst v_elemmode) rt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:575.1-575.77 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:575.1-575.77 -/
 inductive Datamode_ok : context → datamode → Prop where
   | active (C : context) (v_expr : expr) (mt : memtype) :
     0 < (List.length (C.MEMS)) →
@@ -14207,7 +14207,7 @@ inductive Datamode_ok : context → datamode → Prop where
     Datamode_ok C datamode.PASSIVE
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:573.1-573.73 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:573.1-573.73 -/
 inductive Data_ok : context → data → Prop where
   | mk_Data_ok (C : context) (b_lst : List byte) (v_datamode : datamode) :
     Datamode_ok C v_datamode →
@@ -14216,7 +14216,7 @@ inductive Data_ok : context → data → Prop where
     Data_ok C (data.DATA b_lst v_datamode)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:576.1-576.74 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:576.1-576.74 -/
 inductive Start_ok : context → start → Prop where
   | mk_Start_ok (C : context) (x : idx) :
     (proj_uN_0 x) < (List.length (C.FUNCS)) →
@@ -14226,7 +14226,7 @@ inductive Start_ok : context → start → Prop where
     Start_ok C (start.START x)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:640.1-640.80 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:640.1-640.80 -/
 inductive Import_ok : context → «import» → externtype → Prop where
   | mk_Import_ok (C : context) (name_1 : name) (name_2 : name) (xt : externtype) :
     Externtype_ok xt →
@@ -14235,7 +14235,7 @@ inductive Import_ok : context → «import» → externtype → Prop where
     Import_ok C (import.IMPORT name_1 name_2 xt) xt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:642.1-642.83 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:642.1-642.83 -/
 inductive Externidx_ok : context → externidx → externtype → Prop where
   | func (C : context) (x : idx) (ft : functype) :
     (proj_uN_0 x) < (List.length (C.FUNCS)) →
@@ -14267,7 +14267,7 @@ inductive Externidx_ok : context → externidx → externtype → Prop where
     Externidx_ok C (externidx.MEM x) (externtype.MEM mt)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:641.1-641.80 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:641.1-641.80 -/
 inductive Export_ok : context → «export» → externtype → Prop where
   | mk_Export_ok (C : context) (v_name : name) (v_externidx : externidx) (xt : externtype) :
     Externidx_ok C v_externidx xt →
@@ -14277,7 +14277,7 @@ inductive Export_ok : context → «export» → externtype → Prop where
     Export_ok C (export.EXPORT v_name v_externidx) xt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/6-typing.spectec:672.1-672.62 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/6-typing.spectec:672.1-672.62 -/
 inductive Module_ok : module → Prop where
   | mk_Module_ok (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (v_n : n) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») (ft'_lst : List functype) (ixt_lst : List externtype) (C' : context) (gt_lst : List globaltype) (tt_lst : List tabletype) (mt_lst : List memtype) (rt_lst : List reftype) (C : context) (ft_lst : List functype) (xt_lst : List externtype) (ift_lst : List functype) (igt_lst : List globaltype) (itt_lst : List tabletype) (imt_lst : List memtype) (var_3 : List memtype) (var_2 : List tabletype) (var_1 : List globaltype) (var_0 : List functype) :
     fun_memsxt ixt_lst var_3 →
@@ -14389,14 +14389,14 @@ inductive Module_ok : module → Prop where
     Module_ok (module.MODULE type_lst import_lst func_lst global_lst table_lst mem_lst elem_lst data_lst start_opt export_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:224.1-226.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:224.1-226.15 -/
 inductive Step_pure_before_ref_is_null_false : List admininstr → Prop where
   | ref_is_null_true_0 (v_ref : ref) (rt : reftype) :
     v_ref = (ref.REF_NULL rt) →
     Step_pure_before_ref_is_null_false [admininstr_ref v_ref, admininstr.REF_IS_NULL]
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:276.1-278.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:276.1-278.15 -/
 inductive Step_pure_before_vtestop_false : List admininstr → Prop where
   | vtestop_true_0 (c : vec_) (v_Jnn : Jnn) (v_N : N) (ci_1_lst : List lane_) :
     ci_1_lst = (lanes_ (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N)) c) →
@@ -14407,7 +14407,7 @@ inductive Step_pure_before_vtestop_false : List admininstr → Prop where
     Step_pure_before_vtestop_false [admininstr.VCONST vectype.V128 c, admininstr.VTESTOP (shape.X (lanetype_Jnn v_Jnn) (dim.mk_dim v_N)) (vtestop_.mk_vtestop__0 v_Jnn v_N vtestop_Jnn_N.ALL_TRUE)]
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.1-6.109 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:6.1-6.109 -/
 inductive Step_pure : List admininstr → List admininstr → Prop where
   | unreachable : Step_pure [admininstr.UNREACHABLE] [admininstr.TRAP]
   | nop : Step_pure [admininstr.NOP] []
@@ -14710,7 +14710,7 @@ theorem iswf_admininstr_VCONST_inv {c : vec_} (h : wf_admininstr (admininstr.VCO
     wf_uN 128 c := by
   cases h with | admininstr_case_19 _ _ _ hw => exact hw
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/8-reduction.spectec:6.10-6.19 -/
 theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
   Forall (fun (var_0_elem : admininstr) => wf_admininstr var_0_elem) var_0 →
   Step_pure var_0 var_1 →
@@ -14957,7 +14957,7 @@ theorem Step_pure_is_wf (var_0 : List admininstr) (var_1 : List admininstr) :
     obtain ⟨hv, ⟨⟩, -⟩ := hall
     exact iswf_Forall_cons hv (iswf_Forall_cons hv (iswf_Forall_singleton (.admininstr_case_43 _ ‹wf_uN 32 x›)))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:63.6-63.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:63.6-63.16 -/
 inductive fun_blocktype : state → blocktype → functype → Prop where
   | fun_blocktype_case_0 (z : state) : fun_blocktype z (blocktype._RESULT none) (functype.mk_functype (.mk_list []) (.mk_list []))
   | fun_blocktype_case_1 (z : state) (t : valtype) : fun_blocktype z (blocktype._RESULT (some t)) (functype.mk_functype (.mk_list []) (.mk_list [t]))
@@ -14966,7 +14966,7 @@ inductive fun_blocktype : state → blocktype → functype → Prop where
     fun_blocktype z (blocktype._IDX x) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:127.1-129.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:127.1-129.15 -/
 inductive Step_read_before_call_indirect_trap : config → Prop where
   | call_indirect_call_0 (z : state) (i : num_) (x : idx) (y : idx) (a : addr) (var_1 : functype) (var_0 : tableinst) :
     fun_type z y var_1 →
@@ -14979,7 +14979,7 @@ inductive Step_read_before_call_indirect_trap : config → Prop where
     Step_read_before_call_indirect_trap (config.mk_config z [admininstr.CONST numtype.I32 i, admininstr.CALL_INDIRECT x y])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:419.1-422.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:419.1-422.14 -/
 inductive Step_read_before_table_fill_zero : config → Prop where
   | table_fill_trap_0 (z : state) (i : num_) (v_val : val) (v_n : n) (x : idx) (var_0 : tableinst) :
     fun_table z x var_0 →
@@ -14988,7 +14988,7 @@ inductive Step_read_before_table_fill_zero : config → Prop where
     Step_read_before_table_fill_zero (config.mk_config z [admininstr.CONST numtype.I32 i, admininstr_val v_val, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_FILL x])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:435.1-438.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:435.1-438.14 -/
 inductive Step_read_before_table_copy_zero : config → Prop where
   | table_copy_trap_0 (z : state) (j : num_) (i : num_) (v_n : n) (x : idx) (y : idx) (var_1 : tableinst) (var_0 : tableinst) :
     fun_table z x var_1 →
@@ -14999,7 +14999,7 @@ inductive Step_read_before_table_copy_zero : config → Prop where
     Step_read_before_table_copy_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_COPY x y])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:440.1-445.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:440.1-445.15 -/
 inductive Step_read_before_table_copy_le : config → Prop where
   | table_copy_zero_0 (z : state) (j : num_) (i : num_) (v_n : n) (x : idx) (y : idx) :
     ¬ Step_read_before_table_copy_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_COPY x y]) →
@@ -15014,7 +15014,7 @@ inductive Step_read_before_table_copy_le : config → Prop where
     Step_read_before_table_copy_le (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_COPY x y])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:458.1-461.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:458.1-461.14 -/
 inductive Step_read_before_table_init_zero : config → Prop where
   | table_init_trap_0 (z : state) (j : num_) (i : num_) (v_n : n) (x : idx) (y : idx) (var_1 : tableinst) (var_0 : eleminst) :
     fun_table z x var_1 →
@@ -15025,7 +15025,7 @@ inductive Step_read_before_table_init_zero : config → Prop where
     Step_read_before_table_init_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.TABLE_INIT x y])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:599.1-602.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:599.1-602.14 -/
 inductive Step_read_before_memory_fill_zero : config → Prop where
   | memory_fill_trap_0 (z : state) (i : num_) (v_val : val) (v_n : n) (var_0 : meminst) :
     fun_mem z (uN.mk_uN 0) var_0 →
@@ -15035,7 +15035,7 @@ inductive Step_read_before_memory_fill_zero : config → Prop where
     Step_read_before_memory_fill_zero (config.mk_config z [admininstr.CONST numtype.I32 i, admininstr_val v_val, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_FILL])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:615.1-618.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:615.1-618.14 -/
 inductive Step_read_before_memory_copy_zero : config → Prop where
   | memory_copy_trap_0 (z : state) (j : num_) (i : num_) (v_n : n) (var_0 : meminst) :
     fun_mem z (uN.mk_uN 0) var_0 →
@@ -15046,7 +15046,7 @@ inductive Step_read_before_memory_copy_zero : config → Prop where
     Step_read_before_memory_copy_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_COPY])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:620.1-625.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:620.1-625.15 -/
 inductive Step_read_before_memory_copy_le : config → Prop where
   | memory_copy_zero_0 (z : state) (j : num_) (i : num_) (v_n : n) :
     ¬ Step_read_before_memory_copy_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_COPY]) →
@@ -15061,7 +15061,7 @@ inductive Step_read_before_memory_copy_le : config → Prop where
     Step_read_before_memory_copy_le (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_COPY])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:638.1-641.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:638.1-641.14 -/
 inductive Step_read_before_memory_init_zero : config → Prop where
   | memory_init_trap_0 (z : state) (j : num_) (i : num_) (v_n : n) (x : idx) (var_1 : meminst) (var_0 : datainst) :
     fun_mem z (uN.mk_uN 0) var_1 →
@@ -15073,7 +15073,7 @@ inductive Step_read_before_memory_init_zero : config → Prop where
     Step_read_before_memory_init_zero (config.mk_config z [admininstr.CONST numtype.I32 j, admininstr.CONST numtype.I32 i, admininstr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), admininstr.MEMORY_INIT x])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.1-7.109 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:7.1-7.109 -/
 inductive Step_read : config → List admininstr → Prop where
   | block (z : state) (k : Nat) (val_lst : List val) (bt : blocktype) (instr_lst : List instr) (v_n : n) (t_1_lst : List valtype) (t_2_lst : List valtype) (var_0 : functype) :
     fun_blocktype z bt var_0 →
@@ -15425,7 +15425,7 @@ inductive Step_read : config → List admininstr → Prop where
 
 /- AUTOGENERATED Step_read_is_wf MOVED BELOW BECAUSE IT NEEDS Store_ok, WHICH IS BELOW -/
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:5.1-5.109 -/
 inductive Step : config → config → Prop where
   | pure (z : state) (admininstr_lst : List admininstr) (admininstr'_lst : List admininstr) :
     Step_pure admininstr_lst admininstr'_lst →
@@ -15551,7 +15551,7 @@ inductive Step : config → config → Prop where
 
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:8.1-8.77 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:8.1-8.77 -/
 inductive Steps : config → config → Prop where
   | refl (z : state) (admininstr_lst : List admininstr) :
     wf_config (config.mk_config z admininstr_lst) →
@@ -15565,7 +15565,7 @@ inductive Steps : config → config → Prop where
     Steps (config.mk_config z admininstr_lst) (config.mk_config z'' admininstr''_lst)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/8-reduction.spectec:29.1-29.83 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:29.1-29.83 -/
 inductive Eval_expr : state → expr → state → List val → Prop where
   | mk_Eval_expr (z : state) (instr_lst : List instr) (z' : state) (val_lst : List val) :
     Steps (config.mk_config z (Map (fun (v_instr_elem : instr) => admininstr_instr v_instr_elem) instr_lst)) (config.mk_config z' (Map (fun (v_val_elem : val) => admininstr_val v_val_elem) val_lst)) →
@@ -15574,7 +15574,7 @@ inductive Eval_expr : state → expr → state → List val → Prop where
     Eval_expr z instr_lst z' val_lst
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:5.6-5.12 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:5.6-5.12 -/
 inductive fun_funcs : List externaddr → List funcaddr → Prop where
   | fun_funcs_case_0 : fun_funcs [] []
   | fun_funcs_case_1 (fa : Nat) (externaddr'_lst : List externaddr) (var_0 : List funcaddr) :
@@ -15585,7 +15585,7 @@ inductive fun_funcs : List externaddr → List funcaddr → Prop where
     fun_funcs ([v_externaddr] ++ externaddr'_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:11.6-11.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:11.6-11.14 -/
 inductive fun_globals : List externaddr → List globaladdr → Prop where
   | fun_globals_case_0 : fun_globals [] []
   | fun_globals_case_1 (ga : Nat) (externaddr'_lst : List externaddr) (var_0 : List globaladdr) :
@@ -15596,7 +15596,7 @@ inductive fun_globals : List externaddr → List globaladdr → Prop where
     fun_globals ([v_externaddr] ++ externaddr'_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:17.6-17.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:17.6-17.13 -/
 inductive fun_tables : List externaddr → List tableaddr → Prop where
   | fun_tables_case_0 : fun_tables [] []
   | fun_tables_case_1 (ta : Nat) (externaddr'_lst : List externaddr) (var_0 : List tableaddr) :
@@ -15607,7 +15607,7 @@ inductive fun_tables : List externaddr → List tableaddr → Prop where
     fun_tables ([v_externaddr] ++ externaddr'_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:23.6-23.11 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:23.6-23.11 -/
 inductive fun_mems : List externaddr → List memaddr → Prop where
   | fun_mems_case_0 : fun_mems [] []
   | fun_mems_case_1 (ma : Nat) (externaddr'_lst : List externaddr) (var_0 : List memaddr) :
@@ -15618,7 +15618,7 @@ inductive fun_mems : List externaddr → List memaddr → Prop where
     fun_mems ([v_externaddr] ++ externaddr'_lst) var_0
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:36.6-36.16 -/
 inductive fun_allocfunc : store → moduleinst → func → store × funcaddr → Prop where
   | fun_allocfunc_case_0 (s : store) (v_moduleinst : moduleinst) (v_func : func) (fi : funcinst) (x : uN) (local_lst : List «local») (v_expr : List instr) :
     (proj_uN_0 x) < (List.length (v_moduleinst.TYPES)) →
@@ -15640,7 +15640,7 @@ inductive fun_allocfunc : store → moduleinst → func → store × funcaddr �
     }, List.length (s.FUNCS)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:36.6-36.16 -/
 theorem allocfunc_is_wf (v_store : store) (v_moduleinst : moduleinst) (v_func : func) (ret_val : store × funcaddr) (var_0 : store × funcaddr) :
   fun_allocfunc v_store v_moduleinst v_func var_0 →
   wf_store v_store →
@@ -15656,7 +15656,7 @@ theorem allocfunc_is_wf (v_store : store) (v_moduleinst : moduleinst) (v_func : 
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:41.6-41.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:41.6-41.17 -/
 inductive fun_allocfuncs : store → moduleinst → List func → store × List funcaddr → Prop where
   | fun_allocfuncs_case_0 (s : store) (v_moduleinst : moduleinst) : fun_allocfuncs s v_moduleinst [] ((s, []))
   | fun_allocfuncs_case_1 (s : store) (v_moduleinst : moduleinst) (v_func : func) (func'_lst : List func) (fa : funcaddr) (s_1 : store) (s_2 : store) (fa'_lst : List funcaddr) (var_1 : store × List funcaddr) (var_0 : store × funcaddr) :
@@ -15667,7 +15667,7 @@ inductive fun_allocfuncs : store → moduleinst → List func → store × List 
     fun_allocfuncs s v_moduleinst ([v_func] ++ func'_lst) ((s_2, [fa] ++ fa'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:41.6-41.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:41.6-41.17 -/
 theorem allocfuncs_is_wf (v_store : store) (v_moduleinst : moduleinst) (var_0_lst : List func) (ret_val : store × List funcaddr) (var_0 : store × List funcaddr) :
   fun_allocfuncs v_store v_moduleinst var_0_lst var_0 →
   wf_store v_store →
@@ -15682,7 +15682,7 @@ theorem allocfuncs_is_wf (v_store : store) (v_moduleinst : moduleinst) (var_0_ls
     subst p3 p4
     exact ih (allocfunc_is_wf _ _ _ _ _ p2 hs hm (hall _ (by simp)) rfl) hm (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:47.6-47.18 -/
 inductive fun_allocglobal : store → globaltype → val → store × globaladdr → Prop where
   | fun_allocglobal_case_0 (s : store) (v_globaltype : globaltype) (v_val : val) (gi : globalinst) :
     gi = ({
@@ -15699,7 +15699,7 @@ inductive fun_allocglobal : store → globaltype → val → store × globaladdr
     }, List.length (s.GLOBALS)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:47.6-47.18 -/
 theorem allocglobal_is_wf (v_store : store) (v_globaltype : globaltype) (v_val : val) (ret_val : store × globaladdr) (var_0 : store × globaladdr) :
   fun_allocglobal v_store v_globaltype v_val var_0 →
   wf_store v_store →
@@ -15714,7 +15714,7 @@ theorem allocglobal_is_wf (v_store : store) (v_globaltype : globaltype) (v_val :
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:51.6-51.19 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:51.6-51.19 -/
 inductive fun_allocglobals : store → List globaltype → List val → store × List globaladdr → Prop where
   | fun_allocglobals_case_0 (s : store) : fun_allocglobals s [] [] ((s, []))
   | fun_allocglobals_case_1 (s : store) (v_globaltype : globaltype) (globaltype'_lst : List globaltype) (v_val : val) (val'_lst : List val) (ga : globaladdr) (s_1 : store) (s_2 : store) (ga'_lst : List globaladdr) (var_1 : store × List globaladdr) (var_0 : store × globaladdr) :
@@ -15725,7 +15725,7 @@ inductive fun_allocglobals : store → List globaltype → List val → store ×
     fun_allocglobals s ([v_globaltype] ++ globaltype'_lst) ([v_val] ++ val'_lst) ((s_2, [ga] ++ ga'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:51.6-51.19 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:51.6-51.19 -/
 theorem allocglobals_is_wf (v_store : store) (var_0_lst : List globaltype) (var_1_lst : List val) (ret_val : store × List globaladdr) (var_0 : store × List globaladdr) :
   fun_allocglobals v_store var_0_lst var_1_lst var_0 →
   wf_store v_store →
@@ -15739,7 +15739,7 @@ theorem allocglobals_is_wf (v_store : store) (var_0_lst : List globaltype) (var_
     subst p3 p4
     exact ih (allocglobal_is_wf _ _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:57.6-57.17 -/
 inductive fun_alloctable : store → tabletype → store × tableaddr → Prop where
   | fun_alloctable_case_0 (s : store) (i : uN) (j_opt : Option u32) (rt : reftype) (ti : tableinst) :
     ti = ({
@@ -15756,7 +15756,7 @@ inductive fun_alloctable : store → tabletype → store × tableaddr → Prop w
     }, List.length (s.TABLES)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:57.6-57.17 -/
 theorem alloctable_is_wf (v_store : store) (v_tabletype : tabletype) (ret_val : store × tableaddr) (var_0 : store × tableaddr) :
   fun_alloctable v_store v_tabletype var_0 →
   wf_store v_store →
@@ -15771,7 +15771,7 @@ theorem alloctable_is_wf (v_store : store) (v_tabletype : tabletype) (ret_val : 
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:61.6-61.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:61.6-61.18 -/
 inductive fun_alloctables : store → List tabletype → store × List tableaddr → Prop where
   | fun_alloctables_case_0 (s : store) : fun_alloctables s [] ((s, []))
   | fun_alloctables_case_1 (s : store) (v_tabletype : tabletype) (tabletype'_lst : List tabletype) (ta : tableaddr) (s_1 : store) (s_2 : store) (ta'_lst : List tableaddr) (var_1 : store × List tableaddr) (var_0 : store × tableaddr) :
@@ -15782,7 +15782,7 @@ inductive fun_alloctables : store → List tabletype → store × List tableaddr
     fun_alloctables s ([v_tabletype] ++ tabletype'_lst) ((s_2, [ta] ++ ta'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:61.6-61.18 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:61.6-61.18 -/
 theorem alloctables_is_wf (v_store : store) (var_0_lst : List tabletype) (ret_val : store × List tableaddr) (var_0 : store × List tableaddr) :
   fun_alloctables v_store var_0_lst var_0 →
   wf_store v_store →
@@ -15796,7 +15796,7 @@ theorem alloctables_is_wf (v_store : store) (var_0_lst : List tabletype) (ret_va
     subst p3 p4
     exact ih (alloctable_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:67.6-67.15 -/
 inductive fun_allocmem : store → memtype → store × memaddr → Prop where
   | fun_allocmem_case_0 (s : store) (i : uN) (j_opt : Option u32) (mi : meminst) :
     mi = ({
@@ -15813,7 +15813,7 @@ inductive fun_allocmem : store → memtype → store × memaddr → Prop where
     }, List.length (s.MEMS)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:67.6-67.15 -/
 theorem allocmem_is_wf (v_store : store) (v_memtype : memtype) (ret_val : store × memaddr) (var_0 : store × memaddr) :
   fun_allocmem v_store v_memtype var_0 →
   wf_store v_store →
@@ -15828,7 +15828,7 @@ theorem allocmem_is_wf (v_store : store) (v_memtype : memtype) (ret_val : store 
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:71.6-71.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:71.6-71.16 -/
 inductive fun_allocmems : store → List memtype → store × List memaddr → Prop where
   | fun_allocmems_case_0 (s : store) : fun_allocmems s [] ((s, []))
   | fun_allocmems_case_1 (s : store) (v_memtype : memtype) (memtype'_lst : List memtype) (ma : memaddr) (s_1 : store) (s_2 : store) (ma'_lst : List memaddr) (var_1 : store × List memaddr) (var_0 : store × memaddr) :
@@ -15839,7 +15839,7 @@ inductive fun_allocmems : store → List memtype → store × List memaddr → P
     fun_allocmems s ([v_memtype] ++ memtype'_lst) ((s_2, [ma] ++ ma'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:71.6-71.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:71.6-71.16 -/
 theorem allocmems_is_wf (v_store : store) (var_0_lst : List memtype) (ret_val : store × List memaddr) (var_0 : store × List memaddr) :
   fun_allocmems v_store var_0_lst var_0 →
   wf_store v_store →
@@ -15853,7 +15853,7 @@ theorem allocmems_is_wf (v_store : store) (var_0_lst : List memtype) (ret_val : 
     subst p3 p4
     exact ih (allocmem_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:77.6-77.16 -/
 inductive fun_allocelem : store → reftype → List ref → store × elemaddr → Prop where
   | fun_allocelem_case_0 (s : store) (rt : reftype) (ref_lst : List ref) (ei : eleminst) :
     ei = ({
@@ -15866,7 +15866,7 @@ inductive fun_allocelem : store → reftype → List ref → store × elemaddr �
     }, List.length (s.ELEMS)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:77.6-77.16 -/
 theorem allocelem_is_wf (v_store : store) (v_reftype : reftype) (var_0_lst : List ref) (ret_val : store × elemaddr) (var_0 : store × elemaddr) :
   fun_allocelem v_store v_reftype var_0_lst var_0 →
   wf_store v_store →
@@ -15880,7 +15880,7 @@ theorem allocelem_is_wf (v_store : store) (v_reftype : reftype) (var_0_lst : Lis
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:81.6-81.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:81.6-81.17 -/
 inductive fun_allocelems : store → List reftype → List (List ref) → store × List elemaddr → Prop where
   | fun_allocelems_case_0 (s : store) : fun_allocelems s [] [] ((s, []))
   | fun_allocelems_case_1 (s : store) (rt : reftype) (rt'_lst : List reftype) (ref_lst : List ref) (ref'_lst_lst : List (List ref)) (ea : elemaddr) (s_1 : store) (s_2 : store) (ea'_lst : List elemaddr) (var_1 : store × List elemaddr) (var_0 : store × elemaddr) :
@@ -15891,7 +15891,7 @@ inductive fun_allocelems : store → List reftype → List (List ref) → store 
     fun_allocelems s ([rt] ++ rt'_lst) ([ref_lst] ++ ref'_lst_lst) ((s_2, [ea] ++ ea'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:81.6-81.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:81.6-81.17 -/
 theorem allocelems_is_wf (v_store : store) (var_0_lst : List reftype) (var_1_lst_lst : List (List ref)) (ret_val : store × List elemaddr) (var_0 : store × List elemaddr) :
   fun_allocelems v_store var_0_lst var_1_lst_lst var_0 →
   wf_store v_store →
@@ -15904,7 +15904,7 @@ theorem allocelems_is_wf (v_store : store) (var_0_lst : List reftype) (var_1_lst
     subst p3 p4
     exact ih (allocelem_is_wf _ _ _ _ _ p2 hs rfl)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:87.6-87.16 -/
 inductive fun_allocdata : store → List byte → store × dataaddr → Prop where
   | fun_allocdata_case_0 (s : store) (byte_lst : List byte) (di : datainst) :
     di = ({
@@ -15919,7 +15919,7 @@ inductive fun_allocdata : store → List byte → store × dataaddr → Prop whe
     }, List.length (s.DATAS)))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:87.6-87.16 -/
 theorem allocdata_is_wf (v_store : store) (var_0_lst : List byte) (ret_val : store × dataaddr) (var_0 : store × dataaddr) :
   fun_allocdata v_store var_0_lst var_0 →
   wf_store v_store →
@@ -15934,7 +15934,7 @@ theorem allocdata_is_wf (v_store : store) (var_0_lst : List byte) (ret_val : sto
     | assumption
     | exact iswf_Forall_append ‹_› (iswf_Forall_cons ‹_› (iswf_Forall_nil _))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:91.6-91.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:91.6-91.17 -/
 inductive fun_allocdatas : store → List (List byte) → store × List dataaddr → Prop where
   | fun_allocdatas_case_0 (s : store) : fun_allocdatas s [] ((s, []))
   | fun_allocdatas_case_1 (s : store) (byte_lst : List byte) (byte'_lst_lst : List (List byte)) (da : dataaddr) (s_1 : store) (s_2 : store) (da'_lst : List dataaddr) (var_1 : store × List dataaddr) (var_0 : store × dataaddr) :
@@ -15945,7 +15945,7 @@ inductive fun_allocdatas : store → List (List byte) → store × List dataaddr
     fun_allocdatas s ([byte_lst] ++ byte'_lst_lst) ((s_2, [da] ++ da'_lst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:91.6-91.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:91.6-91.17 -/
 theorem allocdatas_is_wf (v_store : store) (var_0_lst_lst : List (List byte)) (ret_val : store × List dataaddr) (var_0 : store × List dataaddr) :
   fun_allocdatas v_store var_0_lst_lst var_0 →
   wf_store v_store →
@@ -15959,7 +15959,7 @@ theorem allocdatas_is_wf (v_store : store) (var_0_lst_lst : List (List byte)) (r
     subst p3 p4
     exact ih (allocdata_is_wf _ _ _ _ p2 hs (hall _ (by simp)) rfl) (fun x hx => hall x (by simp [hx]))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:100.6-100.17 -/
 inductive fun_instexport : List funcaddr → List globaladdr → List tableaddr → List memaddr → «export» → exportinst → Prop where
   | fun_instexport_case_0 (fa_lst : List funcaddr) (ga_lst : List globaladdr) (ta_lst : List tableaddr) (ma_lst : List memaddr) (v_name : name) (x : uN) :
     (proj_uN_0 x) < (List.length fa_lst) →
@@ -15987,7 +15987,7 @@ inductive fun_instexport : List funcaddr → List globaladdr → List tableaddr 
     })
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:100.6-100.17 -/
 theorem instexport_is_wf (var_0_lst : List funcaddr) (var_1_lst : List globaladdr) (var_2_lst : List tableaddr) (var_3_lst : List memaddr) (v_export : «export») (ret_val : exportinst) (var_0 : exportinst) :
   fun_instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export var_0 →
   wf_export v_export →
@@ -15996,7 +15996,7 @@ theorem instexport_is_wf (var_0_lst : List funcaddr) (var_1_lst : List globaladd
   rintro h ⟨nm, xi, hn, -⟩ rfl
   cases h <;> exact wf_exportinst.exportinst_case_ _ _ hn
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:107.6-107.18 -/
 inductive fun_allocmodule : store → module → List externaddr → List val → List (List ref) → store × moduleinst → Prop where
   | fun_allocmodule_case_0 (s : store) (v_module : module) (externaddr_lst : List externaddr) (val_lst : List val) (ref_lst_lst : List (List ref)) (s_6 : store) (v_moduleinst : moduleinst) (ft_lst : List functype) (import_lst : List «import») (n_func : Nat) (func_lst : List func) (n_global : Nat) (expr_1_lst : List expr) (globaltype_lst : List globaltype) (n_table : Nat) (tabletype_lst : List tabletype) (n_mem : Nat) (memtype_lst : List memtype) (n_elem : Nat) (elemmode_lst : List elemmode) (expr_2_lst_lst : List (List expr)) (rt_lst : List reftype) (n_data : Nat) (byte_lst_lst : List (List byte)) (datamode_lst : List datamode) (start_opt : Option start) (export_lst : List «export») (s_1 : store) (s_2 : store) (s_3 : store) (s_4 : store) (s_5 : store) (fa_ex_lst : List funcaddr) (ga_ex_lst : List globaladdr) (ta_ex_lst : List tableaddr) (ma_ex_lst : List memaddr) (fa_lst : List funcaddr) (ga_lst : List globaladdr) (ta_lst : List tableaddr) (ma_lst : List memaddr) (ea_lst : List elemaddr) (da_lst : List dataaddr) (xi_lst : List exportinst) (var_10 : store × List dataaddr) (var_9 : store × List elemaddr) (var_8 : store × List memaddr) (var_7 : store × List tableaddr) (var_6 : store × List globaladdr) (var_5 : store × List funcaddr) (var_4_lst : List exportinst) (var_3 : List memaddr) (var_2 : List tableaddr) (var_1 : List globaladdr) (var_0 : List funcaddr) :
     fun_allocdatas s_5 byte_lst_lst var_10 →
@@ -16058,7 +16058,7 @@ inductive fun_allocmodule : store → module → List externaddr → List val �
     fun_allocmodule s v_module externaddr_lst val_lst ref_lst_lst ((s_6, v_moduleinst))
 
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:107.6-107.18 -/
 theorem allocmodule_is_wf (v_store : store) (v_module : module) (var_0_lst : List externaddr) (var_1_lst : List val) (var_2_lst_lst : List (List ref)) (ret_val : store × moduleinst) (var_0 : store × moduleinst) :
   fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0 →
   wf_store v_store →
@@ -16072,7 +16072,7 @@ theorem allocmodule_is_wf (v_store : store) (v_module : module) (var_0_lst : Lis
   subst_vars
   assumption
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:154.6-154.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:154.6-154.14 -/
 inductive fun_runelem : elem → idx → List instr → Prop where
   | fun_runelem_case_0 (v_reftype : reftype) (expr_lst : List expr) (i : uN) : fun_runelem (elem.ELEM v_reftype expr_lst elemmode.PASSIVE) i []
   | fun_runelem_case_1 (v_reftype : reftype) (expr_lst : List expr) (i : uN) :
@@ -16087,7 +16087,7 @@ inductive fun_runelem : elem → idx → List instr → Prop where
     fun_runelem (elem.ELEM v_reftype expr_lst (elemmode.ACTIVE x instr_lst)) i (instr_lst ++ [instr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN 0)), instr.CONST numtype.I32 (num_.mk_num__0 Inn.I32 (uN.mk_uN v_n)), instr.TABLE_INIT x i, instr.ELEM_DROP i])
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:161.6-161.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:161.6-161.14 -/
 inductive fun_rundata_before_fun_rundata_case_2 : data → idx → Prop where
   | fun_rundata_case_1 (byte_lst : List byte) (instr_lst : List instr) (i : uN) (v_n : n) :
     v_n = (List.length byte_lst) →
@@ -16099,7 +16099,7 @@ inductive fun_rundata_before_fun_rundata_case_2 : data → idx → Prop where
   | fun_rundata_case_0 (byte_lst : List byte) (i : uN) : fun_rundata_before_fun_rundata_case_2 (data.DATA byte_lst datamode.PASSIVE) i
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:161.6-161.14 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:161.6-161.14 -/
 inductive fun_rundata : data → idx → Option (List instr) → Prop where
   | fun_rundata_case_0 (byte_lst : List byte) (i : uN) : fun_rundata (data.DATA byte_lst datamode.PASSIVE) i (some [])
   | fun_rundata_case_1 (byte_lst : List byte) (instr_lst : List instr) (i : uN) (v_n : n) :
@@ -16114,7 +16114,7 @@ inductive fun_rundata : data → idx → Option (List instr) → Prop where
     fun_rundata x0 x1 none
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:167.6-167.18 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:167.6-167.18 -/
 inductive fun_instantiate : store → module → List externaddr → config → Prop where
   | fun_instantiate_case_0 (s : store) (v_module : module) (externaddr_lst : List externaddr) (f : frame) (x_opt : Option idx) (functype_lst : List functype) (expr_G_lst : List expr) (globaltype_lst : List globaltype) (elemmode_lst : List elemmode) (expr_E_lst_lst : List (List expr)) (reftype_lst : List reftype) (moduleinst_init : moduleinst) (f_init : frame) (val_lst : List val) (ref_lst_lst : List (List ref)) (i : Nat) (j : Nat) (type_lst : List type) (import_lst : List «import») (func_lst : List func) (global_lst : List global) (table_lst : List table) (mem_lst : List mem) (elem_lst : List elem) (data_lst : List data) (start_opt : Option start) (export_lst : List «export») (n_F : n) (n_E : n) (n_D : n) (z : state) (s' : store) (v_moduleinst : moduleinst) (instr_E_lst : List instr) (instr_D_lst : List instr) (var_12 : List globaladdr) (var_11 : List funcaddr) (var_10_lst : List (Option (List instr))) (var_9_lst : List (Option (List instr))) (var_8_lst : List (List instr)) (var_7_lst : List (List instr)) (var_6 : store × moduleinst) (var_5 : store × moduleinst) (var_4_lst : List (Option (List instr))) (var_3_lst : List (List instr)) (var_2 : store × moduleinst) (var_1 : List globaladdr) (var_0 : List funcaddr) :
     fun_globals externaddr_lst var_12 →
@@ -16211,7 +16211,7 @@ inductive fun_instantiate : store → module → List externaddr → config → 
     fun_instantiate s v_module externaddr_lst (config.mk_config (state.mk_state s' f) ((Map (fun (instr_E_elem : instr) => admininstr_instr instr_E_elem) instr_E_lst) ++ ((Map (fun (instr_D_elem : instr) => admininstr_instr instr_D_elem) instr_D_lst) ++ (Option.toList (OMap (fun (x_elem : idx) => admininstr.CALL x_elem) x_opt)))))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/9-module.spectec:196.6-196.13 -/
 inductive fun_invoke : store → funcaddr → List val → config → Prop where
   | fun_invoke_case_0 (s : store) (fa : Nat) (v_n : Nat) (val_lst : List val) (f : frame) (t_1_lst : List valtype) (t_2_lst : List valtype) :
     f = ({
@@ -16251,7 +16251,7 @@ inductive fun_invoke : store → funcaddr → List val → config → Prop where
 theorem iswf_admininstr_val {v : val} (h : wf_val v) : wf_admininstr (admininstr_val v) := by
   cases h <;> constructor <;> assumption
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/9-module.spectec:196.6-196.13 -/
 theorem invoke_is_wf (v_store : store) (v_funcaddr : funcaddr) (var_0_lst : List val) (ret_val : config) (var_0 : config) :
   fun_invoke v_store v_funcaddr var_0_lst var_0 →
   wf_store v_store →
@@ -16265,16 +16265,16 @@ theorem invoke_is_wf (v_store : store) (v_funcaddr : funcaddr) (var_0_lst : List
     (iswf_Forall_append (iswf_Forall_map _ _ hall (fun _ hv => iswf_admininstr_val hv))
       (iswf_Forall_cons (by constructor) (iswf_Forall_nil _)))
 
-/- Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:849.1-849.43 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/A-binary.spectec:849.1-849.43 -/
 abbrev startopt : Type := List start
 
-/- Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:884.1-884.29 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/A-binary.spectec:884.1-884.29 -/
 abbrev code : Type := List «local» × expr
 
-/- Type Alias Definition at: ../specification/wasm-2.0/A-binary.spectec:915.1-915.33 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/A-binary.spectec:915.1-915.33 -/
 abbrev nopt : Type := List u32
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:3.1-3.61 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:3.1-3.61 -/
 inductive Context_ok : context → Prop where
   | mk_Context_ok (C : context) (ft_lst : List functype) (ft_2_lst : List functype) (gt_lst : List globaltype) (tt_lst : List tabletype) (mt_lst : List memtype) (et_lst : List elemtype) (ok_lst : List datatype) (lct_lst : List valtype) (rt_lst : List reftype) (rt'_opt : Option reftype) :
     C = ({
@@ -16310,7 +16310,7 @@ inductive Context_ok : context → Prop where
     Context_ok C
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:129.1-129.84 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:129.1-129.84 -/
 inductive Externaddr_ok : store → externaddr → externtype → Prop where
   | global (s : store) (a : addr) (v_globalinst : globalinst) :
     a < (List.length (s.GLOBALS)) →
@@ -16345,7 +16345,7 @@ inductive Externaddr_ok : store → externaddr → externtype → Prop where
     Externaddr_ok s v_externaddr xt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:27.1-27.40 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:27.1-27.40 -/
 inductive Ref_ok : store → ref → reftype → Prop where
   | null (s : store) (rt : reftype) :
     wf_store s →
@@ -16360,7 +16360,7 @@ inductive Ref_ok : store → ref → reftype → Prop where
     Ref_ok s (ref.REF_HOST_ADDR a) reftype.EXTERNREF
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:41.1-41.40 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:41.1-41.40 -/
 inductive Val_ok : store → val → valtype → Prop where
   | numtype (s : store) (nt : numtype) (c_t : num_) :
     wf_store s →
@@ -16376,7 +16376,7 @@ inductive Val_ok : store → val → valtype → Prop where
     Val_ok s (val_ref r) (valtype_reftype rt)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:55.1-55.47 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:55.1-55.47 -/
 inductive Result_ok : store → result → List valtype → Prop where
   | result (s : store) (v_lst : List val) (t_lst : List valtype) :
     (List.length t_lst) = (List.length v_lst) →
@@ -16390,10 +16390,10 @@ inductive Result_ok : store → result → List valtype → Prop where
     Result_ok s result.TRAP t_lst
 
 
-/- Type Alias Definition at: ../specification/wasm-2.0/B-soundness.spectec:66.1-66.31 -/
+/- Type Alias Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:66.1-66.31 -/
 abbrev adminexpr : Type := List admininstr
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:158.1-158.51 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:158.1-158.51 -/
 inductive Datainst_ok : store → datainst → datatype → Prop where
   | mk_Datainst_ok (s : store) (b_lst : List byte) :
     (List.length b_lst) < (2 ^ 32) →
@@ -16406,7 +16406,7 @@ inductive Datainst_ok : store → datainst → datatype → Prop where
     }) datatype.OK
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:159.1-159.51 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:159.1-159.51 -/
 inductive Eleminst_ok : store → eleminst → elemtype → Prop where
   | mk_Eleminst_ok (s : store) (rt : reftype) (ref_lst : List ref) :
     Forall (fun (v_ref_elem : ref) => Ref_ok s v_ref_elem rt) ref_lst →
@@ -16418,7 +16418,7 @@ inductive Eleminst_ok : store → eleminst → elemtype → Prop where
     }) rt
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:160.1-160.49 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:160.1-160.49 -/
 inductive Exportinst_ok : store → exportinst → Prop where
   | mk_Exportinst_ok (s : store) (nm : name) (xa : externaddr) (xt : externtype) :
     Externaddr_ok s xa xt →
@@ -16434,7 +16434,7 @@ inductive Exportinst_ok : store → exportinst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:200.1-200.54 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:200.1-200.54 -/
 inductive Moduleinst_ok : store → moduleinst → context → Prop where
   | mk_Moduleinst_ok (s : store) (functype_lst : List functype) (funcaddr_lst : List funcaddr) (globaladdr_lst : List globaladdr) (tableaddr_lst : List tableaddr) (memaddr_lst : List memaddr) (elemaddr_lst : List elemaddr) (dataaddr_lst : List dataaddr) (exportinst_lst : List exportinst) (functype_F_lst : List functype) (globaltype_lst : List globaltype) (tabletype_lst : List tabletype) (memtype_lst : List memtype) (elemtype_lst : List elemtype) (datatype_lst : List datatype) :
     Forall (fun (v_functype_elem : functype) => Functype_ok v_functype_elem) functype_lst →
@@ -16506,7 +16506,7 @@ inductive Moduleinst_ok : store → moduleinst → context → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:294.1-294.44 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:294.1-294.44 -/
 inductive Frame_ok : store → frame → context → Prop where
   | mk_Frame_ok (s : store) (val_lst : List val) (v_moduleinst : moduleinst) (t_lst : List valtype) (C : context) :
     Moduleinst_ok s v_moduleinst C →
@@ -16548,7 +16548,7 @@ inductive Frame_ok : store → frame → context → Prop where
 
 
 mutual
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:68.1-69.36 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:68.1-69.36 -/
 inductive Instr_ok2 : store → context → admininstr → functype → Prop where
   | plain (s : store) (C : context) (v_instr : instr) (t_1_lst : List valtype) (t_2_lst : List valtype) :
     Instr_ok C v_instr (functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst)) →
@@ -16637,7 +16637,7 @@ inductive Instr_ok2 : store → context → admininstr → functype → Prop whe
     wf_admininstr admininstr.TRAP →
     Instr_ok2 s C admininstr.TRAP (functype.mk_functype (.mk_list t_1_lst) (.mk_list t_2_lst))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:70.1-71.36 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:70.1-71.36 -/
 inductive Instrs_ok2 : store → context → List admininstr → functype → Prop where
   | empty (s : store) (C : context) :
     wf_store s →
@@ -16672,7 +16672,7 @@ inductive Instrs_ok2 : store → context → List admininstr → functype → Pr
     Forall (fun (v_admininstr_elem : admininstr) => wf_admininstr v_admininstr_elem) admininstr_lst →
     Instrs_ok2 s C admininstr_lst (functype.mk_functype (.mk_list (t_lst ++ t_1_lst)) (.mk_list (t_lst ++ t_2_lst)))
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:72.1-73.36 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:72.1-73.36 -/
 inductive Expr_ok2 : store → context → adminexpr → resulttype → Prop where
   | mk_Expr_ok2 (s : store) (C : context) (admininstr_lst : List admininstr) (t_lst : List valtype) :
     Instrs_ok2 s C admininstr_lst (functype.mk_functype (.mk_list []) (.mk_list t_lst)) →
@@ -16684,7 +16684,7 @@ inductive Expr_ok2 : store → context → adminexpr → resulttype → Prop whe
 
 end
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:154.1-154.57 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:154.1-154.57 -/
 inductive Globalinst_ok : store → globalinst → globaltype → Prop where
   | mk_Globalinst_ok (s : store) (v_mut : «mut») (t : valtype) (v_val : val) :
     Globaltype_ok (globaltype.mk_globaltype v_mut t) →
@@ -16700,7 +16700,7 @@ inductive Globalinst_ok : store → globalinst → globaltype → Prop where
     }) (globaltype.mk_globaltype v_mut t)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:155.1-155.48 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:155.1-155.48 -/
 inductive Meminst_ok : store → meminst → memtype → Prop where
   | mk_Meminst_ok (s : store) (v_n : n) (m_opt : Option m) (b_lst : List byte) :
     Memtype_ok (memtype.PAGE (limits.mk_limits (uN.mk_uN v_n) (OMap (fun (v_m_elem : m) => uN.mk_uN v_m_elem) m_opt))) →
@@ -16717,7 +16717,7 @@ inductive Meminst_ok : store → meminst → memtype → Prop where
     }) (memtype.PAGE (limits.mk_limits (uN.mk_uN v_n) (OMap (fun (v_m_elem : m) => uN.mk_uN v_m_elem) m_opt)))
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:156.1-156.54 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:156.1-156.54 -/
 inductive Tableinst_ok : store → tableinst → tabletype → Prop where
   | mk_Tableinst_ok (s : store) (v_n : n) (m_opt : Option m) (rt : reftype) (ref_lst : List ref) :
     Tabletype_ok (tabletype.mk_tabletype (limits.mk_limits (uN.mk_uN v_n) (OMap (fun (v_m_elem : m) => uN.mk_uN v_m_elem) m_opt)) rt) →
@@ -16735,7 +16735,7 @@ inductive Tableinst_ok : store → tableinst → tabletype → Prop where
     }) (tabletype.mk_tabletype (limits.mk_limits (uN.mk_uN v_n) (OMap (fun (v_m_elem : m) => uN.mk_uN v_m_elem) m_opt)) rt)
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:157.1-157.51 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:157.1-157.51 -/
 inductive Funcinst_ok : store → funcinst → functype → Prop where
   | mk_Funcinst_ok (s : store) (ft : functype) (v_moduleinst : moduleinst) (v_func : func) (C : context) :
     Functype_ok ft →
@@ -16755,7 +16755,7 @@ inductive Funcinst_ok : store → funcinst → functype → Prop where
     }) ft
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:234.1-234.33 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:234.1-234.33 -/
 inductive Store_ok : store → Prop where
   | mk_Store_ok (s : store) (globalinst_lst : List globalinst) (globaltype_lst : List globaltype) (meminst_lst : List meminst) (memtype_lst : List memtype) (tableinst_lst : List tableinst) (tabletype_lst : List tabletype) (funcinst_lst : List funcinst) (functype_lst : List functype) (datainst_lst : List datainst) (datatype_lst : List datatype) (eleminst_lst : List eleminst) (elemtype_lst : List elemtype) :
     (List.length globalinst_lst) = (List.length globaltype_lst) →
@@ -17206,7 +17206,7 @@ theorem iswf_fun_growmemory_pages_lt {mi : meminst} {k : Nat} {o : Option memins
     subst_vars
     exact iswf_grow_pages _ _ ‹_ ≤ ((2 ^ 16) : Rat)›
 
-/- Well-Formedness Theorem at: ../specification/wasm-2.0/8-reduction.spectec:5.10-5.14 -/
+/- Well-Formedness Theorem at: wasm-definitions/wasm-2.0/8-reduction.spectec:5.10-5.14 -/
 /- Hand-edited, as in `OLD_wasm2.0.lean`: moved below `Store_ok` and given a `Store_ok (fun_store z)`
    premise, which its `read` case passes on to `Step_read_is_wf`. -/
 theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : config) :
@@ -17350,7 +17350,7 @@ theorem Step_is_wf (z : state) (admininstr_lst : List admininstr) (var_1 : confi
         (with_data_is_wf _ _ _ _ _ ‹fun_with_data z x [] var_0› hst hx (iswf_Forall_nil _) rfl)
         (iswf_Forall_nil _)
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:250.1-250.54 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:250.1-250.54 -/
 inductive Extend_globalinst : globalinst → globalinst → Prop where
   | mk_Extend_globalinst (v_mut : «mut») (t : valtype) (v_val : val) (val' : val) :
     (v_mut = (some r_MUT.MUT)) ∨ (v_val = val') →
@@ -17371,7 +17371,7 @@ inductive Extend_globalinst : globalinst → globalinst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:251.1-251.45 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:251.1-251.45 -/
 inductive Extend_meminst : meminst → meminst → Prop where
   | mk_Extend_meminst (v_n : n) (m_opt : Option m) (b_lst : List byte) (n' : n) (b'_lst : List byte) :
     v_n ≤ n' →
@@ -17393,7 +17393,7 @@ inductive Extend_meminst : meminst → meminst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:252.1-252.51 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:252.1-252.51 -/
 inductive Extend_tableinst : tableinst → tableinst → Prop where
   | mk_Extend_tableinst (v_n : n) (m_opt : Option m) (rt : reftype) (ref_lst : List ref) (n' : n) (ref'_lst : List ref) :
     v_n ≤ n' →
@@ -17415,7 +17415,7 @@ inductive Extend_tableinst : tableinst → tableinst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:253.1-253.48 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:253.1-253.48 -/
 inductive Extend_funcinst : funcinst → funcinst → Prop where
   | mk_Extend_funcinst (ft : functype) (mm : moduleinst) (fc : func) :
     wf_funcinst ({
@@ -17434,7 +17434,7 @@ inductive Extend_funcinst : funcinst → funcinst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:254.1-254.48 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:254.1-254.48 -/
 inductive Extend_datainst : datainst → datainst → Prop where
   | mk_Extend_datainst (b_lst : List byte) (b'_lst : List byte) :
     (b_lst = b'_lst) ∨ (b'_lst = []) →
@@ -17451,7 +17451,7 @@ inductive Extend_datainst : datainst → datainst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:255.1-255.48 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:255.1-255.48 -/
 inductive Extend_eleminst : eleminst → eleminst → Prop where
   | mk_Extend_eleminst (rt : reftype) (ref_lst : List ref) (ref'_lst : List ref) :
     (ref_lst = ref'_lst) ∨ (ref'_lst = []) →
@@ -17464,7 +17464,7 @@ inductive Extend_eleminst : eleminst → eleminst → Prop where
     })
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:256.1-256.39 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:256.1-256.39 -/
 inductive Extend_store : store → store → Prop where
   | mk_Extend_store (s : store) (s' : store) :
     Forall (fun (a : Nat) => a < (List.length (s.GLOBALS))) (List.range (List.length (s.GLOBALS))) →
@@ -17490,7 +17490,7 @@ inductive Extend_store : store → store → Prop where
     Extend_store s s'
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:295.1-295.38 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:295.1-295.38 -/
 inductive State_ok : state → context → Prop where
   | mk_State_ok (s : store) (f : frame) (C : context) :
     Store_ok s →
@@ -17500,7 +17500,7 @@ inductive State_ok : state → context → Prop where
     State_ok (state.mk_state s f) C
 
 
-/- Inductive Relations Definition at: ../specification/wasm-2.0/B-soundness.spectec:296.1-296.43 -/
+/- Inductive Relations Definition at: wasm-definitions/wasm-2.0/B-soundness.spectec:296.1-296.43 -/
 inductive Config_ok : config → resulttype → Prop where
   | mk_Config_ok (s : store) (f : frame) (admininstr_lst : List admininstr) (t_lst : List valtype) (C : context) :
     State_ok (state.mk_state s f) C →

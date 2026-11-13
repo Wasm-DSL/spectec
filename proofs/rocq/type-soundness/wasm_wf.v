@@ -11,7 +11,7 @@ Import RecordSetNotations.
 
 (* Generated Well-Formedness Lemmas *)
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:281.6-281.11 *)
 Lemma zero_is_wf : forall (v_numtype : numtype) (ret_val : num_) (var_0 : num_),
 	(fun_zero v_numtype var_0) ->
 	(ret_val == var_0) ->
@@ -26,7 +26,7 @@ Proof.
 	- apply: num__case_1' => //. by apply: wf_fzero.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/1-syntax.spectec:342.6-342.10 *)
 Lemma dim_is_wf : forall (v_shape : shape) (ret_val : dim),
 	(wf_shape v_shape) ->
 	(ret_val == (fun_dim v_shape)) ->
@@ -36,7 +36,7 @@ Proof.
 	case: Hwf => lt d Hd. by case: d Hd => i Hd.
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:7.1-7.59 *)
 Lemma concat_bytes_is_wf : forall (var_0_lst_lst : (seq (seq byte))) (ret_val_lst : (seq byte)) (var_0 : (seq byte)),
 	(fun_concat_bytes var_0_lst_lst var_0) ->
 	List.Forall (fun (var_0_lst : (seq byte)) => List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst) var_0_lst_lst ->
@@ -49,7 +49,7 @@ Proof.
 	by apply/List.Forall_app; split; [ exact: H1 | exact: IH ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:53.1-53.65 *)
 Lemma tablesxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq tabletype)) (var_0 : (seq tabletype)),
 	(fun_tablesxt var_0_lst var_0) ->
 	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
@@ -64,7 +64,7 @@ Proof.
 	- move => xt xt_lst v H IH /List.Forall_cons_iff [H1 H2]. by apply: IH.
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:54.1-54.63 *)
 Lemma memsxt_is_wf : forall (var_0_lst : (seq externtype)) (ret_val_lst : (seq memtype)) (var_0 : (seq memtype)),
 	(fun_memsxt var_0_lst var_0) ->
 	List.Forall (fun (var_0 : externtype) => (wf_externtype var_0)) var_0_lst ->
@@ -79,7 +79,7 @@ Proof.
 	- move => xt xt_lst v H IH /List.Forall_cons_iff [H1 H2]. by apply: IH.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:80.6-80.20 *)
 Lemma dataidx_instr_is_wf : forall (v_instr : instr) (ret_val_lst : (seq dataidx)),
 	(wf_instr v_instr) ->
 	(ret_val_lst == (dataidx_instr v_instr)) ->
@@ -91,7 +91,7 @@ Proof.
 			| by apply: List.Forall_cons; [ eassumption | apply: List.Forall_nil ] ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:85.1-85.63 *)
 Lemma dataidx_instrs_is_wf : forall (var_0_lst : (seq instr)) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_instrs var_0_lst var_0) ->
 	List.Forall (fun (var_0 : instr) => (wf_instr var_0)) var_0_lst ->
@@ -104,7 +104,7 @@ Proof.
 	by apply: (dataidx_instr_is_wf v_instr _ H1).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:89.6-89.19 *)
 Lemma dataidx_expr_is_wf : forall (v_expr : expr) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_expr v_expr var_0) ->
 	List.Forall (fun (v_expr : instr) => (wf_instr v_expr)) v_expr ->
@@ -116,7 +116,7 @@ Proof.
 	by apply: (dataidx_instrs_is_wf in_lst _ _ H Hall).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:92.6-92.19 *)
 Lemma dataidx_func_is_wf : forall (v_func : func) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_func v_func var_0) ->
 	(wf_func v_func) ->
@@ -129,7 +129,7 @@ Proof.
 	by apply: (dataidx_expr_is_wf e _ _ H _).
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:95.1-95.61 *)
 Lemma dataidx_funcs_is_wf : forall (var_0_lst : (seq func)) (ret_val_lst : (seq dataidx)) (var_0 : (seq dataidx)),
 	(fun_dataidx_funcs var_0_lst var_0) ->
 	List.Forall (fun (var_0 : func) => (wf_func var_0)) var_0_lst ->
@@ -142,7 +142,7 @@ Proof.
 	by apply: (dataidx_func_is_wf v_func _ _ H2 Hf).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/2-syntax-aux.spectec:106.6-106.13 *)
 Lemma memarg0_is_wf : forall (ret_val : memarg),
 	(ret_val == (memarg0 )) ->
 	(wf_memarg ret_val).
@@ -151,85 +151,85 @@ Proof.
 	by apply: memarg_case_; apply: uN_case_0.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:7.6-7.17 *)
 Axiom s33_to_u32_is_wf : forall (v_s33 : s33) (ret_val : u32),
 	(wf_sN 33%N v_s33) ->
 	(ret_val == (s33_to_u32 v_s33)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:56.6-56.15 *)
 Axiom extend___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (extend__ v_M v_N v_sx v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:224.6-224.12 *)
 Axiom fabs__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fabs_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:227.6-227.13 *)
 Axiom fceil__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fceil_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:228.6-228.14 *)
 Axiom ffloor__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (ffloor_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:230.6-230.16 *)
 Axiom fnearest__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fnearest_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:225.6-225.12 *)
 Axiom fneg__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fneg_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:226.6-226.13 *)
 Axiom fsqrt__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fsqrt_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:229.6-229.14 *)
 Axiom ftrunc__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (ftrunc_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:120.6-120.12 *)
 Axiom iclz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (iclz_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:121.6-121.12 *)
 Axiom ictz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ictz_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:122.6-122.15 *)
 Axiom ipopcnt__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ipopcnt_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:55.6-55.13 *)
 Axiom wrap___is_wf : forall (v_M : M) (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (wrap__ v_M v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:44.6-44.12 *)
 Lemma unop__is_wf : forall (v_numtype : numtype) (v_unop_ : unop_) (v_num_ : num_) (ret_val_lst : (seq num_)) (var_0 : (option (seq num_))),
 	(fun_unop_ v_numtype v_unop_ v_num_ var_0) ->
 	(wf_unop_ v_numtype v_unop_) ->
@@ -273,56 +273,56 @@ Proof.
 				| (eapply fnearest__is_wf; [ eassumption | by apply: eqxx ]) ] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:215.6-215.12 *)
 Axiom fadd__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fadd_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:223.6-223.17 *)
 Axiom fcopysign__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fcopysign_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:218.6-218.12 *)
 Axiom fdiv__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fdiv_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:220.6-220.12 *)
 Axiom fmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmax_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:219.6-219.12 *)
 Axiom fmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmin_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:217.6-217.12 *)
 Axiom fmul__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fmul_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:216.6-216.12 *)
 Axiom fsub__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fsub_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:105.6-105.12 *)
 Lemma iadd__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -339,14 +339,14 @@ Proof.
 	by apply: N.mod_lt.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:112.6-112.12 *)
 Axiom iand__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iand_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:107.6-107.12 *)
 Lemma imul__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -363,14 +363,14 @@ Proof.
 	by apply: N.mod_lt.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:114.6-114.11 *)
 Axiom ior__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ior_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:109.6-109.12 *)
 Lemma irem__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val_opt : (option iN)) (var_0 : (option iN)),
 	(fun_irem_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -420,35 +420,35 @@ Proof.
 	all: by apply: List.Forall_cons; [ apply: Hrem; eassumption | apply: List.Forall_nil ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:118.6-118.13 *)
 Axiom irotl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (irotl_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:119.6-119.13 *)
 Axiom irotr__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (irotr_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:116.6-116.12 *)
 Axiom ishl__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ishl_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:117.6-117.12 *)
 Axiom ishr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ishr_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:106.6-106.12 *)
 Lemma isub__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -471,14 +471,14 @@ Proof.
 	by rewrite Znat.N2Z.id in Hres.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:115.6-115.12 *)
 Axiom ixor__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (ixor_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:123.6-123.12 *)
 Lemma ieqz__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ieqz_ v_N v_iN)) ->
@@ -488,7 +488,7 @@ Proof.
 	apply: uN_case_0. by case: ((v_iN :> N) == 0%N).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:48.6-48.14 *)
 Lemma testop__is_wf : forall (v_numtype : numtype) (v_testop_ : testop_) (v_num_ : num_) (ret_val : num_) (var_0 : (option num_)),
 	(fun_testop_ v_numtype v_testop_ v_num_ var_0) ->
 	(wf_testop_ v_numtype v_testop_) ->
@@ -505,49 +505,49 @@ Proof.
 	all: apply: num__case_0 => //; eapply ieqz__is_wf; [ eassumption | by apply: eqxx ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:231.6-231.11 *)
 Axiom feq__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (feq_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:236.6-236.11 *)
 Axiom fge__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fge_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:234.6-234.11 *)
 Axiom fgt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fgt_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:235.6-235.11 *)
 Axiom fle__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fle_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:233.6-233.11 *)
 Axiom flt__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (flt_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:232.6-232.11 *)
 Axiom fne__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val : u32),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val == (fne_ v_N v_fN fN_0)) ->
 	(wf_uN 32%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:125.6-125.11 *)
 Lemma ieq__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -558,7 +558,7 @@ Proof.
 	apply: uN_case_0. by case: (v_iN == iN_0).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:130.6-130.11 *)
 Lemma ige__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ige_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -572,7 +572,7 @@ Proof.
 	by case: H => *; apply: Hb.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:128.6-128.11 *)
 Lemma igt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_igt_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -586,7 +586,7 @@ Proof.
 	by case: H => *; apply: Hb.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:129.6-129.11 *)
 Lemma ile__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ile_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -600,7 +600,7 @@ Proof.
 	by case: H => *; apply: Hb.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:127.6-127.11 *)
 Lemma ilt__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : u32) (var_0 : u32),
 	(fun_ilt_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -614,7 +614,7 @@ Proof.
 	by case: H => *; apply: Hb.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:126.6-126.11 *)
 Lemma ine__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -625,7 +625,7 @@ Proof.
 	apply: uN_case_0. by case: (v_iN != iN_0).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:50.6-50.13 *)
 Lemma relop__is_wf : forall (v_numtype : numtype) (v_relop_ : relop_) (v_num_ : num_) (num__0 : num_) (ret_val : num_) (var_0 : (option num_)),
 	(fun_relop_ v_numtype v_relop_ v_num_ num__0 var_0) ->
 	(wf_relop_ v_numtype v_relop_) ->
@@ -658,43 +658,43 @@ Proof.
 			| by [] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:61.6-61.16 *)
 Axiom convert___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : fN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (convert__ v_M v_N v_sx v_iN)) ->
 	(wf_fN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:59.6-59.15 *)
 Axiom demote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_lst == (demote__ v_M v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:60.6-60.16 *)
 Axiom promote___is_wf : forall (v_M : M) (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_lst == (promote__ v_M v_N v_fN)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:63.6-63.20 *)
 Axiom reinterpret___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_num_ : num_) (ret_val : num_),
 	(wf_num_ numtype_1 v_num_) ->
 	(ret_val == (reinterpret__ numtype_1 numtype_2 v_num_)) ->
 	(wf_num_ numtype_2 ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:57.6-57.14 *)
 Axiom trunc___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_opt == (trunc__ v_M v_N v_sx v_fN)) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:58.6-58.18 *)
 Axiom trunc_sat___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_fN : fN) (ret_val_opt : (option iN)),
 	(wf_fN v_M v_fN) ->
 	(ret_val_opt == (trunc_sat__ v_M v_N v_sx v_fN)) ->
 	List.Forall (fun (ret_val : iN) => (wf_uN v_N ret_val)) (option_to_list ret_val_opt).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:52.6-52.14 *)
 Lemma cvtop___is_wf : forall (numtype_1 : numtype) (numtype_2 : numtype) (v_cvtop__ : cvtop__) (v_num_ : num_) (ret_val_lst : (seq num_)) (var_0 : (option (seq num_))),
 	(fun_cvtop__ numtype_1 numtype_2 v_cvtop__ v_num_ var_0) ->
 	(wf_cvtop__ numtype_1 numtype_2 v_cvtop__) ->
@@ -744,106 +744,106 @@ Proof.
 			| ((eapply trunc_sat___is_wf; only 2: by apply: eqxx); eassumption) ] ]).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:62.6-62.15 *)
 Axiom narrow___is_wf : forall (v_M : M) (v_N : res_N) (v_sx : sx) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_M v_iN) ->
 	(ret_val == (narrow__ v_M v_N v_sx v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:76.6-76.13 *)
 Axiom ibits__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq bit)),
 	(wf_uN v_N v_iN) ->
 	(ret_val_lst == (ibits_ v_N v_iN)) ->
 	List.Forall (fun (ret_val : bit) => (wf_bit ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:77.6-77.13 *)
 Axiom fbits__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq bit)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fbits_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : bit) => (wf_bit ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:78.6-78.14 *)
 Axiom ibytes__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val_lst : (seq byte)),
 	(wf_uN v_N v_iN) ->
 	(ret_val_lst == (ibytes_ v_N v_iN)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:79.6-79.14 *)
 Axiom fbytes__is_wf : forall (v_N : res_N) (v_fN : fN) (ret_val_lst : (seq byte)),
 	(wf_fN v_N v_fN) ->
 	(ret_val_lst == (fbytes_ v_N v_fN)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:80.6-80.14 *)
 Axiom nbytes__is_wf : forall (v_numtype : numtype) (v_num_ : num_) (ret_val_lst : (seq byte)),
 	(wf_num_ v_numtype v_num_) ->
 	(ret_val_lst == (nbytes_ v_numtype v_num_)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:81.6-81.14 *)
 Axiom vbytes__is_wf : forall (v_vectype : vectype) (v_vec_ : vec_) (ret_val_lst : (seq byte)),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
 	(ret_val_lst == (vbytes_ v_vectype v_vec_)) ->
 	List.Forall (fun (ret_val : byte) => (wf_byte ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:83.6-83.17 *)
 Axiom inv_ibits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : iN),
 	List.Forall (fun (var_0 : bit) => (wf_bit var_0)) var_0_lst ->
 	(ret_val == (inv_ibits_ v_N var_0_lst)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:84.6-84.17 *)
 Axiom inv_fbits__is_wf : forall (v_N : res_N) (var_0_lst : (seq bit)) (ret_val : fN),
 	List.Forall (fun (var_0 : bit) => (wf_bit var_0)) var_0_lst ->
 	(ret_val == (inv_fbits_ v_N var_0_lst)) ->
 	(wf_fN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:85.6-85.18 *)
 Axiom inv_ibytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : iN),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_ibytes_ v_N var_0_lst)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:86.6-86.18 *)
 Axiom inv_fbytes__is_wf : forall (v_N : res_N) (var_0_lst : (seq byte)) (ret_val : fN),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_fbytes_ v_N var_0_lst)) ->
 	(wf_fN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:87.6-87.18 *)
 Axiom inv_nbytes__is_wf : forall (v_numtype : numtype) (var_0_lst : (seq byte)) (ret_val : num_),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_nbytes_ v_numtype var_0_lst)) ->
 	(wf_num_ v_numtype ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:88.6-88.18 *)
 Axiom inv_vbytes__is_wf : forall (v_vectype : vectype) (var_0_lst : (seq byte)) (ret_val : vec_),
 	List.Forall (fun (var_0 : byte) => (wf_byte var_0)) var_0_lst ->
 	(ret_val == (inv_vbytes_ v_vectype var_0_lst)) ->
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:110.6-110.12 *)
 Axiom inot__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (inot_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:111.6-111.12 *)
 Axiom irev__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (irev_ v_N v_iN)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:113.6-113.15 *)
 Axiom iandnot__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iandnot_ v_N v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:124.6-124.12 *)
 Lemma inez__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : u32),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (inez_ v_N v_iN)) ->
@@ -853,7 +853,7 @@ Proof.
 	apply: uN_case_0. by case: ((v_iN :> N) == 0%N).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:131.6-131.18 *)
 Axiom ibitselect__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
@@ -861,7 +861,7 @@ Axiom ibitselect__is_wf : forall (v_N : res_N) (v_iN : iN) (iN_0 : iN) (iN_1 : i
 	(ret_val == (ibitselect_ v_N v_iN iN_0 iN_1)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:133.6-133.12 *)
 Lemma ineg__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(ret_val == (ineg_ v_N v_iN)) ->
@@ -883,7 +883,7 @@ Proof.
 	by rewrite Znat.N2Z.id in Hres.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:132.6-132.12 *)
 Lemma iabs__is_wf : forall (v_N : res_N) (v_iN : iN) (ret_val : iN) (var_0 : iN),
 	(fun_iabs_ v_N v_iN var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -896,7 +896,7 @@ Proof.
 	by apply: (ineg__is_wf v_N0 i_1).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:134.6-134.12 *)
 Lemma imin__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_imin_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -909,7 +909,7 @@ Proof.
 	by case: ifP.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:135.6-135.12 *)
 Lemma imax__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_imax_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -922,7 +922,7 @@ Proof.
 	by case: ifP.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:136.6-136.16 *)
 Lemma iadd_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_iadd_sat_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -968,7 +968,7 @@ Proof.
 	by apply: Hinv; eassumption.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:137.6-137.16 *)
 Lemma isub_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN) (var_0 : iN),
 	(fun_isub_sat_ v_N v_sx v_iN iN_0 var_0) ->
 	(wf_uN v_N v_iN) ->
@@ -1014,35 +1014,35 @@ Proof.
 	by apply: Hinv; eassumption.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:138.6-138.13 *)
 Axiom iavgr__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iavgr_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:139.6-139.20 *)
 Axiom iq15mulr_sat__is_wf : forall (v_N : res_N) (v_sx : sx) (v_iN : iN) (iN_0 : iN) (ret_val : iN),
 	(wf_uN v_N v_iN) ->
 	(wf_uN v_N iN_0) ->
 	(ret_val == (iq15mulr_sat_ v_N v_sx v_iN iN_0)) ->
 	(wf_uN v_N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:221.6-221.13 *)
 Axiom fpmin__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fpmin_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:222.6-222.13 *)
 Axiom fpmax__is_wf : forall (v_N : res_N) (v_fN : fN) (fN_0 : fN) (ret_val_lst : (seq fN)),
 	(wf_fN v_N v_fN) ->
 	(wf_fN v_N fN_0) ->
 	(ret_val_lst == (fpmax_ v_N v_fN fN_0)) ->
 	List.Forall (fun (ret_val : fN) => (wf_fN v_N ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:323.6-323.15 *)
 Lemma packnum__is_wf : forall (v_lanetype : lanetype) (v_num_ : num_) (ret_val : lane_),
 	(wf_num_ (unpack v_lanetype) v_num_) ->
 	((packnum_ v_lanetype v_num_) != None) ->
@@ -1058,7 +1058,7 @@ Proof.
 		| (apply: lane__case_0'; last by []; (eapply wrap___is_wf; only 2: by apply: eqxx); eassumption) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:329.6-329.17 *)
 Lemma unpacknum__is_wf : forall (v_lanetype : lanetype) (v_lane_ : lane_) (ret_val : num_),
 	(wf_lane_ v_lanetype v_lane_) ->
 	((unpacknum_ v_lanetype v_lane_) != None) ->
@@ -1076,21 +1076,21 @@ Proof.
 		| (apply: num__case_0; [ by [] | | by [] ]; (eapply extend___is_wf; only 2: by apply: eqxx); eassumption) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:338.6-338.13 *)
 Axiom lanes__is_wf : forall (v_shape : shape) (v_vec_ : vec_) (ret_val_lst : (seq lane_)),
 	(wf_shape v_shape) ->
 	(wf_uN 128%N v_vec_) ->
 	(ret_val_lst == (lanes_ v_shape v_vec_)) ->
 	List.Forall (fun (ret_val : lane_) => (wf_lane_ (fun_lanetype v_shape) ret_val)) ret_val_lst.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:341.6-341.17 *)
 Axiom inv_lanes__is_wf : forall (v_shape : shape) (var_0_lst : (seq lane_)) (ret_val : vec_),
 	(wf_shape v_shape) ->
 	List.Forall (fun (var_0 : lane_) => (wf_lane_ (fun_lanetype v_shape) var_0)) var_0_lst ->
 	(ret_val == (inv_lanes_ v_shape var_0_lst)) ->
 	(wf_uN 128%N ret_val).
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:364.6-364.14 *)
 Lemma vvunop__is_wf_f : forall (v_vectype : vectype) (v_vvunop : vvunop) (v_vec_ : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -1113,7 +1113,7 @@ Proof.
 	by eapply vvunop__is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:366.6-366.15 *)
 Lemma vvbinop__is_wf_f : forall (v_vectype : vectype) (v_vvbinop : vvbinop) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -1141,7 +1141,7 @@ Proof.
 	by eapply vvbinop__is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:368.6-368.16 *)
 Lemma vvternop__is_wf_f : forall (v_vectype : vectype) (v_vvternop : vvternop) (v_vec_ : vec_) (vec__0 : vec_) (vec__1 : vec_) (ret_val : vec_),
 	((res_size (valtype_vectype v_vectype)) != None) ->
 	(wf_uN (!((res_size (valtype_vectype v_vectype)))) v_vec_) ->
@@ -1168,7 +1168,7 @@ Proof.
 	by eapply vvternop__is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:379.6-379.13 *)
 Lemma vunop__is_wf : forall (v_shape : shape) (v_vunop_ : vunop_) (v_vec_ : vec_) (ret_val_lst : (seq vec_)) (var_0 : (option (seq vec_))),
 	(fun_vunop_ v_shape v_vunop_ v_vec_ var_0) ->
 	(wf_shape v_shape) ->
@@ -1269,7 +1269,7 @@ Proof.
 				end) ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:381.6-381.14 *)
 Lemma vbinop__is_wf : forall (v_shape : shape) (v_vbinop_ : vbinop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val_lst : (seq vec_)) (var_0 : (option (seq vec_))),
 	(fun_vbinop_ v_shape v_vbinop_ v_vec_ vec__0 var_0) ->
 	(wf_shape v_shape) ->
@@ -1441,7 +1441,7 @@ Proof.
 				end) ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:383.6-383.14 *)
 Lemma vrelop__is_wf : forall (v_shape : shape) (v_vrelop_ : vrelop_) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vrelop_ v_shape v_vrelop_ v_vec_ vec__0 var_0) ->
 	(wf_shape v_shape) ->
@@ -1611,7 +1611,7 @@ Proof.
 					end) ] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:385.6-385.15 *)
 Lemma lcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_lane_ : lane_) (ret_val_lst : (seq lane_)) (var_0 : (option (seq lane_))),
 	(fun_lcvtop__ shape_1 shape_2 v_vcvtop__ v_lane_ var_0) ->
 	(wf_shape shape_1) ->
@@ -1655,7 +1655,7 @@ Proof.
 				| ((eapply promote___is_wf; only 2: by apply: eqxx); eassumption) ] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:387.6-387.15 *)
 Lemma vcvtop___is_wf : forall (shape_1 : shape) (shape_2 : shape) (v_vcvtop__ : vcvtop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vcvtop__ shape_1 shape_2 v_vcvtop__ v_vec_ var_0) ->
 	(wf_shape shape_1) ->
@@ -1732,7 +1732,7 @@ Proof.
 			by apply: (zero_is_wf (unpack L2) zv zv Hzv).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:603.6-603.17 *)
 Lemma vextunop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextunop__ : vextunop__) (v_vec_ : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vextunop__ ishape_1 ishape_2 v_vextunop__ v_vec_ var_0) ->
 	(wf_ishape ishape_1) ->
@@ -1902,7 +1902,7 @@ Proof.
 					end) ] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:605.6-605.18 *)
 Lemma vextbinop___is_wf : forall (ishape_1 : ishape) (ishape_2 : ishape) (v_vextbinop__ : vextbinop__) (v_vec_ : vec_) (vec__0 : vec_) (ret_val : vec_) (var_0 : (option vec_)),
 	(fun_vextbinop__ ishape_1 ishape_2 v_vextbinop__ v_vec_ vec__0 var_0) ->
 	(wf_ishape ishape_1) ->
@@ -2073,7 +2073,7 @@ Proof.
 					end) ] ]) ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/3-numerics.spectec:628.6-628.16 *)
 Lemma vshiftop__is_wf : forall (v_ishape : ishape) (v_vshiftop_ : vshiftop_) (v_lane_ : lane_) (v_u32 : u32) (ret_val : lane_) (var_0 : (option lane_)),
 	(fun_vshiftop_ v_ishape v_vshiftop_ v_lane_ v_u32 var_0) ->
 	(wf_ishape v_ishape) ->
@@ -2102,7 +2102,7 @@ Proof.
 		apply: (N.le_trans _ k); [ apply: N.lt_le_incl; apply: N.mod_lt; by vm_compute | by vm_compute ] end.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:7.6-7.15 *)
 Lemma default__is_wf_f : forall (v_valtype : valtype) (ret_val : val),
 	((default_ v_valtype) != None) ->
 	(ret_val == (!((default_ v_valtype)))) ->
@@ -2129,7 +2129,7 @@ Proof.
 	by eapply default__is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:48.6-48.12 *)
 Lemma store_is_wf : forall (v_state : state) (ret_val : store),
 	(wf_state v_state) ->
 	(ret_val == (fun_store v_state)) ->
@@ -2139,7 +2139,7 @@ Proof.
 	by case: Hwf.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:49.6-49.12 *)
 Lemma frame_is_wf : forall (v_state : state) (ret_val : frame),
 	(wf_state v_state) ->
 	(ret_val == (fun_frame v_state)) ->
@@ -2149,7 +2149,7 @@ Proof.
 	by case: Hwf.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:58.6-58.15 *)
 Lemma funcinst_is_wf : forall (v_state : state) (ret_val_lst : (seq funcinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_funcinst v_state)) ->
@@ -2159,7 +2159,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hs.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:59.6-59.17 *)
 Lemma globalinst_is_wf : forall (v_state : state) (ret_val_lst : (seq globalinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_globalinst v_state)) ->
@@ -2169,7 +2169,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hs.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:60.6-60.16 *)
 Lemma tableinst_is_wf : forall (v_state : state) (ret_val_lst : (seq tableinst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_tableinst v_state)) ->
@@ -2179,7 +2179,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hs.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:61.6-61.14 *)
 Lemma meminst_is_wf : forall (v_state : state) (ret_val_lst : (seq meminst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_meminst v_state)) ->
@@ -2189,7 +2189,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hs.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:63.6-63.15 *)
 Lemma datainst_is_wf : forall (v_state : state) (ret_val_lst : (seq datainst)),
 	(wf_state v_state) ->
 	(ret_val_lst == (fun_datainst v_state)) ->
@@ -2199,7 +2199,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hs.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:64.6-64.17 *)
 Lemma moduleinst_is_wf : forall (v_state : state) (ret_val : moduleinst),
 	(wf_state v_state) ->
 	(ret_val == (fun_moduleinst v_state)) ->
@@ -2209,7 +2209,7 @@ Proof.
 	case: Hwf => s f Hs Hf. by case: Hf.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:75.6-75.11 *)
 Lemma func_is_wf_f : forall (v_state : state) (v_funcidx : funcidx) (ret_val : funcinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_funcidx) ->
@@ -2239,7 +2239,7 @@ Proof.
 	by eapply func_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:76.6-76.13 *)
 Lemma global_is_wf_f : forall (v_state : state) (v_globalidx : globalidx) (ret_val : globalinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_globalidx) ->
@@ -2268,7 +2268,7 @@ Proof.
 	by eapply global_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:77.6-77.12 *)
 Lemma table_is_wf_f : forall (v_state : state) (v_tableidx : tableidx) (ret_val : tableinst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -2297,7 +2297,7 @@ Proof.
 	by eapply table_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:78.6-78.10 *)
 Lemma mem_is_wf_f : forall (v_state : state) (v_memidx : memidx) (ret_val : meminst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -2326,7 +2326,7 @@ Proof.
 	by eapply mem_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:80.6-80.11 *)
 Lemma data_is_wf_f : forall (v_state : state) (v_dataidx : dataidx) (ret_val : datainst),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_dataidx) ->
@@ -2355,7 +2355,7 @@ Proof.
 	by eapply data_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:81.6-81.12 *)
 Lemma local_is_wf_f : forall (v_state : state) (v_localidx : localidx) (ret_val : val),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_localidx) ->
@@ -2384,7 +2384,7 @@ Proof.
 	by eapply local_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:95.6-95.17 *)
 Lemma with_local_is_wf : forall (v_state : state) (v_localidx : localidx) (v_val : val) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_localidx) ->
@@ -2405,7 +2405,7 @@ Proof.
 	by apply: Hupd.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:96.6-96.18 *)
 Lemma with_global_is_wf_f : forall (v_state : state) (v_globalidx : globalidx) (v_val : val) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_globalidx) ->
@@ -2440,7 +2440,7 @@ Proof.
 	by eapply with_global_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:97.6-97.17 *)
 Lemma with_table_is_wf_f : forall (v_state : state) (v_tableidx : tableidx) (res_nat : N) (v_ref : ref) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -2473,7 +2473,7 @@ Proof.
 	by eapply with_table_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:98.6-98.21 *)
 Lemma with_tableinst_is_wf_f : forall (v_state : state) (v_tableidx : tableidx) (v_tableinst : tableinst) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_tableidx) ->
@@ -2508,7 +2508,7 @@ Proof.
 	by eapply with_tableinst_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:99.6-99.15 *)
 Lemma with_mem_is_wf_f : forall (v_state : state) (v_memidx : memidx) (res_nat : N) (nat_0 : N) (var_0_lst : (seq byte)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -2549,7 +2549,7 @@ Proof.
 	by eapply with_mem_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:100.6-100.19 *)
 Lemma with_meminst_is_wf_f : forall (v_state : state) (v_memidx : memidx) (v_meminst : meminst) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_memidx) ->
@@ -2584,7 +2584,7 @@ Proof.
 	by eapply with_meminst_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:101.6-101.16 *)
 Lemma with_elem_is_wf_f : forall (v_state : state) (v_elemidx : elemidx) (var_0_lst : (seq ref)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_elemidx) ->
@@ -2609,7 +2609,7 @@ Proof.
 	by eapply with_elem_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:102.6-102.16 *)
 Lemma with_data_is_wf_f : forall (v_state : state) (v_dataidx : dataidx) (var_0_lst : (seq byte)) (ret_val : state),
 	(wf_state v_state) ->
 	(wf_uN 32%N v_dataidx) ->
@@ -2644,7 +2644,7 @@ Proof.
 	by eapply with_data_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:116.6-116.16 *)
 Lemma growtable_is_wf : forall (v_tableinst : tableinst) (res_nat : N) (v_ref : ref) (ret_val : tableinst) (var_0 : (option tableinst)),
 	(fun_growtable v_tableinst res_nat v_ref var_0) ->
 	(wf_tableinst v_tableinst) ->
@@ -2656,7 +2656,7 @@ Proof.
 	by case: H Hne => [ti v_n r ti' i j_opt rt r'_lst i' _ _ _ /eqP -> _ Hwf2 _ | x0 x1 x2 _ ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/5-runtime-aux.spectec:117.6-117.17 *)
 Lemma growmemory_is_wf : forall (v_meminst : meminst) (res_nat : N) (ret_val : meminst) (var_0 : (option meminst)),
 	(fun_growmemory v_meminst res_nat var_0) ->
 	(wf_meminst v_meminst) ->
@@ -2668,7 +2668,7 @@ Proof.
 	by case: H Hne => [mi v_n mi' i j_opt b_lst i' _ _ _ _ /eqP -> _ Hwf2 _ | x0 x1 _ ].
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:6.10-6.19 *)
 Lemma Step_pure_is_wf : forall (var_0 : (seq admininstr)) (var_1 : (seq admininstr)),
 	List.Forall (fun (var_0 : admininstr) => (wf_admininstr var_0)) var_0 ->
 	(Step_pure var_0 var_1) ->
@@ -2865,7 +2865,7 @@ Proof.
 			exact: (irev__is_wf 32%N ci _ Hc (eqxx _)) end.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/8-reduction.spectec:7.10-7.19 *)
 (* Hand-modified statement: takes (Store_ok (fun_store z)) as a hypothesis,
    since the store bounds are needed for table.size, memory.size and the bulk rules. *)
 Lemma Step_read_is_wf : forall (z : state) (admininstr_lst : (seq admininstr)) (var_1 : (seq admininstr)),
@@ -3219,7 +3219,7 @@ Proof.
 	all: (eapply iadd__is_wf; last by apply: eqxx); [ eassumption | by apply: uN_case_0 ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/8-reduction.spectec:5.1-5.109 *)
 (* Hand-modified statement: takes (Store_ok (fun_store z)) as a hypothesis,
    as its read case goes through Step_read_is_wf. *)
 Lemma Step_is_wf : forall (z : state) (admininstr_lst : (seq admininstr)) (var_1 : config),
@@ -3670,7 +3670,7 @@ Proof.
 				| (eapply Hfr; eassumption) | constructor ] ] ] ) ]).
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:36.6-36.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:36.6-36.16 *)
 Lemma allocfunc_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (v_func : func) (ret_val : (store * funcaddr)) (var_0 : (store * funcaddr)),
 	(fun_allocfunc v_store v_moduleinst v_func var_0) ->
 	(wf_store v_store) ->
@@ -3686,7 +3686,7 @@ Proof.
 	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:41.1-41.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:41.1-41.63 *)
 Lemma allocfuncs_is_wf : forall (v_store : store) (v_moduleinst : moduleinst) (var_0_lst : (seq func)) (ret_val : (store * (seq funcaddr))) (var_0 : (store * (seq funcaddr))),
 	(fun_allocfuncs v_store v_moduleinst var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -3705,7 +3705,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:47.6-47.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:47.6-47.18 *)
 Lemma allocglobal_is_wf : forall (v_store : store) (v_globaltype : globaltype) (v_val : val) (ret_val : (store * globaladdr)) (var_0 : (store * globaladdr)),
 	(fun_allocglobal v_store v_globaltype v_val var_0) ->
 	(wf_store v_store) ->
@@ -3720,7 +3720,7 @@ Proof.
 	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:51.1-51.67 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:51.1-51.67 *)
 Lemma allocglobals_is_wf : forall (v_store : store) (var_0_lst : (seq globaltype)) (var_1_lst : (seq val)) (ret_val : (store * (seq globaladdr))) (var_0 : (store * (seq globaladdr))),
 	(fun_allocglobals v_store var_0_lst var_1_lst var_0) ->
 	(wf_store v_store) ->
@@ -3738,7 +3738,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:57.6-57.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:57.6-57.17 *)
 Lemma alloctable_is_wf : forall (v_store : store) (v_tabletype : tabletype) (ret_val : (store * tableaddr)) (var_0 : (store * tableaddr)),
 	(fun_alloctable v_store v_tabletype var_0) ->
 	(wf_store v_store) ->
@@ -3753,7 +3753,7 @@ Proof.
 	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:61.1-61.58 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:61.1-61.58 *)
 Lemma alloctables_is_wf : forall (v_store : store) (var_0_lst : (seq tabletype)) (ret_val : (store * (seq tableaddr))) (var_0 : (store * (seq tableaddr))),
 	(fun_alloctables v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -3771,7 +3771,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:67.6-67.15 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:67.6-67.15 *)
 Lemma allocmem_is_wf : forall (v_store : store) (v_memtype : memtype) (ret_val : (store * memaddr)) (var_0 : (store * memaddr)),
 	(fun_allocmem v_store v_memtype var_0) ->
 	(wf_store v_store) ->
@@ -3786,7 +3786,7 @@ Proof.
 	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:71.1-71.52 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:71.1-71.52 *)
 Lemma allocmems_is_wf : forall (v_store : store) (var_0_lst : (seq memtype)) (ret_val : (store * (seq memaddr))) (var_0 : (store * (seq memaddr))),
 	(fun_allocmems v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -3804,7 +3804,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:77.6-77.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:77.6-77.16 *)
 Lemma allocelem_is_wf : forall (v_store : store) (v_reftype : reftype) (var_0_lst : (seq ref)) (ret_val : (store * elemaddr)) (var_0 : (store * elemaddr)),
 	(fun_allocelem v_store v_reftype var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -3817,7 +3817,7 @@ Proof.
 	by apply: store_case_.
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:81.1-81.63 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:81.1-81.63 *)
 Lemma allocelems_is_wf : forall (v_store : store) (var_0_lst : (seq reftype)) (var_1_lst_lst : (seq (seq ref))) (ret_val : (store * (seq elemaddr))) (var_0 : (store * (seq elemaddr))),
 	(fun_allocelems v_store var_0_lst var_1_lst_lst var_0) ->
 	(wf_store v_store) ->
@@ -3833,7 +3833,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:87.6-87.16 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:87.6-87.16 *)
 Lemma allocdata_is_wf : forall (v_store : store) (var_0_lst : (seq byte)) (ret_val : (store * dataaddr)) (var_0 : (store * dataaddr)),
 	(fun_allocdata v_store var_0_lst var_0) ->
 	(wf_store v_store) ->
@@ -3848,7 +3848,7 @@ Proof.
 	by apply/List.Forall_app; split; [ | apply: List.Forall_cons ].
 Qed.
 
-(* Mutual Recursion at: ../specification/wasm-2.0/9-module.spectec:91.1-91.54 *)
+(* Mutual Recursion at: wasm-definitions/wasm-2.0/9-module.spectec:91.1-91.54 *)
 Lemma allocdatas_is_wf : forall (v_store : store) (var_0_lst_lst : (seq (seq byte))) (ret_val : (store * (seq dataaddr))) (var_0 : (store * (seq dataaddr))),
 	(fun_allocdatas v_store var_0_lst_lst var_0) ->
 	(wf_store v_store) ->
@@ -3866,7 +3866,7 @@ Proof.
 		by rewrite -E1 /= in Hs1.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:100.6-100.17 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:100.6-100.17 *)
 Lemma instexport_is_wf_f : forall (var_0_lst : (seq funcaddr)) (var_1_lst : (seq globaladdr)) (var_2_lst : (seq tableaddr)) (var_3_lst : (seq memaddr)) (v_export : export) (ret_val : exportinst),
 	(wf_export v_export) ->
 	(ret_val == (instexport var_0_lst var_1_lst var_2_lst var_3_lst v_export)) ->
@@ -3887,7 +3887,7 @@ Proof.
 	by eapply instexport_is_wf_f; last eassumption; eauto.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:107.6-107.18 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:107.6-107.18 *)
 Lemma allocmodule_is_wf : forall (v_store : store) (v_module : module) (var_0_lst : (seq externaddr)) (var_1_lst : (seq val)) (var_2_lst_lst : (seq (seq ref))) (ret_val : (store * moduleinst)) (var_0 : (store * moduleinst)),
 	(fun_allocmodule v_store v_module var_0_lst var_1_lst var_2_lst_lst var_0) ->
 	(wf_store v_store) ->
@@ -3903,7 +3903,7 @@ Proof.
 	by subst.
 Qed.
 
-(* Well-Formedness Lemma Definition at: ../specification/wasm-2.0/9-module.spectec:196.6-196.13 *)
+(* Well-Formedness Lemma Definition at: wasm-definitions/wasm-2.0/9-module.spectec:196.6-196.13 *)
 Lemma invoke_is_wf : forall (v_store : store) (v_funcaddr : funcaddr) (var_0_lst : (seq val)) (ret_val : config) (var_0 : config),
 	(fun_invoke v_store v_funcaddr var_0_lst var_0) ->
 	(wf_store v_store) ->
