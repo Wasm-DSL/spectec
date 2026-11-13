@@ -1,0 +1,50 @@
+(* Bridge between the SpecTec-generated Wasm 2.0 semantics (../isabelle) and
+   WasmCert-Isabelle (../wasmcert-Isabelle). The Isabelle counterpart of
+   ../wasmcert-rocq.
+
+   All theories are in this directory and import each other, the SpecTec theory
+   and WasmCert-Isabelle by relative file paths, so any of them can be opened in
+   Isabelle/jEdit directly. AFP must be registered as an Isabelle component
+   (WasmCert-Isabelle uses Native_Word and Word_Lib).
+
+   Batch build from this directory with
+     isabelle build -d . -b WasmCert_SpecTec
+   See README.md. *)
+
+session WasmCert_SpecTec = "HOL-Library" +
+  options [timeout = 1800]
+  sessions
+    Native_Word
+    Word_Lib
+  directories
+    "../isabelle"
+    "../wasmcert-Isabelle/WebAssembly"
+    "../wasmcert-Isabelle/libs"
+  theories
+    (* both formalisations *)
+    Base
+    (* translation, typing and back-translation *)
+    Translation
+    Spec_Aux
+    Typing
+    Config_Typing
+    Backtranslation
+    Backtranslation_Props
+    Backtyping
+    Completeness
+    Typing_Iff
+    (* the reduction simulation (port of ../wasmcert-rocq/builtins.v and reduction.v) *)
+    Builtins
+    Reduction
+    Memory
+    Control
+    Bulk
+    Vector
+    Simulation
+    Step_Read
+    Step_Sim
+    Step_Typing
+    Backtranslation_Sound
+    Backtranslation_Complete
+    Null_Commute
+    Backreduction
