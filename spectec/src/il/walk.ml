@@ -20,7 +20,7 @@ open Ast
 
 (* Base traversal *)
 
-type 'env transformer = {
+type transformer = {
   transform_exp: exp -> exp;
   transform_prem: prem -> prem;
   transform_iterexp: iterexp -> iterexp;
@@ -33,10 +33,13 @@ type 'env transformer = {
   transform_typ_id: id -> id;
   transform_rel_id: id -> id;
   transform_def_id: id -> id;
-  transform_gram_id: id -> id
+  transform_gram_id: id -> id;
+
+  filter_exp : exp -> exp option
 }
 
 let id = Fun.id
+let op_id = fun x -> Some x
 
 let base_transformer = {
   transform_exp = id;
@@ -50,7 +53,9 @@ let base_transformer = {
   transform_typ_id = id;
   transform_rel_id = id;
   transform_def_id = id;
-  transform_gram_id = id
+  transform_gram_id = id;
+
+  filter_exp = op_id
 }
 
 let rec transform_typ t typ = 
@@ -67,6 +72,7 @@ let rec transform_typ t typ =
 
 and transform_exp t e =
   let f = t.transform_exp in
+  let g = t.filter_exp in
   let t_exp = transform_exp t in
   let it =
     match e.it with
@@ -82,7 +88,7 @@ and transform_exp t e =
     | SliceE (e1, e2, e3) -> SliceE (t_exp e1, t_exp e2, t_exp e3)
     | UpdE (e1, p, e2) -> UpdE (t_exp e1, transform_path t p, t_exp e2)
     | ExtE (e1, p, e2) -> ExtE (t_exp e1, transform_path t p, t_exp e2)
-    | StrE efs -> StrE (List.map (fun (a, e) -> (a, t_exp e)) efs)
+    | StrE (efs, ch) -> StrE (List.map (fun (a, e) -> (a, t_exp e)) efs, ch)
     | DotE (e1, atom) -> DotE (t_exp e1, atom)
     | CompE (e1, e2) -> CompE (t_exp e1, t_exp e2)
     | LenE e1 -> LenE (t_exp e1)
@@ -97,11 +103,17 @@ and transform_exp t e =
     | LiftE e1 -> LiftE (t_exp e1)
     | CatE (e1, e2) -> CatE (t_exp e1, t_exp e2)
     | MemE (e1, e2) -> MemE (t_exp e1, t_exp e2)
-    | CaseE (mixop, e1) -> CaseE (mixop, t_exp e1)
+    | CaseE (mixop, e1, ch) -> CaseE (mixop, t_exp e1, ch)
     | SubE (e1, _t1, t2) -> SubE (t_exp e1, _t1, t2)
     | IfE (e1, e2, e3) -> IfE (t_exp e1, t_exp e2, t_exp e3)
   in
-  f { e with it; note = transform_typ t e.note }
+
+  let e' = 
+    match g {e with it; note = transform_typ t e.note } with 
+    | Some e' -> f e'
+    | None -> e 
+  in
+  f e'
 
 and transform_iter t iter =
   match iter with
@@ -141,7 +153,7 @@ and transform_prem t p =
   let it = match p.it with
     | RulePr (id, args, op, e) -> RulePr (t.transform_rel_id id, List.map (transform_arg t) args, op, transform_exp t e)
     | IfPr e -> IfPr (transform_exp t e)
-    | LetPr (e1, e2, ss) -> LetPr (transform_exp t e1, transform_exp t e2, ss)
+    | LetPr (quants, e1, e2) -> LetPr (List.map (transform_param t) quants, transform_exp t e1, transform_exp t e2)
     | ElsePr -> ElsePr
     | IterPr (p, ie) -> IterPr (transform_prem t p, transform_iterexp t ie)
     | NegPr p -> NegPr (transform_prem t p)
@@ -259,12 +271,12 @@ and collect_exp c e =
     | OptE None | TextE _ -> c.default
     | CvtE (e1, _, _) | DotE (e1, _)| LenE e1
     | ProjE (e1, _) | UncaseE (e1, _) | OptE (Some e1)
-    | TheE e1 | LiftE e1 | CaseE (_, e1) | UnE (_, _, e1) -> c_exp e1
+    | TheE e1 | LiftE e1 | CaseE (_, e1, _) | UnE (_, _, e1) -> c_exp e1
     | BinE (_, _, e1, e2) | CmpE (_, _, e1, e2) | CompE (e1, e2) 
     | CatE (e1, e2)| MemE (e1, e2) | IdxE (e1, e2) -> c_exp e1 $@ c_exp e2
     | IfE (e1, e2, e3) | SliceE (e1, e2, e3) -> c_exp e1 $@ c_exp e2 $@ c_exp e3
     | UpdE (e1, p, e2) | ExtE (e1, p, e2) -> c_exp e1 $@ collect_path c p $@ c_exp e2
-    | StrE efs -> compose_list c (fun (_, e) -> c_exp e) efs
+    | StrE (efs, _) -> compose_list c (fun (_, e) -> c_exp e) efs
     | ListE es
     | TupE es -> compose_list c c_exp es
     | CallE (_, as1) -> compose_list c (collect_arg c) as1
@@ -314,7 +326,7 @@ and collect_prem c p =
   let traverse_list = match p.it with
     | RulePr (_, args, _, e) -> compose_list c (collect_arg c) args $@ collect_exp c e
     | IfPr e -> collect_exp c e
-    | LetPr (e1, e2, _) -> collect_exp c e1 $@ collect_exp c e2
+    | LetPr (quants, e1, e2) -> compose_list c (collect_param c) quants $@ collect_exp c e1 $@ collect_exp c e2
     | ElsePr -> c.default
     | IterPr (p, ie) -> collect_prem c p $@ collect_iterexp c ie
     | NegPr p -> collect_prem c p

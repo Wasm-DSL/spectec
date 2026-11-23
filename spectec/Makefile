@@ -109,6 +109,15 @@ spec-clean:
 check%:
 	(cd ../specification && make $@)
 
+sync%:
+	(cd ../specification && make $@)
+
+
+# Semantics checks
+
+sem:
+	(cd doc/semantics/il && make check)
+
 
 # Cleanup
 

@@ -162,8 +162,8 @@ atomop ::=
   "`=" | "`=/=" | "`<" | "`>" | "`<=" | "`>="
   "`~" | "`/\" | "`\/" | "`==>" | "`<=>"
   "`<-"
-  "(/\)" | "(\/)" | "(+)" | "(*)" | "(++)"
-  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
+  "(/\)" | "(\/)" | "(!)" | "(?)" | "(+)" | "(*)" | "(++)"
+  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "<<_" | ">>_" | "|-_" | "-|_"
 ```
 
 ##### Type Aliases
@@ -189,6 +189,7 @@ an atom is either an uppercase identifier,
 or one of various recognised *symbolic* atoms,
 such as `|-`, `:`, or `->`,
 or pairs of matching brackets escaped with `` ` ``.
+
 Some symbolic atoms have infix operator status
 (with hard-coded "natural" precedences),
 affecting the way they are parsed;
@@ -196,8 +197,12 @@ this status can be escaped with `` ` `` as well.
 Lowercase identifiers can also be used as atoms
 when escaped with `` ` ``
 (and vice versa).
+Some infix operators can be suffixed with an underscore,
+which affects [type-setting](Latex.md#subscripting) by showing the following expressions as a subscript.
 
 An expression of constructor type must use atoms and intermittent expressions in the exact same sequence that the type definition declares.
+Where an infix operator with underscore suffix is declared,
+the plain version can be used as a shorthand for the suffixed one followed by `eps`.
 
 **Example:**
 The following type could be used to define the abstract syntax of function types over some base type:
@@ -205,6 +210,14 @@ The following type could be used to define the abstract syntax of function types
 syntax basetype = text
 syntax functiontype = basetype* -> basetype
 ```
+Subscripting can be used to customise type-setting of operators:
+```
+syntax effect = text
+syntax functionefftype = basetype* ->_(effect*) basetype
+```
+When writing a `functionefftype`,
+the subscript can be omitted,
+and `t* -> u` is short for `t* ->_(eps) u`.
 
 
 ##### Variant Types
@@ -402,12 +415,10 @@ SpecTec also employs a weak form of shallow subtyping:
   except that the larger type may drop some premises.
 
 * Variant types are in a subtype relation if the smaller type has fewer or the same number of cases,
-  and for each of its cases there is an equivalent case in the larger type,
-  except that the case in the larger type may drop some premises.
+  and for each of its cases there is an equivalent case in the larger type.
 
 * Record types are in a subtype relation if the larger type has fewer or the same number of fields,
-  and for each of its fields there is an equivalent case in the smaller type,
-  except that the field in the larger type may drop some premises.
+  and for each of its fields there is an equivalent case in the smaller type.
 
 
 ### Expressions
@@ -1384,8 +1395,8 @@ atomop ::=
   "`=" | "`=/=" | "`<" | "`>" | "`<=" | "`>="
   "`~" | "`/\" | "`\/" | "`==>" | "`<=>"
   "`<-"
-  "(/\)" | "(\/)" | "(+)" | "(*)" | "(++)"
-  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
+  "(/\)" | "(\/)" | "(!)" | "(?)" | "(+)" | "(*)" | "(++)"
+  ":_" | "=_" | "==_" | "~~_" | "->_" | "=>_" | "~>_" | "~>*_" | "<<_" | ">>_" | "|-_" | "-|_"
 ```
 
 

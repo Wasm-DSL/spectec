@@ -1,38 +1,4 @@
-(* 
-  This pass expands the subtyping patterns that appear in the LHS of
-  function clauses and type family arguments. 
-  
-  It achieves this through the following steps:
-    * For each argument, we collect every unique sub expression.
-    * Then, for each sub expression, we collect every case that is
-    possible in the subtype. If the specific case additionally carries
-    values, then we generate quants to add in the function scope. 
-    * With all of these cases, for each unique sub expression, we compute
-    the cartesian product in order to absolutely grab all the possible cases.
-    See $cvtop to see how this might be done.
-    * Once we have calculated the product, we generate a subst for each product
-    and proceed to generate the clause/type instance.
-    * Finally, we filter out quants that appear in the subst.
 
-  For example, take the following types and function:
-
-  syntax A = t1 nat | t2 nat nat
-  syntax B = t1 nat | t2 nat nat | t3 | t4 
-
-  def $foo(B) : nat
-  def $foo(x : A <: B) = 1
-  def $foo(t3) = 2
-  def $foo(t4) = 3
-
-  Would be transformed as such:
-
-  def $foo(B) : nat
-  def $foo{n : nat}(t1(n)) = 1
-  def $foo{n1 : nat, n2 : nat}(t2(n1, n2)) = 1
-  def $foo(t3) = 2
-  def $foo(t4) = 3
-
-*)
 
 open Util
 open Source
@@ -48,6 +14,9 @@ let error at msg = Error.error at "sub expression expansion" msg
 
 (* Global IL env *)
 let env_ref = ref Il.Env.empty
+
+let reduce_arg env arg =
+  let Ok arg' | Error arg' = Eval.reduce_arg env arg in arg'
 
 let empty_tuple_exp at = TupE [] $$ at % (TupT [] $ at)
 
@@ -77,9 +46,9 @@ let collect_sube_exp e =
   | _ -> ([], true)
 
 let check_matching c_args match_args = 
-  Option.is_some (try 
-    Eval.match_list Eval.match_arg !env_ref Subst.empty c_args match_args 
-    with Eval.Irred -> None)
+  match Eval.match_list Eval.match_arg !env_ref Subst.empty c_args match_args with
+  | Ok (Some _) -> true
+  | Ok None | Error _ -> false
 
 let get_case_typ t = 
   match t.it with
@@ -90,15 +59,20 @@ let collect_all_instances case_typ ids at inst =
   match inst.it with
   | InstD (_, _, {it = VariantT typcases; _}) when 
     List.for_all (fun (_, (t, _, _), _) -> t.it = TupT []) typcases  -> 
-    List.map (fun (m, _, _) -> ([], CaseE (m, empty_tuple_exp no_region) $$ at % case_typ)) typcases
+    List.map (fun (m, _, _) -> ([], CaseE (m, empty_tuple_exp no_region, Unchecked) $$ at % case_typ)) typcases
   | InstD (_, _, {it = VariantT typcases; _}) -> 
     let _, new_cases = 
       List.fold_left (fun (ids', acc) (m, (t, _, _), _) ->
         let typs = get_case_typ t in
         let new_quants, typs' = Utils.improve_ids_quants ids' true t.at typs in
         let exps = List.map (fun (id, t) -> VarE id $$ id.at % t) typs' in 
-        let tup_exp = TupE exps $$ at % t in
-        let case_exp = CaseE (m, tup_exp) $$ at % case_typ in
+        let tup_exp = match t.it, exps with
+          | TupT _, _ -> TupE exps $$ at % t
+          (* Non-tuple case type, the argument is not wrapped *)
+          | _, [e] -> e
+          | _ -> error at "Non-tuple case type should have exactly one argument"
+        in
+        let case_exp = CaseE (m, tup_exp, Unchecked) $$ at % case_typ in
         let new_ids = List.map get_quant_id new_quants in 
         (new_ids @ ids', (new_quants, case_exp) :: acc)  
       ) (ids, []) typcases
@@ -173,7 +147,7 @@ let t_clause clause =
       ) (quants' @ quants) in 
       let new_quants, _ = Il.Subst.subst_params subst quants_filtered in
       (* Reduction is done here to remove subtyping expressions *)
-      DefD (new_quants, List.map (Il.Eval.reduce_arg !env_ref) new_lhs, new_rhs, new_prems) $ clause.at
+      DefD (new_quants, List.map (reduce_arg !env_ref) new_lhs, new_rhs, new_prems) $ clause.at
     ) subst_list
 
 let t_inst inst =
@@ -193,7 +167,7 @@ let t_inst inst =
 
       let new_quants, _ = Il.Subst.subst_params subst quants_filtered in
       (* Reduction is done here to remove subtyping expressions *)
-      InstD (new_quants, List.map (Il.Eval.reduce_arg !env_ref) new_lhs, new_rhs) $ inst.at
+      InstD (new_quants, List.map (reduce_arg !env_ref) new_lhs, new_rhs) $ inst.at
     ) subst_list
 
 

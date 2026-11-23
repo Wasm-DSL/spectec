@@ -11,6 +11,64 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool(bool : bool)
+  ;; test.spectec
+  syntax Bool(true) = nat
+
+
+  ;; test.spectec
+  syntax Bool(false) = text
+
+
+;; test.spectec
+def $testtrue(Bool : Bool($sidef(1))) : Bool(true)
+  ;; test.spectec
+  def $testtrue{b : Bool($sidef(1))}(b) = b
+
+;; test.spectec
+def $testfalse(Bool : Bool($sidef(11))) : Bool(false)
+  ;; test.spectec
+  def $testfalse{b : Bool($sidef(11))}(b) = b
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize(3) = 5
+  ;; test.spectec
+  def $t_totalize(10) = 20
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize2(1) = 2
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
+
 == IL Validation...
 == Running pass ite...
 
@@ -24,7 +82,136 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool(bool : bool)
+  ;; test.spectec
+  syntax Bool(true) = nat
+
+
+  ;; test.spectec
+  syntax Bool(false) = text
+
+
+;; test.spectec
+def $testtrue(Bool : Bool($sidef(1))) : Bool(true)
+  ;; test.spectec
+  def $testtrue{b : Bool($sidef(1))}(b) = b
+
+;; test.spectec
+def $testfalse(Bool : Bool($sidef(11))) : Bool(false)
+  ;; test.spectec
+  def $testfalse{b : Bool($sidef(11))}(b) = b
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize(3) = 5
+  ;; test.spectec
+  def $t_totalize(10) = 20
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize2(1) = 2
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
+
 == IL Validation after pass ite...
+== Running pass let-intro-mech...
+
+;; test.spectec
+relation HasSize: `%|-%`(nat, nat)
+
+;; test.spectec
+relation TestNestedIter: `%|-%`(nat***, nat**)
+  ;; test.spectec
+  rule _{`n***` : nat***, `m**` : nat**}:
+    `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
+    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool(bool : bool)
+  ;; test.spectec
+  syntax Bool(true) = nat
+
+
+  ;; test.spectec
+  syntax Bool(false) = text
+
+
+;; test.spectec
+def $testtrue(Bool : Bool($sidef(1))) : Bool(true)
+  ;; test.spectec
+  def $testtrue{b : Bool($sidef(1))}(b) = b
+
+;; test.spectec
+def $testfalse(Bool : Bool($sidef(11))) : Bool(false)
+  ;; test.spectec
+  def $testfalse{b : Bool($sidef(11))}(b) = b
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize(3) = 5
+  ;; test.spectec
+  def $t_totalize(10) = 20
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize2(1) = 2
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
+
+== IL Validation after pass let-intro-mech...
 == Running pass typefamily-removal...
 
 ;; test.spectec
@@ -36,6 +223,75 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool{bool : bool}(bool) = 
+  | mk_Bool_0(var_x : nat,)
+    -- if (bool = true)
+  | mk_Bool_1(var_x : text,)
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool(true)) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool(true)}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool(false)) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool(false)}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool($sidef(1))) : Bool(true)
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+
+;; test.spectec
+def $testfalse(Bool : Bool($sidef(11))) : Bool(false)
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize(3) = 5
+  ;; test.spectec
+  def $t_totalize(10) = 20
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize2(1) = 2
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
 
 == IL Validation after pass typefamily-removal...
 == Running pass remove-indexed-types...
@@ -50,6 +306,94 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize(3) = 5
+  ;; test.spectec
+  def $t_totalize(10) = 20
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize2(1) = 2
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = ($t_totalize(n) + $t_totalize2((n + 10)))
+
 == IL Validation after pass remove-indexed-types...
 == Running pass totalize...
 
@@ -62,6 +406,96 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass totalize...
 == Running pass else...
@@ -76,7 +510,200 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
 
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
+
 == IL Validation after pass else...
+== Running pass else-simplification...
+
+;; test.spectec
+relation HasSize: `%|-%`(nat, nat)
+
+;; test.spectec
+relation TestNestedIter: `%|-%`(nat***, nat**)
+  ;; test.spectec
+  rule _{`n***` : nat***, `m**` : nat**}:
+    `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
+    -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
+
+== IL Validation after pass else-simplification...
 == Running pass uncase-removal...
 
 ;; test.spectec
@@ -88,6 +715,96 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass uncase-removal...
 == Running pass sideconditions...
@@ -101,8 +818,99 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- if (|`m**`| = |`n***`|)
+    -- if (`m**` =/= [])
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass sideconditions...
 == Running pass sub-expansion...
@@ -116,8 +924,99 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- if (|`m**`| = |`n***`|)
+    -- if (`m**` =/= [])
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass sub-expansion...
 == Running pass sub...
@@ -131,8 +1030,99 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- if (|`m**`| = |`n***`|)
+    -- if (`m**` =/= [])
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass sub...
 == Running pass alias-demut...
@@ -146,8 +1136,99 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule _{`n***` : nat***, `m**` : nat**}:
     `%|-%`(n*{n <- `n*`}*{`n*` <- `n**`}+{`n**` <- `n***`}, m*{m <- `m*`}+{`m*` <- `m**`})
     -- if (|`m**`| = |`n***`|)
+    -- if (`m**` =/= [])
     -- (if (|`m*`| = |`n**`|))+{`m*` <- `m**`, `n**` <- `n***`}
     -- (if (|n*{n <- `n*`}| = m))*{m <- `m*`, `n*` <- `n**`}+{`m*` <- `m**`, `n**` <- `n***`}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $side(side : side) : side
+  ;; test.spectec
+  def $side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($side(Side_side(n,)) = $side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass alias-demut...
 == Running pass improve-ids...
@@ -161,8 +1242,99 @@ relation TestNestedIter: `%|-%`(nat***, nat**)
   rule mk_TestNestedIter{n_lst_lst_lst : nat***, m_lst_lst : nat**}:
     `%|-%`(n_lst_lst_lst, m_lst_lst)
     -- if (|m_lst_lst| = |n_lst_lst_lst|)
+    -- if (m_lst_lst =/= [])
     -- (if (|m_lst| = |n_lst_lst|))+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
     -- (if (|n_lst| = m))*{m <- m_lst, n_lst <- n_lst_lst}+{m_lst <- m_lst_lst, n_lst_lst <- n_lst_lst_lst}
+
+;; test.spectec
+syntax side = 
+  | Side(nat : nat,)
+
+;; test.spectec
+relation wf_side: `%`(side,)
+  ;; test.spectec
+  rule side_case_0{nat : nat}:
+    `%`(Side_side(nat,),)
+    -- if (nat < 10)
+
+;; test.spectec
+def $fun_side(v_side : side) : side
+  ;; test.spectec
+  def $fun_side{s : side}(s) = s
+
+;; test.spectec
+def $sidef(nat : nat) : bool
+  ;; test.spectec
+  def $sidef{n : nat}(n) = true
+    -- if ($fun_side(Side_side(n,)) = $fun_side(Side_side(n,)))
+    -- wf_side: `%`(Side_side(n,),)
+  ;; test.spectec
+  def $sidef{n : nat}(n) = false
+    -- otherwise
+
+;; test.spectec
+syntax Bool = 
+  | mk_Bool_0(var_x : nat,)
+  | mk_Bool_1(var_x : text,)
+
+;; test.spectec
+relation wf_Bool: `%%`(bool, Bool)
+  ;; test.spectec
+  rule Bool_case_0{bool : bool, var_x : nat}:
+    `%%`(bool, mk_Bool_0_Bool(var_x,))
+    -- if (bool = true)
+
+  ;; test.spectec
+  rule Bool_case_1{bool : bool, var_x : text}:
+    `%%`(bool, mk_Bool_1_Bool(var_x,))
+    -- if (bool = false)
+
+;; test.spectec
+def $proj_Bool_0(var_x : Bool) : nat?
+  ;; test.spectec
+  def $proj_Bool_0{var_x : nat}(mk_Bool_0_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_0{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $proj_Bool_1(var_x : Bool) : text?
+  ;; test.spectec
+  def $proj_Bool_1{var_x : text}(mk_Bool_1_Bool(var_x,)) = ?(var_x)
+  ;; test.spectec
+  def $proj_Bool_1{var_x : Bool}(var_x) = ?()
+
+;; test.spectec
+def $testtrue(v_Bool : Bool) : Bool
+  ;; test.spectec
+  def $testtrue{b : nat}(mk_Bool_0_Bool(b,)) = mk_Bool_0_Bool(b,)
+    -- wf_Bool: `%%`(true, mk_Bool_0_Bool(b,))
+
+;; test.spectec
+def $testfalse(v_Bool : Bool) : Bool
+  ;; test.spectec
+  def $testfalse{b : text}(mk_Bool_1_Bool(b,)) = mk_Bool_1_Bool(b,)
+    -- wf_Bool: `%%`(false, mk_Bool_1_Bool(b,))
+
+;; test.spectec
+def $t_totalize(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize(3) = ?(5)
+  ;; test.spectec
+  def $t_totalize(10) = ?(20)
+  def $t_totalize{x0 : nat}(x0) = ?()
+    -- otherwise
+
+;; test.spectec
+def $t_totalize2(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize2(1) = ?(2)
+  ;; test.spectec
+  def $t_totalize2{n : nat}(n) = $t_totalize(n)
+
+;; test.spectec
+def $t_totalize3(nat : nat) : nat?
+  ;; test.spectec
+  def $t_totalize3{n : nat}(n) = (iter_val#2 + iter_val#1)?{iter_val#2 <- $t_totalize(n), iter_val#1 <- $t_totalize2((n + 10))}
 
 == IL Validation after pass improve-ids...
 == Complete.

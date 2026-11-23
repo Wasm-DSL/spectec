@@ -12,6 +12,8 @@ ex)
 open Util
 open Source
 
+open Il2al_util
+
 open Free
 open Il
 open Ast
@@ -20,25 +22,18 @@ open Ast
 (* Helpers *)
 let error at msg = Error.error at "prose translation" msg
 
-let mk_id x =
-  x $ no_region
-let mk_varT xt =
-  VarT (mk_id xt, []) $ no_region
-let mk_varE xe xt =
-  VarE (mk_id xe) $$ no_region % (mk_varT xt)
-
 let is_case e =
   match e.it with
   | CaseE _ -> true
   | _ -> false
 let case_of_case e =
   match e.it with
-  | CaseE (mixop, _) -> mixop
+  | CaseE (mixop, _, _) -> mixop
   | _ -> error e.at "cannot get case of case expression"
 let args_of_case e =
   match e.it with
-  | CaseE (_, { it = TupE exps; _ }) -> exps
-  | CaseE (_, exp) -> [ exp ]
+  | CaseE (_, { it = TupE exps; _ }, _) -> exps
+  | CaseE (_, exp, _) -> [ exp ]
   | _ -> error e.at "cannot get arguments of case expression"
 
 let is_context e =
@@ -61,6 +56,7 @@ let free_ids e =
   (free_exp false e)
   .varid
   |> Set.elements
+  |> List.map id_to_quant
 
 let dim e =
   let t = (NumT `NatT $ no_region) in
@@ -91,7 +87,7 @@ let encode_inner_stack context_opt stack =
       []
     else
       let unused = TupE dropped $$ no_region % (mk_varT "unusedT") in
-      [LetPr (unused, mk_varE "unused" "unusedT", free_ids unused) $ no_region]
+      [LetPr (free_ids unused, unused, mk_varE "unused" "unusedT") $ no_region]
   in
 
   match es with
@@ -101,13 +97,13 @@ let encode_inner_stack context_opt stack =
       match context_opt with
       | None -> assert false
       | Some e ->
-        Some (LetPr (e, mk_varE "input" "inputT", free_ids e) $ e.at), unused_prems
+        Some (LetPr (free_ids e, e, mk_varE "input" "inputT") $ e.at), unused_prems
     )
   | _ ->
     (* ASSUMPTION: The top of the stack should be now the target instruction *)
     let winstr, operands = Lib.List.split_hd es in
 
-    let prem = LetPr (winstr, mk_varE "input" "inputT", free_ids winstr) $ winstr.at in
+    let prem = LetPr (free_ids winstr, winstr, mk_varE "input" "inputT") $ winstr.at in
     let prems = List.mapi (fun i e ->
       let s0 = ("stack" ^ string_of_int i) in
       let s1 = ("stack" ^ string_of_int (i+1)) in
@@ -135,10 +131,10 @@ let encode_stack stack =
     let args', inner_stack = Lib.List.split_last args in
     let mixop' = Il2al_util.split_last_case mixop in
 
-    let e1 = { e with it = CaseE (mixop', TupE args' $$ no_region % (mk_varT "")) } in
+    let e1 = { e with it = CaseE (mixop', TupE args' $$ no_region % (mk_varT ""), Unchecked) } in
     let e2 = (mk_varE "ctxt" "contextT") in
 
-    let pr = LetPr (e1, e2, free_ids e1) $ e2.at in
+    let pr = LetPr (free_ids e1, e1, e2) $ e2.at in
 
     let pr_opt, prs = encode_inner_stack (Some e) inner_stack in
     (
@@ -152,8 +148,8 @@ let encode_stack stack =
 (* Encode lhs *)
 let encode_lhs lhs =
   match lhs.it with
-  | CaseE (Xl.Mixop.(Infix (Arg (), {it = Semicolon; _}, Arg ())), {it = TupE [z; stack]; _}) ->
-    let prem = LetPr (z, mk_varE "state" "stateT", free_ids z) $ z.at in
+  | CaseE (Xl.Mixop.(Infix (Arg (), {it = Semicolon; _}, Arg ())), {it = TupE [z; stack]; _}, _) ->
+    let prem = LetPr (free_ids z, z, mk_varE "state" "stateT") $ z.at in
     prem :: encode_stack stack
   | _ ->
     let stack = lhs in

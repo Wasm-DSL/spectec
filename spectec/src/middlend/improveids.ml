@@ -1,7 +1,3 @@
-(* 
-  This pass simply ensures that there is no ambiguity between any names.
-*)
-
 open Il.Ast
 open Il
 open Il.Walk
@@ -28,6 +24,9 @@ type id_type =
   | FUNCDEF     (* function definitions *)
 
 let empty_info: region * Xl.Atom.info = (no_region, {def = ""; case = ""})
+
+let reduce_typ env typ =
+  let Ok typ' | Error typ' = Eval.reduce_typ env typ in typ'
 
 (* Id transformation *)
 let rec transform_id' (env : env) (id_type : id_type) (s : text) = 
@@ -109,17 +108,17 @@ and t_typ env t =
 
 and t_exp env e = 
   (match e.it with
-  | CaseE (m, e1) -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
-    CaseE(transform_mixop env id m, e1)
-  | StrE fields -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
-    StrE (List.map (fun (a, e1) -> (transform_atom env id a, e1)) fields)
+  | CaseE (m, e1, ch) -> 
+    let id = Print.string_of_typ_name (reduce_typ env.il_env e.note) in
+    CaseE(transform_mixop env id m, e1, ch)
+  | StrE (fields, ch) -> 
+    let id = Print.string_of_typ_name (reduce_typ env.il_env e.note) in
+    StrE (List.map (fun (a, e1) -> (transform_atom env id a, e1)) fields, ch)
   | UncaseE (e1, m) -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e.note) in
+    let id = Print.string_of_typ_name (reduce_typ env.il_env e.note) in
     UncaseE (e1, transform_mixop env id m)
   | DotE (e1, a) -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env e1.note) in
+    let id = Print.string_of_typ_name (reduce_typ env.il_env e1.note) in
     DotE (e1, transform_atom env id a)
   (* Special case for iteration naming - just use the variable it is iterating on *)
   | IterE (e, ((_, [(_, {it = VarE id''; _})]) as iterexp)) when check_iteration_naming e iterexp -> 
@@ -130,7 +129,7 @@ and t_exp env e =
 and t_path env path = 
   (match path.it with
   | DotP (p, a) -> 
-    let id = Print.string_of_typ_name (Eval.reduce_typ env.il_env p.note) in
+    let id = Print.string_of_typ_name (reduce_typ env.il_env p.note) in
     DotP (p, transform_atom env id a)
   | p -> p
   ) $$ path.at % path.note
@@ -168,7 +167,7 @@ let rec t_def env def =
   let tf = { base_transformer with 
     transform_exp = t_exp env;
     transform_typ = t_typ env;
-    transform_path = t_path env; 
+    transform_path = t_path env;
     transform_var_id = t_var_id env;
     transform_typ_id = t_user_def_id env;
     transform_rel_id = t_user_def_id env;

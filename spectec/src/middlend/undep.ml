@@ -1,45 +1,3 @@
-(*
-This transformation separates indexed types into simple types and their corresponding
-wellformedness predicate. 
-
-This is achieved through the following steps:
-  * Create the wellformedness predicate as a relation that takes in the corresponding
-  type, and its dependent type parameters. 
-    * For variants, it creates a wellformedness case for each variant case. it supplies
-    the premises that the indexed type used to have.
-    * For structs/records, it creates a singular case where all premises of all fields
-    are checked.
-  * For definitions and relations, we collect terms that should have a wellformedness check 
-  and add it to the current premise list. This results in wellformedness predicates being
-  "bubbled up."
-  * Then finally, we traverse through the IL, removing any notion of indexed types.
-
-As an example,
-given the following variant indexed type:
-
-syntax foo(v : t) = 
-  | CASE{v2 : t}(v2 : t)
-  -- if v = v2
-
-where t is an arbitrary type, and v and v2 are terms of type t.
-
-Assume that type t needs a wellformedness check.
-
-This is transformed into: 
-
-syntax foo = 
-  | CASE{v2 : t}(v2 : t)
-
-relation wf_foo: `%%`(t, foo)
-  rule foo_case_0{v : t, v2 : t}:
-    `%%`(v, CASE_foo(v2))
-    -- wf_t: `%`(v)
-    -- if (v = v2)
-
-This pass requires the typefamilyremoval pass to be ran first, as it ensures that type families are
-transformed correctly.
-*)
-
 open Il.Ast
 open Util.Source
 open Util.Error
@@ -63,6 +21,8 @@ let empty () = {
 
 let wf_pred_prefix = "wf_"
 let rule_prefix = "case_"
+
+let wf_hint_id = "wf-relation"
 
 (* flag that deactivates adding wellformedness predicates to relations *)
 let deactivate_wfness = false
@@ -102,20 +62,35 @@ let is_type_param param =
   | TypP _ -> true
   | _ -> false
 
+let check_iter free_set iter =
+  match iter with
+  | ListN (_, Some id) -> Free.Set.mem id.it free_set
+  | _ -> false
+
 let filter_iter_quants exp iter_quants = 
   let free_vars = (Free.free_exp exp).varid in
-  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) -> 
+  (List.fold_left (fun (free_set, acc) (iter, id_exp_pairs) ->
+    let has_definite_iter = check_iter free_set iter in
+
     let new_id_exp_pairs = List.filter (fun (id, _) -> 
       Free.Set.mem id.it free_set
     ) id_exp_pairs in
-    if new_id_exp_pairs = [] then (free_set, acc) else 
+    
+    (* Must preserve iteration if the iteration variable (i.e. i) is used,
+     * EVEN if the list itself is not being used.
+     *)
+    let new_id_exp_pairs' = if has_definite_iter then id_exp_pairs else
+      new_id_exp_pairs 
+    in
+  
+    if new_id_exp_pairs' = [] && (not has_definite_iter) then (free_set, acc) else 
     let iter_vars = List.fold_left (fun acc (_, e) ->
       Free.Set.union acc (Free.free_exp e).varid  
-    ) Free.Set.empty new_id_exp_pairs in 
+    ) Free.Set.empty new_id_exp_pairs' in 
     let new_set = Free.Set.union iter_vars free_set in
-    (new_set, (iter, new_id_exp_pairs) :: acc)
+    (new_set, (iter, new_id_exp_pairs') :: acc)
   ) (free_vars, []) iter_quants) 
-  |> snd |> List.rev
+  |> snd |> List.rev 
 
 let rec create_collector iterexps = 
   let base_collector_iters: ((exp * typ) * iterexp list) list collector = base_collector [] (@) in
@@ -206,7 +181,7 @@ let rec get_wf_pred env (exp, t) =
         | ExpA exp -> Some exp
         | _ -> None
       ) args in
-      let tupt = TupT (List.map (fun e -> "_" $ id.at, e.note) exp_args) $ id.at in
+      let tupt = TupT (List.map (fun e -> "_" $ id.at, e.note) exp_args @ [("_" $ id.at, t')]) $ id.at in
       let tuple_exp = TupE (exp_args @ [exp']) $$ id.at % tupt in
       [RulePr (wf_pred_prefix ^ id.it $ id.at, [], new_mixop, tuple_exp) $ id.at]
     | IterT (typ, iter) ->
@@ -229,7 +204,9 @@ let get_exp_typ q =
   match q.it with
   | ExpP (id, typ) -> Some (VarE id $$ id.at % typ, typ)
   | _ -> None
-  
+
+let generate_well_formed_rel_hint at: hint = { hintid = wf_hint_id $ at; hintexp = El.Ast.SeqE [] $ at} 
+
 let create_well_formed_predicate env id inst = 
   let tf = { base_transformer with transform_exp = t_exp env; transform_typ = t_typ} in
   let at = id.at in 
@@ -240,6 +217,7 @@ let create_well_formed_predicate env id inst =
       | _ -> None
     ) quants) in
   let tupt pairs = TupT (pairs @ [("_" $ at, user_typ)]) $ at in
+  let hint = HintD (RelH (wf_pred_prefix ^ id.it $ id.at, [generate_well_formed_rel_hint at]) $ at) $ at in 
   match inst.it with
   (* Variant well formedness predicate creation *)
   | InstD (quants, _args, {it = VariantT typcases; _}) -> 
@@ -251,8 +229,12 @@ let create_well_formed_predicate env id inst =
       in 
       let extra_quants, t_pairs = Utils.improve_ids_quants [] true id.at exp_typ_pairs in
       let new_quants = case_quants @ extra_quants in 
-      let exp = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) t_pairs) $$ at % (TupT t_pairs $ at) in 
-      let case_exp = CaseE (m, exp) $$ at % user_typ in
+      let exp = match case_typ.it, t_pairs with
+        | TupT _, _ -> TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) t_pairs) $$ at % (TupT t_pairs $ at)
+        | _, [(id', t)] -> VarE id' $$ id'.at % t
+        | _ -> error at "Non-tuple case type should have exactly one argument"
+      in
+      let case_exp = CaseE (m, exp, Unchecked) $$ at % user_typ in
       let tuple_exp = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) dep_exp_typ_pairs @ [case_exp]) $$ at % tupt pairs_without_names in
       let extra_prems = List.filter_map get_exp_typ new_quants |> List.concat_map (get_wf_pred env) in
       RuleD (id.it ^ "_" ^ rule_prefix ^ Int.to_string i $ at, 
@@ -265,10 +247,10 @@ let create_well_formed_predicate env id inst =
     let has_no_prems = List.for_all (fun rule -> match rule.it with
       | RuleD (_, _, _, _, prems) -> prems = []   
     ) rules in
-    if has_no_prems then None else 
+    if has_no_prems then [] else 
     let relation = RelD (wf_pred_prefix ^ id.it $ id.at, [], new_mixop dep_exp_typ_pairs, tupt pairs_without_names, rules) $ at in 
     bind_wf_set env id.it;
-    Some relation
+    [relation; hint]
 
   (* Struct/Record well formedness predicate creation *)
   | InstD (quants, _args, {it = StructT typfields; _}) -> 
@@ -290,7 +272,7 @@ let create_well_formed_predicate env id inst =
       let tupe = TupE [VarE id $$ id.at % t] $$ at % tupt in 
       if wrapped then (a, tupe) else 
       (a, VarE id $$ id.at % t)
-    ) atoms (List.combine pairs' is_wrapped)) $$ at % user_typ in 
+    ) atoms (List.combine pairs' is_wrapped), Unchecked) $$ at % user_typ in 
     let tupe = TupE (List.map (fun (id, t) -> VarE id $$ id.at % t) dep_exp_typ_pairs @ [str_exp]) $$ at % tupt pairs_without_names in
     let rule = RuleD (id.it ^ "_" ^ rule_prefix $ id.at, 
       List.map (transform_param tf) (quants @ rule_quants), 
@@ -299,11 +281,11 @@ let create_well_formed_predicate env id inst =
       List.map (transform_prem tf) (new_prems)) $ at 
     in
   
-    if new_prems = [] then None else 
+    if new_prems = [] then [] else 
     let relation = RelD (wf_pred_prefix ^ id.it $ id.at, [], new_mixop dep_exp_typ_pairs, tupt pairs_without_names, [rule]) $ at in 
     bind_wf_set env id.it;
-    Some relation
-  | _ -> None
+    [relation; hint]
+  | _ -> []
 
 let get_extra_prems env quants exp prems = 
   if deactivate_wfness then [] else 
@@ -337,7 +319,7 @@ let t_rule env rule =
       List.map (transform_param tf) quants, 
       m, 
       transform_exp tf exp, 
-      List.map (transform_prem tf) (extra_prems @ prems) 
+      List.map (transform_prem tf) (prems @ extra_prems) 
     )
   ) $ rule.at
 
@@ -352,7 +334,7 @@ let t_clause env clause =
     DefD (List.map (transform_param tf) quants, 
       List.map (transform_arg tf) args,
       transform_exp tf exp, 
-      List.map (transform_prem tf) (extra_prems @ prems)
+      List.map (transform_prem tf) (prems @ extra_prems)
     )
   ) $ clause.at
 
@@ -387,7 +369,7 @@ let rec t_def env def =
     (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [inst]) $ def.at, [])
   | TypD (id, params, [inst]) -> 
     let relation = create_well_formed_predicate env id inst in
-    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, Option.to_list relation)
+    (TypD (id, List.map (transform_param tf) params |> List.filter is_type_param, [t_inst env inst]) $ def.at, relation)
   | TypD (_, _, _) -> 
     error def.at "Multiples instances encountered, please run type family removal pass first."
   | RelD (id, params, m, typ, rules) -> 

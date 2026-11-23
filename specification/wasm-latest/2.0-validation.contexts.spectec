@@ -12,7 +12,7 @@ syntax localtype hint(desc "local type") =
   init valtype
 
 syntax instrtype hint(desc "instruction type") =
-  resulttype ->_ localidx* resulttype  hint(macro "to")
+  resulttype ->_(localidx*) resulttype  hint(macro "to")
 
 
 var lct : localtype  hint(show lt)
@@ -21,9 +21,8 @@ var it : instrtype
 
 ;; Contexts
 
-syntax context hint(desc "context") hint(macro "%" "C%") =
+syntax context/syn hint(desc "context") hint(macro "%" "C%") =
   { TYPES deftype*          hint(desc "type"),
-    RECS subtype*           hint(desc "recursive type"),
     TAGS tagtype*           hint(desc "tag"),
     GLOBALS globaltype*     hint(desc "global"),
     MEMS memtype*           hint(desc "memory"),
@@ -34,8 +33,12 @@ syntax context hint(desc "context") hint(macro "%" "C%") =
     LOCALS localtype*       hint(desc "local"),
     LABELS resulttype*      hint(desc "label"),
     RETURN resulttype?      hint(desc "result"),
-    REFS funcidx*
+    REFS funcidx*           hint(desc "references"),
+    ...
   }
+
+syntax context/sem hint(macro "%" "C%") =
+  { ..., RECS subtype*      hint(desc "recursive type") }
 
 var C : context
 
@@ -43,7 +46,7 @@ var C : context
 ;; Context update
 
 ;; TODO(3, rossberg): is there a way to show this as %[.LOCAL[%]* = %*] ?
-def $with_locals(context, localidx*, localtype*) : context  hint(show %[.LOCAL[%]=%]) hint(prose "%1 with the local types of %2 updated to %3")
+def $with_locals(context, localidx*, localtype*) : context  hint(show %[.LOCAL[%]=%]) hint(prose "%1 with the local types of %2 updated to %3") hint(partial)
 
 def $with_locals(C, eps, eps) = C
 def $with_locals(C, x_1 x*, lct_1 lct*) = $with_locals(C[.LOCALS[x_1] = lct_1], x*, lct*)

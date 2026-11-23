@@ -141,12 +141,12 @@ and subst_deftyp s dt =
 and subst_typfield s (atom, (t, qs, prems), hints) =
   let t', s' = subst_typ' s t in
   let qs', s'' = subst_quants s' qs in
-  (atom, (t', qs', subst_list subst_prem s'' prems), hints)
+  (atom, (t', qs', subst_prems s'' prems), hints)
 
 and subst_typcase s (op, (t, qs, prems), hints) =
   let t', s' = subst_typ' s t in
   let qs', s'' = subst_quants s' qs in
-  (op, (t', qs', subst_list subst_prem s'' prems), hints)
+  (op, (t', qs', subst_prems s'' prems), hints)
 
 
 (* Expressions *)
@@ -166,7 +166,7 @@ and subst_exp s e =
   | SliceE (e1, e2, e3) -> SliceE (subst_exp s e1, subst_exp s e2, subst_exp s e3)
   | UpdE (e1, p, e2) -> UpdE (subst_exp s e1, subst_path s p, subst_exp s e2)
   | ExtE (e1, p, e2) -> ExtE (subst_exp s e1, subst_path s p, subst_exp s e2)
-  | StrE efs -> StrE (subst_list subst_expfield s efs)
+  | StrE (efs, ch) -> StrE (subst_list subst_expfield s efs, ch)
   | DotE (e1, atom) -> DotE (subst_exp s e1, atom)
   | CompE (e1, e2) -> CompE (subst_exp s e1, subst_exp s e2)
   | MemE (e1, e2) -> MemE (subst_exp s e1, subst_exp s e2)
@@ -186,9 +186,9 @@ and subst_exp s e =
   | ListE es -> ListE (subst_list subst_exp s es)
   | LiftE e -> LiftE (subst_exp s e)
   | CatE (e1, e2) -> CatE (subst_exp s e1, subst_exp s e2)
-  | CaseE (op, e1) ->
+  | CaseE (op, e1, ch) ->
     assert (match e.note.it with VarT _ -> true | _ -> false);
-    CaseE (op, subst_exp s e1)
+    CaseE (op, subst_exp s e1, ch)
   | CvtE (e1, nt1, nt2) -> CvtE (subst_exp s e1, nt1, nt2)
   | SubE (e1, t1, t2) -> SubE (subst_exp s e1, subst_typ s t1, subst_typ s t2)
   | IfE (e1, e2, e3) -> IfE (subst_exp s e1, subst_exp s e2, subst_exp s e3)
@@ -238,9 +238,14 @@ and subst_prem s prem =
   | IterPr (prem1, iterexp) ->
     let prem1', it' = subst_iterexp s subst_prem prem1 iterexp in
     IterPr (prem1', it')
-  | LetPr (e1, e2, xs) -> LetPr (subst_exp s e1, subst_exp s e2, xs)
+  | LetPr (qs, e1, e2) ->
+    let s' = remove_varids s (Free.bound_quants qs).Free.varid in
+    LetPr (qs, subst_exp s' e1, subst_exp s e2)
   | NegPr prem1 -> NegPr (subst_prem s prem1)
   ) $ prem.at
+
+and subst_prems s prems =
+  fst (subst_list_dep subst_prem Free.bound_prem s prems)
 
 
 (* Definitions *)
@@ -276,4 +281,4 @@ let subst_typ s t = if s = empty then t else subst_typ s t
 let subst_deftyp s dt = if s = empty then dt else subst_deftyp s dt
 let subst_exp s e = if s = empty then e else subst_exp s e
 let subst_sym s g = if s = empty then g else subst_sym s g
-let subst_prem s pr = if s = empty then pr else subst_prem s pr
+let subst_prems s prs = if s = empty then prs else subst_prems s prs

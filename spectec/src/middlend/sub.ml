@@ -1,27 +1,3 @@
-(*
-This transformation replaces SubE expressions with explicit subtype injection
-functions.
-
- 1. It traverses all expressions and finds out which type pairs
-    occur in SubE expressions
-    - all type pairs mentioned in SubE expressions
-    - for all variant types: list of constructors
-    - for all alias types: right hand side of the alias
-
- 2. It traverses all definitions to collect information about variant types and
-    type aliases (assuming only such types occur in type aliases).
-
- 3. It generates explicit injection functions for pairs, and put them in the
- right spot (after both types are defined, but outside `RecD` groups)
-
- 4. It replaces occurrences of SubE with a suitable CallE
-
-Step 1 and 4 are done together, and step 2 and 3
-
-This pass assumes that there is no name shadowing in the type definitions.
-
-*)
-
 open Util
 open Source
 open Il.Ast
@@ -115,6 +91,11 @@ let rec t_exp env exp =
         if Il.Eq.eq_typ t t' then proj_exp else
         t_exp env (SubE (proj_exp, t, t') $$ exp.at % t')
       ) (List.combine ts ts')) $$ exp.at % sup_ty
+    | IterT (t1, iter1), IterT (t2, iter2) when Il.Eq.eq_iter iter1 iter2 ->
+      let new_iterid = Il.Fresh.fresh_varid "iter_val" in
+      let new_exp = VarE (new_iterid $ e.at) $$ e.at % t1 in
+      let new_iterexp = (iter1, [(new_iterid $ e.at, e)]) in
+      IterE (SubE (new_exp, t1, t2) $$ e.at % t2, new_iterexp) $$ e.at % sup_ty
     | _, _ ->
 (* Printf.eprintf "[sub @ %s REMAINS] %s  <:  %s\n%!" (string_of_region exp'.at) (Il.Print.string_of_typ sub_ty) (Il.Print.string_of_typ sup_ty); *)
       error sub_ty.at ("Non-variable or number type expression not supported `" ^ Il.Print.string_of_typ sub_ty ^ "`")
@@ -182,7 +163,7 @@ let insert_injections env (def : def) : def list =
     let clauses = List.map (fun (m, (arg_typ, _quants, _prems), _hints) ->
       let arg_typ2 = lookup_arg_typ cases_sub2 m in
       match arg_typ.it, arg_typ2 with
-      | TupT ts, Some {it = TupT ts'; _} ->
+      | TupT ts, Some ({it = TupT ts'; _} as arg_typ2') ->
         let quants = List.mapi (fun i (_, arg_typ_i) -> ExpP ("x" ^ string_of_int i $ no_region, arg_typ_i) $ no_region) ts in
         let xes is_lhs = List.map2 (fun quant (_, arg_typ_i2) ->
           match quant.it with
@@ -193,16 +174,16 @@ let insert_injections env (def : def) : def list =
             else SubE (base_exp, arg_typ_i, arg_typ_i2) $$ no_region % arg_typ_i2
           | TypP _ | DefP _ | GramP _ -> assert false) quants ts'
         in
-        let xe is_lhs = TupE (xes is_lhs) $$ no_region % arg_typ in
+        let xe is_lhs = TupE (xes is_lhs) $$ no_region % (if is_lhs then arg_typ else arg_typ2') in
         DefD (quants,
-          [ExpA (CaseE (m, xe true) $$ no_region % real_ty) $ no_region],
-          t_exp env (CaseE (m, xe false) $$ no_region % sup_ty), []) $ no_region
+          [ExpA (CaseE (m, xe true, Unchecked) $$ no_region % real_ty) $ no_region],
+          t_exp env (CaseE (m, xe false, Unchecked) $$ no_region % sup_ty), []) $ no_region
       | _ ->
         let x = "x" $ no_region in
         let xe = VarE x $$ no_region % arg_typ in
         DefD ([ExpP (x, arg_typ) $ x.at],
-          [ExpA (CaseE (m, xe) $$ no_region % real_ty) $ no_region],
-          CaseE (m, xe) $$ no_region % sup_ty, []) $ no_region
+          [ExpA (CaseE (m, xe, Unchecked) $$ no_region % real_ty) $ no_region],
+          CaseE (m, xe, Unchecked) $$ no_region % sup_ty, []) $ no_region
       ) cases_sub in
     DecD (name, params_sub @ params_sup' @ [ExpP ("_" $ no_region, sub_ty) $ no_region], sup_ty, clauses) $ no_region
   ) pairs
