@@ -46,23 +46,18 @@ Definition same_opt {X : Type} (x_opt : option X) (y_opt : option X) : bool :=
 Definition list_zipWith {X Y Z : Type} (f : X -> Y -> Z) (xs : seq X) (ys : seq Y) : seq Z :=
 	seq.map (fun '(x, y) => f x y) (seq.zip xs ys).
 
-Definition slice {A : Type} (i j : nat) (l : list A) : list A :=
-  firstn (j - i) (skipn i l).
+(* DSL l[i : n]: start i, length n *)
+Definition slice {A : Type} (i n : nat) (l : list A) : list A :=
+  firstn n (skipn i l).
 
 (* PRE: i < size l *)
 Definition update {A : Type} (l : list A) (i : nat) (x : A) : list A :=
   set_nth x l i x.
 
-Definition update_slice {A : Type} (l : list A) (i : nat) (j : nat) (xs : list A) : list A :=
-  let idx_lst := iota i (j - i) in
-  foldl (fun acc '(idx, x) => update acc idx x) l (zip idx_lst xs)
-.
-
-Definition is_plaintyp (t : il_typ) : bool :=
-  match t with
-  | VarT _ _ => false
-  | _ => true
-  end
+(* DSL l[[i : n] = xs]: replace the slice of length n at i by xs (a splice;
+   |xs| may differ from n) *)
+Definition update_slice {A : Type} (l : list A) (i : nat) (n : nat) (xs : list A) : list A :=
+  take i l ++ xs ++ drop (i + n) l
 .
 
 Fixpoint disjoint {X : eqType} (xs : list X) : bool :=
@@ -109,20 +104,6 @@ Definition transpose_opt {X : Type} (xss : option (list X)) : list (option X) :=
   end
 .
 
-Definition is_expmatch (x : argmatch) : bool :=
-  match x with
-  | MatchA (ExpA _) (ExpA _) => true
-  | _ => false
-  end
-.
-
-Definition to_argmatch (x : expmatch) : argmatch :=
-  match x with
-  | FailEM => FailA
-  | MatchEM e e' => MatchA (ExpA e) (ExpA e')
-  end
-.
-
 Definition list_mapi {X Y : Type} (f : nat -> X -> Y) (xs : list X) : list Y :=
   let idxs := iota 0 (size xs) in
   List.map (fun '(i, x) => f i x) (zip idxs xs)
@@ -138,20 +119,10 @@ Definition list_map3 {A B C D: Type} (f : A -> B -> C -> D) (xs : seq A) (ys : s
 	seq.map (fun '(x, (y, z)) => f x y z) (seq.zip xs (seq.zip ys zs))
 .
 
-Definition atomtyp (x : typfield) : atom * il_typ :=
-  match x with
-  | (a, _, t, _) => (a, t)
-  end
-.
+Definition atomtyp (x : typfield) : atom * il_typ := (tf_atom x, tf_typ x).
 
 Definition atomtyps (xs : list typfield) : list (atom * il_typ) :=
   List.map atomtyp xs
-.
-
-Definition exp_from_field (x : expfield) : il_exp :=
-  match x with
-  | (a, e) => e
-  end
 .
 
 (* Decidable equality axiom *)
