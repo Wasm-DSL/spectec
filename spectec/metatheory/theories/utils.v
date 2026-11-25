@@ -1,5 +1,5 @@
 From Stdlib Require Import List String Reals.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.
+From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 Import ListNotations.
 From MetaSpectec Require Import syntax.
 From HB Require Import structures.

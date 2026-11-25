@@ -8,5 +8,6 @@
   (depends
     (coq (>= 9.0))
     (coq-mathcomp-ssreflect (and (>= 2.0.0) (<= 2.4.0)))
+    (coq-record-update (>= 0.3.6))
   )
 )

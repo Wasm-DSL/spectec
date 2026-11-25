@@ -1,4 +1,4 @@
-From Stdlib Require Import List String.
+From Stdlib Require Import List String NArith ZArith QArith.
 From mathcomp Require Import all_ssreflect all_algebra.
 Import GRing.Theory.
 
@@ -71,10 +71,14 @@ Inductive numtyp : Type :=
   | RealT
 .
 
+(* Numbers use Stdlib N, Z and Q, as in the Rocq backend.  Q is not
+   canonical (1#2 and 2#4 are different terms), while value equality is
+   Leibniz equality; hence rationals are kept in normal form (Qred), which
+   all operations in numerics.v ensure. *)
 Inductive il_num : Type :=
-  | NatE : nat -> il_num
-  | IntE : int -> il_num
-  | RatE : rat -> il_num
+  | NatE : N -> il_num
+  | IntE : Z -> il_num
+  | RatE : Q -> il_num
   | RealE : R -> il_num
 .
 

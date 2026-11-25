@@ -1,5 +1,5 @@
 From Stdlib Require Import List String.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.
+From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 From MetaSpectec Require Import syntax env subst utils semantics.
 Import ListNotations.
 Open Scope env_scope.

@@ -1,5 +1,5 @@
-From Stdlib Require Import List String.
-From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype rat ssrint.
+From Stdlib Require Import List String NArith.
+From mathcomp Require Import ssreflect ssrfun ssrnat ssrbool seq eqtype.
 From MetaSpectec Require Import syntax env subst numerics utils.
 Import ListNotations.
 Open Scope env_scope.
@@ -16,7 +16,10 @@ Open Scope env_scope.
    [option_map] so that one rule covers both the step and its failure.
 
    Inductive premises use projections (tf_typ, ef_exp, ...) rather than
-   destructuring patterns, which the positivity checker rejects. *)
+   destructuring patterns, which the positivity checker rejects.
+
+   NAT numbers are Stdlib N, while list indices and lengths are nat; rules
+   that index lists hence take n : nat and match on NatE (N.of_nat n). *)
 
 (* Non-mutual parts *)
 
@@ -58,7 +61,7 @@ Inductive ok_numbinop : numbinop -> numtyp -> numtyp -> numtyp -> Prop :=
 Definition iter_subst (eps : list exppull) (ess : list (list il_exp)) (y : il_id) (default : il_exp) (i : nat) : il_subst :=
   append_subst
     (many_svars (zip (List.map pull_id eps) (List.map (fun es => nth default es i) ess)))
-    (subst_svar y (NumE (NatE i))).
+    (subst_svar y (NumE (NatE (N.of_nat i)))).
 
 Inductive
 
@@ -161,7 +164,7 @@ with step_exp : store -> il_exp -> option il_exp -> Prop :=
     List.nth_error vs n = Some v ->
     step_exp s (ProjE (val_to_exp (TupV vs)) n) (Some (val_to_exp v))
   | se_len_list : forall s vs,
-    step_exp s (LenE (val_to_exp (ListV vs))) (Some (NumE (NatE (size vs))))
+    step_exp s (LenE (val_to_exp (ListV vs))) (Some (NumE (NatE (N.of_nat (size vs)))))
   | se_mem_true : forall s v vs,
     List.In v vs ->
     step_exp s (MemE (val_to_exp v) (val_to_exp (ListV vs))) (Some (BoolE true))
@@ -207,19 +210,19 @@ with step_exp : store -> il_exp -> option il_exp -> Prop :=
   | se_acc_idx_inb : forall s e p vs n v,
     step_exp s (AccE e p) (Some (val_to_exp (ListV vs))) ->
     List.nth_error vs n = Some v ->
-    step_exp s (AccE e (IdxP p (NumE (NatE n)))) (Some (val_to_exp v))
+    step_exp s (AccE e (IdxP p (NumE (NatE (N.of_nat n))))) (Some (val_to_exp v))
   | se_acc_idx_oob : forall s e p es n,
     step_exp s (AccE e p) (Some (ListE es)) ->
     size es <= n ->
-    step_exp s (AccE e (IdxP p (NumE (NatE n)))) None
+    step_exp s (AccE e (IdxP p (NumE (NatE (N.of_nat n))))) None
   | se_acc_slice_inb : forall s e p vs n m,
     step_exp s (AccE e p) (Some (val_to_exp (ListV vs))) ->
     n + m <= size vs ->
-    step_exp s (AccE e (SliceP p (NumE (NatE n)) (NumE (NatE m)))) (Some (ListE (slice n m (List.map val_to_exp vs))))
+    step_exp s (AccE e (SliceP p (NumE (NatE (N.of_nat n))) (NumE (NatE (N.of_nat m))))) (Some (ListE (slice n m (List.map val_to_exp vs))))
   | se_acc_slice_oob : forall s e p es n m,
     step_exp s (AccE e p) (Some (ListE es)) ->
     size es < n + m ->
-    step_exp s (AccE e (SliceP p (NumE (NatE n)) (NumE (NatE m)))) None
+    step_exp s (AccE e (SliceP p (NumE (NatE (N.of_nat n))) (NumE (NatE (N.of_nat m))))) None
   | se_acc_dot : forall s e p t vfs n a v,
     step_exp s (AccE e p) (Some (val_to_exp (StrV t vfs))) ->
     List.nth_error vfs n = Some (a, v) ->
@@ -244,20 +247,20 @@ with step_exp : store -> il_exp -> option il_exp -> Prop :=
   | se_upd_idx_inb : forall s e1 p n e2 vs,
     step_exp s (AccE e1 p) (Some (val_to_exp (ListV vs))) ->
     n < size vs ->
-    step_exp s (UpdE e1 (IdxP p (NumE (NatE n))) e2) (Some (UpdE e1 p (ListE (update (List.map val_to_exp vs) n e2))))
+    step_exp s (UpdE e1 (IdxP p (NumE (NatE (N.of_nat n)))) e2) (Some (UpdE e1 p (ListE (update (List.map val_to_exp vs) n e2))))
   | se_upd_idx_oob : forall s e1 p n e2 es,
     step_exp s (AccE e1 p) (Some (ListE es)) ->
     size es <= n ->
-    step_exp s (UpdE e1 (IdxP p (NumE (NatE n))) e2) None
+    step_exp s (UpdE e1 (IdxP p (NumE (NatE (N.of_nat n)))) e2) None
   | se_upd_slice_inb : forall s e1 p n m e2s vs,
     step_exp s (AccE e1 p) (Some (val_to_exp (ListV vs))) ->
     n + m <= size vs ->
-    step_exp s (UpdE e1 (SliceP p (NumE (NatE n)) (NumE (NatE m))) (ListE e2s))
+    step_exp s (UpdE e1 (SliceP p (NumE (NatE (N.of_nat n))) (NumE (NatE (N.of_nat m)))) (ListE e2s))
       (Some (UpdE e1 p (ListE (update_slice (List.map val_to_exp vs) n m e2s))))
   | se_upd_slice_oob : forall s e1 p n m e2s es,
     step_exp s (AccE e1 p) (Some (ListE es)) ->
     size es < n + m ->
-    step_exp s (UpdE e1 (SliceP p (NumE (NatE n)) (NumE (NatE m))) (ListE e2s)) None
+    step_exp s (UpdE e1 (SliceP p (NumE (NatE (N.of_nat n))) (NumE (NatE (N.of_nat m)))) (ListE e2s)) None
   (* premises reset on the result, to trigger a recheck *)
   | se_upd_dot : forall s e1 p e2 t vfs n a v',
     step_exp s (AccE e1 p) (Some (val_to_exp (StrV t vfs))) ->
@@ -291,16 +294,16 @@ with step_exp : store -> il_exp -> option il_exp -> Prop :=
     List.Forall2 (fun ep es => pull_exp ep = ListE es) eps ess ->
     ess = es0 :: ess' ->
     Fresh_id y ->
-    step_exp s (IterE e I_STAR eps) (Some (IterE e (I_SUP y (NumE (NatE (size es0)))) eps))
+    step_exp s (IterE e I_STAR eps) (Some (IterE e (I_SUP y (NumE (NatE (N.of_nat (size es0))))) eps))
   | se_iter_sup_good : forall s e y n eps ess,
     List.Forall2 (fun ep es => pull_exp ep = ListE es) eps ess ->
     List.Forall (fun es => size es = n) ess ->
-    step_exp s (IterE e (I_SUP y (NumE (NatE n))) eps)
+    step_exp s (IterE e (I_SUP y (NumE (NatE (N.of_nat n)))) eps)
       (Some (ListE (List.map (fun i => subst_exp (iter_subst eps ess y (VarE y) i) e) (iota 0 n))))
   | se_iter_sup_bad : forall s e y n eps ess,
     List.Forall2 (fun ep es => pull_exp ep = ListE es) eps ess ->
     List.Exists (fun es => size es <> n) ess ->
-    step_exp s (IterE e (I_SUP y (NumE (NatE n))) eps) None
+    step_exp s (IterE e (I_SUP y (NumE (NatE (N.of_nat n)))) eps) None
 
   | se_call_apply : forall s x args ps t cs,
     s_lookup_fun s x = Some (ps, t, cs) ->
@@ -594,9 +597,9 @@ with step_expmatch : store -> list il_quant -> list expmatch -> il_subst -> opti
       (Some (List.concat (List.map (fun xs => list_zipWith (fun x' ep => ExpP x' (pull_typ ep)) xs eps) xss) ++ qs,
              list_zipWith (fun i xe =>
                (xe.2, subst_exp (append_subst (many_svars (list_zipWith (fun ep x' => (pull_id ep, VarE x')) eps xe.1))
-                                              (subst_svar y (NumE (NatE i)))) e'))
+                                              (subst_svar y (NumE (NatE (N.of_nat i))))) e'))
                (iota 0 (size es)) (zip xss es)
-             ++ [(NumE (NatE (size es)), en)]
+             ++ [(NumE (NatE (N.of_nat (size es))), en)]
              ++ list_mapi (fun j ep => (ListE (List.map (fun xs => VarE (nth EmptyString xs j)) xss), pull_exp ep)) eps))
 
 with step_expmatch_plain : store -> list expmatch -> option (list expmatch) -> Prop :=
@@ -676,7 +679,7 @@ with step_expmatch_plain : store -> list expmatch -> option (list expmatch) -> P
     step_expmatch_plain s [(ListE [], IterE e' I_PLUS eps)] None
   | semp_iter_star : forall s es e' eps y,
     Fresh_id y ->
-    step_expmatch_plain s [(ListE es, IterE e' I_STAR eps)] (Some [(ListE es, IterE e' (I_SUP y (NumE (NatE (size es)))) eps)])
+    step_expmatch_plain s [(ListE es, IterE e' I_STAR eps)] (Some [(ListE es, IterE e' (I_SUP y (NumE (NatE (N.of_nat (size es))))) eps)])
   | semp_sub_sub : forall s e t1 t2 e' t1' t2',
     sub_typ (store_to_env s) t1 t1' ->
     step_expmatch_plain s [(SubE e t1 t2, SubE e' t1' t2')] (Some [(SubE e t1 t1', e')])
@@ -790,7 +793,7 @@ with step_prems : store -> list il_prem -> il_subst -> option (list il_prem) -> 
     ess = es0 :: ess' ->
     Fresh_id y ->
     step_prems s [IterPr pr I_STAR eps eqs] subst_empty
-      (Some [IterPr pr (I_SUP y (NumE (NatE (size es0)))) eps eqs])
+      (Some [IterPr pr (I_SUP y (NumE (NatE (N.of_nat (size es0))))) eps eqs])
   (* yss: distinct fresh names for the binders of each iteration's copy of pr *)
   | sp_iter_sup_good : forall s pr y n eps eqs ess yss,
     List.Forall2 (fun ep es => pull_exp ep = ListE es) eps ess ->
@@ -801,14 +804,14 @@ with step_prems : store -> list il_prem -> il_subst -> option (list il_prem) -> 
     List.NoDup (List.concat yss) ->
     let si := iter_subst eps ess y (VarE y) in
     let r := fun i => rename_prem pr (nth [] yss i) in
-    step_prems s [IterPr pr (I_SUP y (NumE (NatE n))) eps eqs]
+    step_prems s [IterPr pr (I_SUP y (NumE (NatE (N.of_nat n)))) eps eqs]
       (many_svars (List.map (fun eq =>
         (push_id eq, ListE (List.map (fun i => subst_exp (append_subst (si i) (r i).2) (push_exp eq)) (iota 0 n)))) eqs))
       (Some (List.map (fun i => subst_prem (si i) (r i).1) (iota 0 n)))
   | sp_iter_sup_bad : forall s pr y n eps eqs ess,
     List.Forall2 (fun ep es => pull_exp ep = ListE es) eps ess ->
     List.Exists (fun es => size es <> n) ess ->
-    step_prems s [IterPr pr (I_SUP y (NumE (NatE n))) eps eqs] subst_empty None
+    step_prems s [IterPr pr (I_SUP y (NumE (NatE (N.of_nat n)))) eps eqs] subst_empty None
 
   | sp_if_ctx : forall s e oe,
     step_exp s e oe ->

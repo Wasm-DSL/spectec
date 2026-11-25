@@ -1,11 +1,7 @@
-From Stdlib Require Import List String.
-From mathcomp Require Import all_ssreflect all_algebra ssrnat ssrint.
+From Stdlib Require Import List String NArith ZArith QArith.
+From mathcomp Require Import all_ssreflect all_algebra.
 Import GRing.Theory.
 From MetaSpectec Require Import syntax.
-
-Coercion absz : int >-> nat.
-
-Coercion ratz: int >-> rat.
 
 (* Booleans *)
 
@@ -24,38 +20,57 @@ Definition boolbin (op : boolbinop) (b1 b2 : bool) : bool :=
   end
 .
 
-Definition iszero (x : il_num) : bool := 
+(* Stdlib rationals: comparisons and normal form *)
+
+Definition Qlt_bool (x y : Q) : bool := negb (Qle_bool y x).
+
+(* Q -> Z, if the rational is an integer *)
+Definition Q_to_Z (q : Q) : option Z :=
+  let q' := Qred q in
+  if Pos.eqb (Qden q') 1 then Some (Qnum q') else None.
+
+(* Embeddings into the reals *)
+
+Definition N_to_R (n : N) : R := ((N.to_nat n)%:R)%R.
+
+Definition Z_to_R (z : Z) : R :=
+  if Z.ltb z 0 then (- ((Z.to_nat (- z))%:R))%R else ((Z.to_nat z)%:R)%R.
+
+Definition Q_to_R (q : Q) : R :=
+  (Z_to_R (Qnum q) / ((Pos.to_nat (Qden q))%:R))%R.
+
+Definition iszero (x : il_num) : bool :=
   match x with
-  | NatE n => n == 0%N
-  | IntE i => i == 0%Z
-  | RatE r => r == 0%Q
-  | RealE r => r == 0%R
+  | NatE n => N.eqb n 0
+  | IntE i => Z.eqb i 0
+  | RatE q => Qeq_bool q 0
+  | RealE r => (r == 0)%R
   end
 .
 
-Definition isone (x : il_num) : bool := 
+Definition isone (x : il_num) : bool :=
   match x with
-  | NatE n => n == 1%N
-  | IntE i => i == 1%Z
-  | RatE r => r == 1%Q 
-  | RealE r => r == 1%R
+  | NatE n => N.eqb n 1
+  | IntE i => Z.eqb i 1
+  | RatE q => Qeq_bool q 1
+  | RealE r => (r == 1)%R
   end
 .
 
 Definition isneg (x : il_num) : bool :=
   match x with
   | NatE n => false
-  | IntE i => (i < 0)%R
-  | RatE r => (r < 0)%R
+  | IntE i => Z.ltb i 0
+  | RatE q => Qlt_bool q 0
   | RealE r => (r < 0)%R
   end
 .
 
 Definition option_map {α β : Type} (f : α -> β) (x : option α) : option β :=
-	match x with
+  match x with
   | Some x => Some (f x)
   | _ => None
-	end.
+  end.
 
 Definition option_join {α : Type} (x : option (option α)) : option α :=
   match x with
@@ -66,29 +81,24 @@ Definition option_join {α : Type} (x : option (option α)) : option α :=
 
 (* Numerics *)
 
-Definition rat_to_int (x : rat) : option int :=
-  if isone (IntE (denq x)) then Some (numq x) else None
-.
-
-Definition int_to_nat_num (x : int) : option il_num :=
-  if (x >= 0)%R then Some (NatE x) else None.
+Definition int_to_nat_num (x : Z) : option il_num :=
+  if Z.leb 0 x then Some (NatE (Z.to_N x)) else None.
 
 (* $numcvt for sources other than REAL, and REAL -> REAL *)
 Definition numcvt (nt : numtyp) (val : il_num) : option il_num :=
   match nt, val with
   | NatT, NatE n => Some (NatE n)
   | NatT, IntE i => int_to_nat_num i
-  | NatT, RatE r => let opt := rat_to_int r in
-    option_join (option_map (fun i => int_to_nat_num i) opt)
-  | IntT, NatE n => Some (IntE n)
+  | NatT, RatE q => option_join (option_map int_to_nat_num (Q_to_Z q))
+  | IntT, NatE n => Some (IntE (Z.of_N n))
   | IntT, IntE i => Some (IntE i)
-  | IntT, RatE r => if isone (IntE (denq r)) then Some (IntE (numq r)) else None
-  | RatT, NatE n => Some (RatE (n%:Q))
-  | RatT, IntE i => Some (RatE (i%:Q))
-  | RatT, RatE r => Some (RatE r)
-  | RealT, NatE n => Some (RealE (n%:R))
-  | RealT, IntE i => Some (RealE (i%:R))
-  | RealT, RatE r => Some (RealE (ratr r))
+  | IntT, RatE q => option_map IntE (Q_to_Z q)
+  | RatT, NatE n => Some (RatE (inject_Z (Z.of_N n)))
+  | RatT, IntE i => Some (RatE (inject_Z i))
+  | RatT, RatE q => Some (RatE (Qred q))
+  | RealT, NatE n => Some (RealE (N_to_R n))
+  | RealT, IntE i => Some (RealE (Z_to_R i))
+  | RealT, RatE q => Some (RealE (Q_to_R q))
   | RealT, RealE r => Some (RealE r)
   (* Handled by num_cvt: whether a real is rational is not decidable *)
   | _, RealE _ => None
@@ -103,80 +113,83 @@ Definition is_real_to_exact (nt : numtyp) (val : il_num) : bool :=
   end.
 
 (* $numcvt as a (functional) relation; None = undefined.
-   DSL: $numcvt(nt, REAL r) = $numcvt(nt, RAT $rat$(r))  -- if r = $rat$(r) *)
+   DSL: $numcvt(nt, REAL r) = $numcvt(nt, RAT $rat$(r))  -- if r = $rat$(r)
+   (Qred makes the result independent of the representative q) *)
 Inductive num_cvt : numtyp -> il_num -> option il_num -> Prop :=
   | ncvt_exact : forall nt val,
     ~~ is_real_to_exact nt val ->
     num_cvt nt val (numcvt nt val)
   | ncvt_real_rat : forall nt q,
-    is_real_to_exact nt (RealE (ratr q)) ->
-    num_cvt nt (RealE (ratr q)) (numcvt nt (RatE q))
+    is_real_to_exact nt (RealE (Q_to_R q)) ->
+    num_cvt nt (RealE (Q_to_R q)) (numcvt nt (RatE (Qred q)))
   | ncvt_real_irrat : forall nt r,
     is_real_to_exact nt (RealE r) ->
-    (forall q, r <> ratr q) ->
+    (forall q, r <> Q_to_R q) ->
     num_cvt nt (RealE r) None
 .
 
 Definition numun (op : numunop) (val : il_num) : option il_num :=
   match op, val with
   | PlusOp, n => Some n
-  | MinusOp, NatE n => Some (IntE (0 - n%:R)%R) 
-  | MinusOp, IntE i => Some (IntE (0 - i)%R)
-  | MinusOp, RatE r => Some (RatE (0 - r)%R)
-  | MinusOp, RealE r => Some (RealE (0 - r)%R)
+  | MinusOp, NatE n => Some (IntE (Z.opp (Z.of_N n)))
+  | MinusOp, IntE i => Some (IntE (Z.opp i))
+  | MinusOp, RatE q => Some (RatE (Qred (Qopp q)))
+  | MinusOp, RealE r => Some (RealE (- r)%R)
   end
 .
 
 Definition numbin (op : numbinop) (val1 val2 : il_num) : option il_num :=
   match op, val1, val2 with
-  | AddOp, NatE n1, NatE n2 => Some (NatE (n1 + n2)%nat)
-  | AddOp, IntE i1, IntE i2 => Some (IntE (i1 + i2)%R)
-  | AddOp, RatE r1, RatE r2 => Some (RatE (r1 + r2)%R)
+  | AddOp, NatE n1, NatE n2 => Some (NatE (N.add n1 n2))
+  | AddOp, IntE i1, IntE i2 => Some (IntE (Z.add i1 i2))
+  | AddOp, RatE q1, RatE q2 => Some (RatE (Qred (Qplus q1 q2)))
   | AddOp, RealE r1, RealE r2 => Some (RealE (r1 + r2)%R)
-  | SubOp, NatE n1, NatE n2 => if (n1 >= n2)%nat then Some (NatE (n1 - n2)%nat) else None
-  | SubOp, IntE i1, IntE i2 => Some (IntE (i1 - i2)%R)
-  | SubOp, RatE r1, RatE r2 => Some (RatE (r1 - r2)%R)
+  | SubOp, NatE n1, NatE n2 => if N.leb n2 n1 then Some (NatE (N.sub n1 n2)) else None
+  | SubOp, IntE i1, IntE i2 => Some (IntE (Z.sub i1 i2))
+  | SubOp, RatE q1, RatE q2 => Some (RatE (Qred (Qminus q1 q2)))
   | SubOp, RealE r1, RealE r2 => Some (RealE (r1 - r2)%R)
-  | MulOp, NatE n1, NatE n2 => Some (NatE (n1 * n2)%nat)
-  | MulOp, IntE i1, IntE i2 => Some (IntE (i1 * i2)%R)
-  | MulOp, RatE r1, RatE r2 => Some (RatE (r1 * r2)%R)
+  | MulOp, NatE n1, NatE n2 => Some (NatE (N.mul n1 n2))
+  | MulOp, IntE i1, IntE i2 => Some (IntE (Z.mul i1 i2))
+  | MulOp, RatE q1, RatE q2 => Some (RatE (Qred (Qmult q1 q2)))
   | MulOp, RealE r1, RealE r2 => Some (RealE (r1 * r2)%R)
   (* NAT and INT division must be exact *)
   | DivOp, NatE n1, NatE n2 =>
-    if negb (iszero val2) && (Nat.modulo n1 n2 == 0)%N then Some (NatE (Nat.div n1 n2)) else None
+    if negb (iszero val2) && N.eqb (N.modulo n1 n2) 0 then Some (NatE (N.div n1 n2)) else None
   | DivOp, IntE i1, IntE i2 =>
-    if negb (iszero val2) && (modz i1 i2 == 0)%R then Some (IntE (divz i1 i2)) else None
-  | DivOp, RatE r1, RatE r2 => if negb (iszero val2) then Some (RatE (r1 / r2)%R) else None
+    if negb (iszero val2) && Z.eqb (Z.modulo i1 i2) 0 then Some (IntE (Z.div i1 i2)) else None
+  | DivOp, RatE q1, RatE q2 => if negb (iszero val2) then Some (RatE (Qred (Qdiv q1 q2))) else None
   | DivOp, RealE r1, RealE r2 => if negb (iszero val2) then Some (RealE (r1 / r2)%R) else None
-  | ModOp, NatE n1, NatE n2 => if negb (iszero val2) then Some (NatE (Nat.modulo n1 n2)) else None
-  | ModOp, IntE i1, IntE i2 => if negb (iszero val2) then Some (IntE (modz i1 i2)) else None
-  | PowOp, NatE n1, NatE n2 => Some (NatE (n1^n2))
-  | PowOp, IntE i1, IntE i2 => if (i2 >= 0)%R then Some (IntE (i1^i2)) else None 
-  | PowOp, RatE r1, RatE r2 => if isone (IntE (denq r2)) then Some (RatE (r1^(numq r2))) else None 
+  (* The DSL does not fix the sign convention of INT modulo; Z.modulo takes
+     the sign of the divisor *)
+  | ModOp, NatE n1, NatE n2 => if negb (iszero val2) then Some (NatE (N.modulo n1 n2)) else None
+  | ModOp, IntE i1, IntE i2 => if negb (iszero val2) then Some (IntE (Z.modulo i1 i2)) else None
+  | PowOp, NatE n1, NatE n2 => Some (NatE (N.pow n1 n2))
+  | PowOp, IntE i1, IntE i2 => if Z.leb 0 i2 then Some (IntE (Z.pow i1 i2)) else None
+  | PowOp, RatE q1, RatE q2 =>
+    option_map (fun z => RatE (Qred (Qpower q1 z))) (Q_to_Z q2)
   | PowOp, RealE r1, RealE r2 => Some (RealE (powR r1 r2))
   | _, _, _ => None
   end
 .
 
-
 Definition numcmp (op : numcmpop) (val1 val2 : il_num) : option bool :=
   match op, val1, val2 with
-  | LtOp, NatE n1, NatE n2 => Some ((n1 < n2)%nat)
-  | LtOp, IntE i1, IntE i2 => Some ((i1 < i2)%R)
-  | LtOp, RatE r1, RatE r2 => Some ((r1 < r2)%R)
-  | LtOp, RealE r1, RealE r2 => Some ((r1 < r2)%R)
-  | GtOp, NatE n1, NatE n2 => Some ((n1 > n2)%nat)
-  | GtOp, IntE i1, IntE i2 => Some ((i1 > i2)%R)
-  | GtOp, RatE r1, RatE r2 => Some ((r1 > r2)%R)
-  | GtOp, RealE r1, RealE r2 => Some ((r1 > r2)%R)
-  | LeOp, NatE n1, NatE n2 => Some ((n1 <= n2)%nat)
-  | LeOp, IntE i1, IntE i2 => Some ((i1 <= i2)%R)
-  | LeOp, RatE r1, RatE r2 => Some ((r1 <= r2)%R)
-  | LeOp, RealE r1, RealE r2 => Some ((r1 <= r2)%R)
-  | GeOp, NatE n1, NatE n2 => Some ((n1 >= n2)%nat)
-  | GeOp, IntE i1, IntE i2 => Some ((i1 >= i2)%R)
-  | GeOp, RatE r1, RatE r2 => Some ((r1 >= r2)%R)
-  | GeOp, RealE r1, RealE r2 => Some ((r1 >= r2)%R)
+  | LtOp, NatE n1, NatE n2 => Some (N.ltb n1 n2)
+  | LtOp, IntE i1, IntE i2 => Some (Z.ltb i1 i2)
+  | LtOp, RatE q1, RatE q2 => Some (Qlt_bool q1 q2)
+  | LtOp, RealE r1, RealE r2 => Some (r1 < r2)%R
+  | GtOp, NatE n1, NatE n2 => Some (N.ltb n2 n1)
+  | GtOp, IntE i1, IntE i2 => Some (Z.ltb i2 i1)
+  | GtOp, RatE q1, RatE q2 => Some (Qlt_bool q2 q1)
+  | GtOp, RealE r1, RealE r2 => Some (r1 > r2)%R
+  | LeOp, NatE n1, NatE n2 => Some (N.leb n1 n2)
+  | LeOp, IntE i1, IntE i2 => Some (Z.leb i1 i2)
+  | LeOp, RatE q1, RatE q2 => Some (Qle_bool q1 q2)
+  | LeOp, RealE r1, RealE r2 => Some (r1 <= r2)%R
+  | GeOp, NatE n1, NatE n2 => Some (N.leb n2 n1)
+  | GeOp, IntE i1, IntE i2 => Some (Z.leb i2 i1)
+  | GeOp, RatE q1, RatE q2 => Some (Qle_bool q2 q1)
+  | GeOp, RealE r1, RealE r2 => Some (r1 >= r2)%R
   | _, _, _ => None
   end
 .
