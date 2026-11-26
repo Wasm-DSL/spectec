@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Values &#8212; WebAssembly 3.0 (2026-01-20)</title>
+    <title>Values &#8212; WebAssembly 3.0 (2026-11-26)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=cc4c3a9f"></script>
+    <script src="../_static/documentation_options.js?v=2387b9c6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -164,11 +164,11 @@ Similarly, both <span class="math notranslate nohighlight">\(\mathtt{0x83}~\math
 \end{array} \\
 {\href{../binary/values.html#binary-utf8}{\mathrm{utf\scriptstyle8}}}({\mathit{ch}}) &amp; = &amp; b_1~b_2~b_3~b_4 &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
-\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} &lt; \mathrm{U{+}11000} \\
+\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} &lt; \mathrm{U{+}110000} \\
 {\land}~ {\mathit{ch}} = {2^{18}} \cdot (b_1 - \mathtt{0xF0}) + {2^{12}} \cdot {\mathrm{cont}}(b_2) + {2^{6}} \cdot {\mathrm{cont}}(b_3) + {\mathrm{cont}}(b_4) \\
 \end{array} \\
 \end{array}\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} {\mathrm{cont}}(b) &amp; = &amp; b - \mathtt{0x80} &amp; \quad \mbox{if}~ (\mathtt{0x80} &lt; b &lt; \mathtt{0xC0}) \\ \end{array}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} {\mathrm{cont}}(b) &amp; = &amp; b - \mathtt{0x80} &amp; \quad \mbox{if}~ \mathtt{0x80} \leq b &lt; \mathtt{0xC0} \\ \end{array}\)</span></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Unlike in some other formats, name strings are not 0-terminated.</p>
