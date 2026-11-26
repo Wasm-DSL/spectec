@@ -180,7 +180,7 @@
 (assert_return (invoke "type-second-f32") (f32.const 32))
 (assert_return (invoke "type-second-f64") (f64.const 64.1))
 
-(assert_trap (invoke "null") "null function")
+(assert_trap (invoke "null") "null function reference")
 
 (assert_return (invoke "fac-acc" (i64.const 0) (i64.const 1)) (i64.const 1))
 (assert_return (invoke "fac-acc" (i64.const 1) (i64.const 1)) (i64.const 1))
@@ -370,6 +370,47 @@
     (type $t (func))
     (func $f (param $r externref)
       (return_call_ref $t (local.get $r))
+    )
+  )
+  "type mismatch"
+)
+
+(assert_invalid
+  (module
+    (type $t (func))
+    (func $f (param $r funcref)
+      (return_call_ref $t (local.get $r))
+    )
+  )
+  "type mismatch"
+)
+
+(assert_invalid
+  (module
+    (type $type-result-more (func (result i32 i32)))
+    (func $type-result-more (param (ref $type-result-more)) (result i32)
+      local.get 0
+      return_call_ref $type-result-more
+    )
+  )
+  "type mismatch"
+)
+(assert_invalid
+  (module
+    (type $type-result-fewer (func (result i32)))
+    (func $type-result-fewer (param (ref $type-result-fewer)) (result i32 i32)
+      local.get 0
+      return_call_ref $type-result-fewer
+    )
+  )
+  "type mismatch"
+)
+(assert_invalid
+  (module
+    (type $type-result-i64-vs-i32 (func (result i64)))
+    (func $type-result-i64-vs-i32 (param (ref $type-result-i64-vs-i32)) (result i32)
+      local.get 0
+      return_call_ref $type-result-i64-vs-i32
     )
   )
   "type mismatch"

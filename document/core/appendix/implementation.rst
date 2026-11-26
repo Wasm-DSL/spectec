@@ -24,7 +24,7 @@ However, it is expected that all implementations have "reasonably" large limits 
 Syntactic Limits
 ~~~~~~~~~~~~~~~~
 
-.. index:: abstract syntax, module, type, function, table, memory, global, element, data, import, export, parameter, result, local, structured control instruction, instruction, name, Unicode, character
+.. index:: abstract syntax, module, type, function, table, memory, global, tag, element, data, import, export, parameter, result, local, structured control instruction, instruction, name, Unicode, character
 .. _impl-syntax:
 
 Structure
@@ -37,27 +37,35 @@ An implementation may impose restrictions on the following dimensions of a modul
 * the number of :ref:`tables <syntax-table>` in a :ref:`module <syntax-module>`, including imports
 * the number of :ref:`memories <syntax-mem>` in a :ref:`module <syntax-module>`, including imports
 * the number of :ref:`globals <syntax-global>` in a :ref:`module <syntax-module>`, including imports
+* the number of :ref:`tags <syntax-tag>` in a :ref:`module <syntax-module>`, including imports
 * the number of :ref:`element segments <syntax-elem>` in a :ref:`module <syntax-module>`
 * the number of :ref:`data segments <syntax-data>` in a :ref:`module <syntax-module>`
 * the number of :ref:`imports <syntax-import>` to a :ref:`module <syntax-module>`
 * the number of :ref:`exports <syntax-export>` from a :ref:`module <syntax-module>`
+* the number of :ref:`sub types <syntax-subtype>` in a :ref:`recursive type <syntax-rectype>`
+* the subtyping depth of a :ref:`sub type <syntax-subtype>`
+* the number of fields in a :ref:`structure type <syntax-structtype>`
 * the number of parameters in a :ref:`function type <syntax-functype>`
 * the number of results in a :ref:`function type <syntax-functype>`
 * the number of parameters in a :ref:`block type <syntax-blocktype>`
 * the number of results in a :ref:`block type <syntax-blocktype>`
 * the number of :ref:`locals <syntax-local>` in a :ref:`function <syntax-func>`
-* the size of a :ref:`function <syntax-func>` body
-* the size of a :ref:`structured control instruction <syntax-instr-control>`
+* the number of :ref:`instructions <syntax-instr>` in a :ref:`function <syntax-func>` body
+* the number of :ref:`instructions <syntax-instr>` in  a :ref:`structured control instruction <syntax-instr-control>`
 * the number of :ref:`structured control instructions <syntax-instr-control>` in a :ref:`function <syntax-func>`
 * the nesting depth of :ref:`structured control instructions <syntax-instr-control>`
-* the number of :ref:`label indices <syntax-labelidx>` in a |brtable| instruction
+* the number of :ref:`label indices <syntax-labelidx>` in a |BRTABLE| instruction
+* the number of instructions in a :ref:`constant <valid-constant>` :ref:`expression <syntax-expr>`
+* the number of instructions between a :ref:`branch instruction <syntax-br>` and its target
+* the nesting depth of blocks between a :ref:`branch instruction <syntax-br>` and its target
+* the length of the array in a |ARRAYNEWFIXED| instruction
 * the length of an :ref:`element segment <syntax-elem>`
 * the length of a :ref:`data segment <syntax-data>`
 * the length of a :ref:`name <syntax-name>`
 * the range of :ref:`characters <syntax-char>` in a :ref:`name <syntax-name>`
 
 If the limits of an implementation are exceeded for a given module,
-then the implementation may reject the :ref:`validation <valid>`, compilation, or :ref:`instantiation <exec-instantiation>` of that module with an embedder-specific error.
+then the implementation may reject the :ref:`validation <valid>`, compilation, or :ref:`instantiation <exec-instantiation>` of that module with an implementation-specific error.
 
 .. note::
    The last item allows :ref:`embedders <embedder>` that operate in limited environments without support for
@@ -76,7 +84,9 @@ For a module given in :ref:`binary format <binary>`, additional limitations may 
 
 * the size of a :ref:`module <binary-module>`
 * the size of any :ref:`section <binary-section>`
-* the size of an individual function's :ref:`code <binary-code>`
+* the size of an individual :ref:`function<syntax-func>`'s :ref:`code <binary-code>`
+* the size of a :ref:`structured control instruction <syntax-instr-control>`
+* the size of an individual :ref:`constant <valid-constant>` :ref:`expression<syntax-expr>`'s instruction sequence
 * the number of :ref:`sections <binary-section>`
 
 
@@ -124,16 +134,24 @@ Restrictions on the following dimensions may be imposed during :ref:`execution <
 * the number of allocated :ref:`table instances <syntax-tableinst>`
 * the number of allocated :ref:`memory instances <syntax-meminst>`
 * the number of allocated :ref:`global instances <syntax-globalinst>`
+* the number of allocated :ref:`tag instances <syntax-taginst>`
+* the number of allocated :ref:`structure instances <syntax-structinst>`
+* the number of allocated :ref:`array instances <syntax-arrayinst>`
+* the number of allocated :ref:`exception instances <syntax-exninst>`
 * the size of a :ref:`table instance <syntax-tableinst>`
 * the size of a :ref:`memory instance <syntax-meminst>`
+* the size of an :ref:`array instance <syntax-arrayinst>`
 * the number of :ref:`frames <syntax-frame>` on the :ref:`stack <stack>`
 * the number of :ref:`labels <syntax-label>` on the :ref:`stack <stack>`
 * the number of :ref:`values <syntax-val>` on the :ref:`stack <stack>`
+* the number of :ref:`handlers <syntax-handler>` on the :ref:`stack <stack>`
+* the number of :ref:`labels <syntax-val>` dropped from the :ref:`stack <stack>` by a :ref:`branch instruction <syntax-br>`
+* the number of :ref:`values <syntax-val>` dropped from the :ref:`stack <stack>` by a :ref:`branch instruction <syntax-br>`
 
 If the runtime limits of an implementation are exceeded during execution of a computation,
-then it may terminate that computation and report an embedder-specific error to the invoking code.
+then it may terminate that computation and report an implementation-specific error to the invoking code.
 
-Some of the above limits may already be verified during instantiation, in which case an implementation may report exceedance in the same manner as for :ref:`syntactic limits <impl-syntax>`.
+Some of the above limits may already be verified during :ref:`validation <valid>` or :ref:`instantiation <exec-instantiation>`, in which case an implementation may report exceedance in the same manner as for :ref:`syntactic limits <impl-syntax>`.
 
 .. note::
    Concrete limits are usually not fixed but may be dependent on specifics, interdependent, vary over time, or depend on other implementation- or embedder-specific situations or events.

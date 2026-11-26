@@ -7,24 +7,22 @@ Values
 ~~~~~~
 
 .. _syntax-num:
-.. _syntax-addrref:
 .. _syntax-ref:
 .. _syntax-val:
 
 $${syntax+:
   num
-  {addrref
-  ref}
+  ref
   val
 }
 
 .. _def-default:
 
-$${definition-prose: default}
+$${definition-prose: default_}
 
 \
 
-$${definition: default}
+$${definition: default_}
 
 Results
 ~~~~~~~
@@ -74,28 +72,12 @@ Module Instances
 
 $${syntax: moduleinst}
 
-.. _def-moduleinst:
-
-$${definition-prose: moduleinst}
-
-\
-
-$${definition: moduleinst}
-
 .. _syntax-funcinst:
 
 Function Instances
 ~~~~~~~~~~~~~~~~~~
 
 $${syntax: funcinst}
-
-.. _def-funcinst:
-
-$${definition-prose: funcinst}
-
-\
-
-$${definition: funcinst}
 
 .. _syntax-tableinst:
 
@@ -104,28 +86,12 @@ Table Instances
 
 $${syntax: tableinst}
 
-.. _def-tableinst:
-
-$${definition-prose: tableinst}
-
-\
-
-$${definition: tableinst}
-
 .. _syntax-meminst:
 
 Memory Instances
 ~~~~~~~~~~~~~~~~
 
 $${syntax: meminst}
-
-.. _def-meminst:
-
-$${definition-prose: meminst}
-
-\
-
-$${definition: meminst}
 
 .. _syntax-globalinst:
 
@@ -134,28 +100,12 @@ Global Instances
 
 $${syntax: globalinst}
 
-.. _def-globalinst:
-
-$${definition-prose: globalinst}
-
-\
-
-$${definition: globalinst}
-
 .. _syntax-eleminst:
 
 Element Instances
 ~~~~~~~~~~~~~~~~~
 
 $${syntax: eleminst}
-
-.. _def-eleminst:
-
-$${definition-prose: eleminst}
-
-\
-
-$${definition: eleminst}
 
 .. _syntax-datainst:
 
@@ -164,14 +114,6 @@ Data Instances
 
 $${syntax: datainst}
 
-.. _def-datainst:
-
-$${definition-prose: datainst}
-
-\
-
-$${definition: datainst}
-
 .. _syntax-exportinst:
 
 Export Instances
@@ -179,49 +121,49 @@ Export Instances
 
 $${syntax: exportinst}
 
-.. _syntax-externval:
+.. _syntax-externaddr:
 
-External Values
-~~~~~~~~~~~~~~~
+External Addresses
+~~~~~~~~~~~~~~~~~~
 
-$${syntax: externval}
+$${syntax: externaddr}
 
-.. _def-funcsxv:
+.. _def-funcsxa:
 
-$${definition-prose: funcsxv}
-
-\
-
-$${definition: funcsxv}
-
-.. _def-tablesxv:
-
-$${definition-prose: tablesxv}
+$${definition-prose: funcsxa}
 
 \
 
-$${definition: tablesxv}
+$${definition: funcsxa}
 
-.. _def-memsxv:
+.. _def-tablesxa:
 
-$${definition-prose: memsxv}
-
-\
-
-$${definition: memsxv}
-
-.. _def-globalsxv:
-
-$${definition-prose: globalsxv}
+$${definition-prose: tablesxa}
 
 \
 
-$${definition: globalsxv}
+$${definition: tablesxa}
+
+.. _def-memsxa:
+
+$${definition-prose: memsxa}
+
+\
+
+$${definition: memsxa}
+
+.. _def-globalsxa:
+
+$${definition-prose: globalsxa}
+
+\
+
+$${definition: globalsxa}
 
 .. _syntax-structinst:
 .. _syntax-arrayinst:
 .. _syntax-fieldval:
-.. _syntax-packedval:
+.. _syntax-packval:
 .. _exec-runtime-aggregate-instances:
 
 Aggregate Instances
@@ -231,24 +173,8 @@ $${syntax+:
   structinst
   arrayinst
   fieldval
-  packedval
+  packval
 }
-
-.. _def-arrayinst:
-
-$${definition-prose: arrayinst}
-
-\
-
-$${definition: arrayinst}
-
-.. _def-structinst:
-
-$${definition-prose: structinst}
-
-\
-
-$${definition: structinst}
 
 .. _exec-runtime-stack:
 
@@ -267,7 +193,7 @@ $${syntax: frame}
 Administrative Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$${syntax: admininstr}
+$${syntax: instr/admin}
 
 .. _syntax-state:
 .. _syntax-config:
@@ -280,14 +206,6 @@ $${syntax+:
   state
   config
 }
-
-.. _syntax-E:
-.. _exec-runtime-evaluation-contexts:
-
-Evaluation Contexts
-~~~~~~~~~~~~~~~~~~~
-
-$${syntax: E}
 
 .. _exec-runtime-typing:
 

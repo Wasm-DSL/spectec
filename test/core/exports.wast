@@ -67,6 +67,15 @@
   (module (func) (memory 0) (export "a" (func 0)) (export "a" (memory 0)))
   "duplicate export name"
 )
+(assert_invalid
+  (module (tag $t0 (export "t0")) (tag $t1 (export "t0")))
+  "duplicate export name"
+)
+
+(assert_malformed
+  (module quote "(func) (export \"a\" (func 0 0))")
+  "unexpected token"
+)
 
 
 ;; Globals

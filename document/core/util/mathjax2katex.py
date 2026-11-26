@@ -2,12 +2,14 @@
 # -*- coding: latin-1 -*-
 
 import queue
+import multiprocessing
 import os
 import re
 import shelve
 import subprocess
 import sys
 import threading
+from html.parser import HTMLParser
 
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -33,48 +35,62 @@ def FindMatching(data, prefix):
   return (start, end)
 
 
-def HasBalancedTags(s):
-  tt = re.findall(r'(</?\w+|/>)', s)
-  tags = []
-  for tag in tt:
-    if tag == '/>':
-      # self-closing tag.
-      tags.pop
-    elif tag[0] == '</':
-      # closing tag
-      tag = tag[2:]
-      if len(tags) == 0 or tag != tags[-1]:
-        expected = '"%s"' % tags[-1] if len(tags) else 'empty tag stack'
-        sys.stderr.write('expected %s, got "%s"\n' % (expected, tag))
-        sys.stderr.write('tags: %s\n' % tt)
-        sys.stderr.write('tag stack: %s\n' % tags)
-        sys.stderr.write('string: %s\n' % s)
-        return False
+class TagBalanceParser(HTMLParser):
+  VOID_TAGS = {
+      'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link',
+      'meta', 'param', 'source', 'track', 'wbr',
+  }
 
-      tags.pop()
+  def __init__(self):
+    super().__init__()
+    self.tags = []
+    self.mismatched = False
+
+  def handle_starttag(self, tag, attrs):
+    if tag not in self.VOID_TAGS:
+      self.tags.append(tag)
+
+  def handle_startendtag(self, tag, attrs):
+    pass
+
+  def handle_endtag(self, tag):
+    if not self.tags or self.tags[-1] != tag:
+      self.mismatched = True
     else:
-      # opening tag
-      tags.append(tag[1:])
+      self.tags.pop()
+
+
+def HasBalancedTags(s):
+  parser = TagBalanceParser()
+  parser.feed(s)
+  parser.close()
+  if parser.mismatched or parser.tags:
+    sys.stderr.write('Unbalanced math fragment: %s\n' % s)
+    return False
   return True
 
 
 def ReplaceMath(cache, data):
   old = data
+  data = re.sub('[\\\\]\\[([0-9]|-)', '\\\\DOUBLESLASH[\\1', data)  # Messed up by Bikeshed ("\\[" becomes "\[")
   data = data.replace('\\\\', '\\DOUBLESLASH')
-  data = data.replace('\\(', '')
-  data = data.replace('\\)', '')
+  #data = data.replace('\\(', '')
+  #data = data.replace('\\)', '')
+  data = re.sub('^\\\\\\(', '', data)
+  data = re.sub('\\\\\\)$', '', data)
   data = data.replace('\\[', '')
   data = data.replace('\\]', '')
   data = data.replace('\\DOUBLESLASH', '\\\\')
-  data = data.replace('’', '\\text{’}')
-  data = data.replace('‘', '\\text{‘}')
-  data = data.replace('\\hfill', '')
+  data = data.replace('\u2019', '\'')       # "Right Single Quotation Mark" messed up by Bikeshed
+  data = data.replace('\\hfill', ' ')
   data = data.replace('\\mbox', '\\text')
+  data = data.replace('\\texttt{', '{\\tt ')
   data = data.replace('\\begin{split}', '\\begin{aligned}')
   data = data.replace('\\end{split}', '\\end{aligned}')
-  data = data.replace('&amp;', '&')
-  data = data.replace('&lt;', '<')
-  data = data.replace('&gt;', '>')
+  data = re.sub('\\\\multicolumn\\{[2-9]\\}\\{@\\{\\}l@\\{\\}\\}', '', data)   # Katex can't handle it
+  data = data.replace('&amp;', '&')    # Messed up by Bikeshed
+  data = data.replace('&lt;', '<')     # Messed up by Bikeshed
+  data = data.replace('&gt;', '>')     # Messed up by Bikeshed
   data = data.replace('{array}[t]', '{array}')
   data = data.replace('{array}[b]', '{array}')
   data = data.replace('@{~}', '')
@@ -105,14 +121,20 @@ def ReplaceMath(cache, data):
       if start is None:
         break
       data = data[:start] + v.replace('#1', data[start+len(k):end]) + data[end:]
+
   p = subprocess.Popen(
       ['node', os.path.join(SCRIPT_DIR, 'katex/cli.js'), '--display-mode', '--trust'],
-      stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-  ret = p.communicate(input=data)[0]
-  if p.returncode != 0:
+      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+  ret, err = p.communicate(input=data)
+  if p.returncode != 0 or err != "":
+    if err != "":
+      sys.stderr.write('\n\n' + err + '\n')
     sys.stderr.write('BEFORE:\n' + old + '\n')
     sys.stderr.write('AFTER:\n' + data + '\n')
-    raise Exception()
+    if p.returncode != 0:
+      raise Exception()
+    else:
+      sys.stderr.write('RESULT:\n' + ret + '\n')
   ret = ret.strip()
   ret = ret[ret.find('<span class="katex-html"'):]
   ret = '<span class="katex-display"><span class="katex">' + ret
@@ -142,12 +164,16 @@ def Main():
 
   def ExtractMath(match):
     fixups.append(
-        (match.group(1), match.group(2), match.group(3), match.group(4),
+        (match.group(1), match.group(2), match.group(3), match.group(4), match.group(5),
          match.start(), match.end()))
     return 'x' * len(match.group())
 
   data = open(sys.argv[1]).read()
-  cache = shelve.open('%s.%d.cache' % (sys.argv[1], CACHE_VERSION))
+  shelf = shelve.open('%s.%d.cache' % (sys.argv[1], CACHE_VERSION))
+  # A shelf backed by sqlite (the default from Python 3.13) can only be used
+  # from the thread that opened it, so the workers share a copy instead.
+  cache = dict(shelf)
+  cached = set(cache)
   # Drop index + search links.
   data = data.replace(
       '<link href="genindex.html" rel="index" title="Index">', '')
@@ -205,8 +231,8 @@ def Main():
 
   # Pull out math fragments.
   data = re.sub(
-      'class="([^"]*)math([^"]*)"[^>]*>'
-      '((?:[ ]*<span[^>]*>[^<]*</span>)*)([^<]*)<',
+      'class="([^"]*)math([^"]*)"([^>]*)>'
+      '((?:[ \n]*<span[^>]*>[^<]*</span>)*)([^<]*)<',
       ExtractMath, data)
 
   sys.stderr.write('Processing %d fragments.\n' % len(fixups))
@@ -217,19 +243,21 @@ def Main():
   def Worker():
     nonlocal success
     while True:
-      cls_before, cls_after, spans, mth, start, end = q.get()
+      cls_before, cls_after, attrs, spans, mth, start, end = q.get()
       try:
-        fixed = ('class="' + cls_before + ' ' + cls_after + '">' +
+        fixed = ('class="' + cls_before + ' ' + cls_after + '"' + attrs + '>' +
                  spans + ReplaceMath(cache, mth) + '<')
         done_fixups.append((start, end, fixed))
-      except Exception:
+      except Exception as inst:
+        sys.stderr.write('\nException: ' + inst.__str__() + '\n')
         success = False
 
       q.task_done()
       sys.stderr.write('.')
 
   q = queue.Queue()
-  for i in range(len(os.sched_getaffinity(0))):
+  for i in range(len(os.sched_getaffinity(0)) if "sched_getaffinity" in dir(os)
+                 else multiprocessing.cpu_count()):
     t = threading.Thread(target=Worker)
     t.daemon = True
     t.start()
@@ -238,9 +266,11 @@ def Main():
     q.put(item)
   q.join()
 
+  shelf.update((key, cache[key]) for key in cache.keys() - cached)
+  shelf.close()
+
   if not success:
       sys.stderr.write('\n!!! Error processing fragments\n')
-      cache.close()
       sys.exit(1)
 
   result = []
@@ -253,7 +283,6 @@ def Main():
 
   sys.stderr.write('\nProcessing Done.\n')
   sys.stdout.write(''.join(result))
-  cache.close()
 
 
 Main()
