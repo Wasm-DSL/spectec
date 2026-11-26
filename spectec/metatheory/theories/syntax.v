@@ -1,0 +1,265 @@
+From Stdlib Require Import List String NArith ZArith QArith.
+From mathcomp Require Import all_ssreflect all_algebra.
+Import GRing.Theory.
+
+Parameter R : archiRealFieldType.
+Parameter powR : R -> R -> R.
+
+(* SYNTAX (doc/semantics/il/1-syntax.spectec) *)
+
+Definition atom : Type := string.
+Definition mixop : Type := list (list atom).
+Definition il_id : Type := string.
+Definition text : Type := string.
+
+Inductive numunop : Type :=
+  | PlusOp
+  | MinusOp
+.
+
+Inductive boolunop : Type :=
+  | NotOp
+.
+
+Inductive unop : Type :=
+  | NumUnop : numunop -> unop
+  | BoolUnop : boolunop -> unop
+.
+
+Inductive numbinop : Type :=
+  | AddOp
+  | SubOp
+  | MulOp
+  | DivOp
+  | ModOp
+  | PowOp
+.
+
+Inductive boolbinop : Type :=
+  | AndOp
+  | OrOp
+  | ImplOp
+  | EquivOp
+.
+
+Inductive binop : Type :=
+  | NumBinop : numbinop -> binop
+  | BoolBinop : boolbinop -> binop
+.
+
+Inductive numcmpop : Type :=
+  | LtOp
+  | LeOp
+  | GtOp
+  | GeOp
+.
+
+Inductive boolcmpop : Type :=
+  | EqOp
+  | NeqOp
+.
+
+Inductive cmpop : Type :=
+  | NumCmpop : numcmpop -> cmpop
+  | BoolCmpop : boolcmpop -> cmpop
+.
+
+Inductive numtyp : Type :=
+  | NatT
+  | IntT
+  | RatT
+  | RealT
+.
+
+(* Numbers use Stdlib N, Z and Q, as in the Rocq backend.  Q is not
+   canonical (1#2 and 2#4 are different terms), while value equality is
+   Leibniz equality; hence rationals are kept in normal form (Qred), which
+   all operations in numerics.v ensure. *)
+Inductive il_num : Type :=
+  | NatE : N -> il_num
+  | IntE : Z -> il_num
+  | RatE : Q -> il_num
+  | RealE : R -> il_num
+.
+
+Inductive il_typ : Type :=
+  | VarT : il_id -> list il_arg -> il_typ
+  | BoolT
+  | TextT
+  | NumT : numtyp -> il_typ
+  | TupT : list (il_id * il_typ) -> il_typ
+  | IterT : il_typ -> iter -> il_typ
+  | MatchT : il_id -> list il_arg -> list (list il_param * list il_arg * il_deftyp) -> il_typ
+
+with
+
+il_exp : Type :=
+  | VarE : il_id -> il_exp
+  | BoolE : bool -> il_exp
+  | NumE : il_num -> il_exp
+  | TextE : text -> il_exp
+  | UnE : unop -> il_exp -> il_exp
+  | BinE : binop -> il_exp -> il_exp -> il_exp
+  | CmpE : cmpop -> il_exp -> il_exp -> il_exp
+  | TupE : list il_exp -> il_exp
+  | ProjE : il_exp -> nat -> il_exp
+  (* INJ t mixop e - qpr? ; no premises = not yet checked *)
+  | CaseE : il_typ -> mixop -> il_exp -> option (list il_param * list il_prem) -> il_exp
+  | OptE : option il_exp -> il_exp
+  (* STR t (a = e - qpr? )* *)
+  | StrE : il_typ -> list (atom * il_exp * option (list il_param * list il_prem)) -> il_exp
+  | ListE : list il_exp -> il_exp
+  | LiftE : il_exp -> il_exp
+  | MemE : il_exp -> il_exp -> il_exp
+  | LenE : il_exp -> il_exp
+  | CatE : il_exp -> il_exp -> il_exp
+  | AccE : il_exp -> il_path -> il_exp
+  | UpdE : il_exp -> il_path -> il_exp -> il_exp
+  | ExtE : il_exp -> il_path -> il_exp -> il_exp
+  | CallE : il_id -> list il_arg -> il_exp
+  | IterE : il_exp -> iter -> list (il_id * il_typ * il_exp) -> il_exp
+  | CvtE : il_exp -> numtyp -> numtyp -> il_exp
+  | SubE : il_exp -> il_typ -> il_typ -> il_exp
+  | IfE : il_exp -> il_exp -> il_exp -> il_exp
+  | MatchE : list il_arg -> list (list il_param * list il_arg * il_exp * list il_prem) -> il_exp
+
+with
+
+il_path : Type :=
+  | RootP
+  | IdxP : il_path -> il_exp -> il_path
+  | TheP : il_path -> il_path
+  | UncaseP : il_path -> mixop -> il_path
+  | SliceP : il_path -> il_exp -> il_exp -> il_path
+  | DotP : il_path -> atom -> il_path
+
+with
+
+il_sym : Type :=
+  | VarG : il_id -> list il_arg -> il_sym
+  | NumG : nat -> il_sym
+  | TextG : text -> il_sym
+  | SeqG : list il_sym -> il_sym
+  | AltG : list il_sym -> il_sym
+  | RangeG : il_sym -> il_sym -> il_sym
+  | IterG : il_sym -> iter -> list (il_id * il_typ * il_exp) -> il_sym
+  | AttrG : il_exp -> il_sym -> il_sym
+
+with
+
+il_arg : Type :=
+  | ExpA : il_exp -> il_arg
+  | TypA : il_typ -> il_arg
+  | DefA : il_id -> il_arg
+  | GramA : il_sym -> il_arg
+
+with
+
+iter : Type :=
+  | I_STAR
+  | I_OPT
+  | I_PLUS
+  | I_SUP : il_id -> il_exp -> iter
+
+with
+
+il_param : Type :=
+  | ExpP : il_id -> il_typ -> il_param
+  | TypP : il_id -> il_param
+  | DefP : il_id -> list il_param -> il_typ -> il_param
+  | GramP : il_id -> list il_param -> il_typ -> il_param
+
+with
+
+il_prem : Type :=
+  | RulePr : il_id -> list il_arg -> il_exp -> il_prem
+  | IfPr : il_exp -> il_prem
+  | ElsePr
+  | NegPr : il_prem -> il_prem
+  | LetPr : list il_param -> il_exp -> il_exp -> il_prem
+  | IterPr : il_prem -> iter -> list (il_id * il_typ * il_exp) -> list (il_exp * il_id * il_typ) -> il_prem
+
+with
+
+il_deftyp : Type :=
+  | AliasT : il_typ -> il_deftyp
+  | StructT : list (atom * list il_param * il_typ * list il_prem) -> il_deftyp
+  | VariantT : list (mixop * list il_param * il_typ * list il_prem) -> il_deftyp
+.
+
+Definition il_quant : Type := il_param.
+Definition quantprems : Type := list il_quant * list il_prem.
+Definition exppull : Type := il_id * il_typ * il_exp.
+Definition exppush : Type := il_exp * il_id * il_typ.
+Definition typfield : Type := atom * list il_quant * il_typ * list il_prem.
+Definition typcase : Type := mixop * list il_quant * il_typ * list il_prem.
+Definition expfield : Type := atom * il_exp * option quantprems.
+
+Definition il_inst : Type := list il_quant * list il_arg * il_deftyp.
+Definition il_rule : Type := list il_quant * il_exp * list il_prem.
+Definition il_clause : Type := list il_quant * list il_arg * il_exp * list il_prem.
+Definition il_prod : Type := list il_quant * il_sym * il_exp * list il_prem.
+
+Inductive il_def : Type :=
+  | TypD : il_id -> list il_param -> list il_inst -> il_def
+  | RelD : il_id -> list il_param -> il_typ -> list il_rule -> il_def
+  | DecD : il_id -> list il_param -> il_typ -> list il_clause -> il_def
+  | GramD : il_id -> list il_param -> il_typ -> list il_prod -> il_def
+  | RecD : list il_def -> il_def
+.
+
+Definition script : Type := list il_def.
+
+(* $trueqpr *)
+Definition trueqpr : quantprems := (nil, nil).
+
+(* Projections (used instead of destructuring patterns inside inductive
+   premises, which the positivity checker rejects) *)
+
+Definition tf_atom {A} (tf : A * list il_quant * il_typ * list il_prem) : A := tf.1.1.1.
+Definition tf_quants {A} (tf : A * list il_quant * il_typ * list il_prem) : list il_quant := tf.1.1.2.
+Definition tf_typ {A} (tf : A * list il_quant * il_typ * list il_prem) : il_typ := tf.1.2.
+Definition tf_prems {A} (tf : A * list il_quant * il_typ * list il_prem) : list il_prem := tf.2.
+Definition tf_quantprems {A} (tf : A * list il_quant * il_typ * list il_prem) : quantprems := (tf_quants tf, tf_prems tf).
+
+Definition ef_atom (ef : expfield) : atom := ef.1.1.
+Definition ef_exp (ef : expfield) : il_exp := ef.1.2.
+Definition ef_qpr (ef : expfield) : option quantprems := ef.2.
+
+Definition pull_id (ep : exppull) : il_id := ep.1.1.
+Definition pull_typ (ep : exppull) : il_typ := ep.1.2.
+Definition pull_exp (ep : exppull) : il_exp := ep.2.
+
+Definition push_exp (eq : exppush) : il_exp := eq.1.1.
+Definition push_id (eq : exppush) : il_id := eq.1.2.
+Definition push_typ (eq : exppush) : il_typ := eq.2.
+
+(* Values: INJ and STR values carry $trueqpr (their premises have been checked) *)
+
+Inductive il_val : Type :=
+  | NumV : il_num -> il_val
+  | BoolV : bool -> il_val
+  | TextV : text -> il_val
+  | TupV : list il_val -> il_val
+  | CaseV : il_typ -> mixop -> il_val -> il_val
+  | OptV : option il_val -> il_val
+  | ListV : list il_val -> il_val
+  | StrV : il_typ -> list (atom * il_val) -> il_val
+.
+
+Fixpoint val_to_exp (v : il_val) : il_exp :=
+  match v with
+  | NumV n => NumE n
+  | BoolV b => BoolE b
+  | TextV t => TextE t
+  | TupV vs => TupE (List.map val_to_exp vs)
+  | CaseV t m v => CaseE t m (val_to_exp v) (Some trueqpr)
+  | OptV (Some v) => OptE (Some (val_to_exp v))
+  | OptV None => OptE None
+  | ListV vs => ListE (List.map val_to_exp vs)
+  | StrV t valfields => StrE t (List.map (fun '(a, v) => (a, val_to_exp v, Some trueqpr)) valfields)
+  end
+.
+
+Definition argmatch : Type := il_arg * il_arg.
+Definition expmatch : Type := il_exp * il_exp.
